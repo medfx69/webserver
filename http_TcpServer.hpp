@@ -7,7 +7,7 @@
 #include <sstream>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#define BUFFER_SIZE 300000;
+#define BUFFER_SIZE 400000
 
 namespace http
 {
@@ -29,7 +29,9 @@ namespace http
             TcpServer(std::string ip_address, int port);
             ~TcpServer();
             void startListen();
-            void acceptConnection(SOCKET &new_socket);
+            void acceptConnection(int &new_socket);
+            std::string buildResponse();
+            void sendResponse();
     };
 } // namespace http
 void exitWithError(const std::string& message);
