@@ -16,6 +16,11 @@ http::TcpServer::TcpServer(std::string ip_address, int port):m_ip_address(ip_add
     m_socketAress.sin_family = AF_INET;
     m_socketAress.sin_port = htons(m_port);
     m_socketAress.sin_addr.s_addr = inet_addr(m_ip_address.c_str());
+    if (startServer() != 0){
+        std::ostringstream ss;
+        ss << "Failed to start with PORT:" << ntohs(m_socketAress.sin_port);
+        log(ss.str());
+    }
 
 }
 
@@ -35,8 +40,8 @@ int http::TcpServer::startServer(){
     }
     return 0;
 }
-void http::TcpServer::acceptConnection(SOCKET &new_socket){
-    new_socker = accept(m_socket, (sockaddr *)&m_socketAress, &m_socketAddress_len);
+void http::TcpServer::acceptConnection(int &new_socket){
+    new_socket = accept(m_socket, (sockaddr *)&m_socketAress, &m_socketAddress_len);
     if (new_socket < 0){
         std::ostringstream ss;
         ss <<
@@ -47,6 +52,7 @@ void http::TcpServer::acceptConnection(SOCKET &new_socket){
     }
 }
 void http::TcpServer::startListen(){
+    int bytesReceived;
     if (listen(m_socket, 20) < 0){
         exitWithError("Socket listen failed");
     }
@@ -56,9 +62,47 @@ void http::TcpServer::startListen(){
         << " PORT:" << ntohs(m_socketAress.sin_port)
         << "*****\n\n";
     log(ss.str());
+    while (true)
+    {
+        log("====== Waiting for a new connection ======\n\n\n");
+        acceptConnection(m_new_socket);
+        char buffer[BUFFER_SIZE] = {0};
+        bytesReceived = read(m_new_socket, buffer, BUFFER_SIZE);
+        if (bytesReceived < 0)
+            exitWithError("Failed to read bytes from client socket connection");
+        std::ostringstream ss;
+        ss << "------ Received Request from client ------\n\n";
+        log(ss.str());
+        sendResponse();
+        close(m_new_socket);
+    }
 }
 int http::TcpServer::closeServer(){
     close(m_socket);
     close(m_new_socket);
     exit(0);
+}
+
+std::string http::TcpServer::buildResponse(){
+        std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) </p></body></html>";
+        std::ostringstream ss;
+        ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
+           << htmlFile;
+
+        return ss.str();
+
+}
+void http::TcpServer::sendResponse(){
+            long bytesSent;
+
+        bytesSent = write(m_new_socket, m_serverMessage.c_str(), m_serverMessage.size());
+
+        if (bytesSent == m_serverMessage.size())
+        {
+            log("------ Server Response sent to client ------\n\n");
+        }
+        else
+        {
+            log("Error sending response to client");
+        }
 }
