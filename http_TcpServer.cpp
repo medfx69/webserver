@@ -84,25 +84,20 @@ int http::TcpServer::closeServer(){
 }
 
 std::string http::TcpServer::buildResponse(){
-        std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) </p></body></html>";
-        std::ostringstream ss;
-        ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
-           << htmlFile;
-
-        return ss.str();
+    std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) </p></body></html>";
+    std::ostringstream ss;
+    
+    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
+       << htmlFile;
+    return ss.str();
 
 }
 void http::TcpServer::sendResponse(){
-            long bytesSent;
+    long bytesSent;
 
-        bytesSent = write(m_new_socket, m_serverMessage.c_str(), m_serverMessage.size());
-
-        if (bytesSent == m_serverMessage.size())
-        {
-            log("------ Server Response sent to client ------\n\n");
-        }
-        else
-        {
-            log("Error sending response to client");
-        }
+    bytesSent = write(m_new_socket, m_serverMessage.c_str(), m_serverMessage.size());
+    if (bytesSent == m_serverMessage.size())
+        log("------ Server Response sent to client ------\n\n");
+    else
+        log("Error sending response to client");
 }
