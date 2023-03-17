@@ -33,7 +33,7 @@ namespace http
             std::string buildResponse();
             void sendResponse();
     };
-} // namespace http
+} // namespace http`
 void exitWithError(const std::string& message);
 
 
