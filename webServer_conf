@@ -1,4 +1,5 @@
-server {
+server
+ {
     listen 80; # Choose the port
     server_name example.com; # Setup the server_names
 
