@@ -5,53 +5,61 @@
 #include <string>
 #include <fstream>
 
-struct data{
+struct server{
     std::string block_name;
-    struct data *block;
-    std::vector<std::string> dirictive;
+    std::vector<struct server> block;
+    std::vector<std::string> dir;
 };
 
-struct data *read_data(std::ifstream& myFile){
-    std::string readeddata;
-    struct data *confData = new data();
+server read_block(std::ifstream &myFile, std::string block_start){
+    int i;
+    std::string readed;
+    server s;
 
-    while (std::getline(myFile, readeddata)){
-
-        if (readeddata.find(';') != std::string::npos && readeddata.find('{') == std::string::npos)
-            confData->dirictive.push_back(readeddata);
-        else if (readeddata.find('{') != std::string::npos)
-        {
-            confData->block_name = readeddata.substr(0, readeddata.find("{"));
-            confData->block = read_data(myFile);
-        }
-        else if (readeddata.find('}') != std::string::npos)
-            break ;
-        readeddata.empty();
+    s.block_name = block_start.substr(0, block_start.find('}'));
+    while (getline(myFile, readed)){
+        if (readed.find('}') != std::string::npos)
+            return s;
+        else if (readed.find(';'))
+            s.dir.push_back(readed);
     }
-    return confData;
+    return s;
 }
 
-int main(int ac, char **av){
-    if (ac == 2){
-        struct data *confData;
-        std::string file(av[1]);
-        std::ifstream myFile(file);
-        confData = read_data(myFile);
-        struct data *confData2;
-        confData2 = confData;
-        while (1){
-            for (std::vector<std::string>::iterator first = confData2->dirictive.begin(); confData2->dirictive.end() > first; first++)
-                std::cout << *first << std::endl;
-            
-            if (confData2->block == nullptr)
-                break;
-            std::cout << ">>>>>>>" << confData2->block_name<< std:: endl;
-            confData2 = confData2->block;
-        }
+server parec(char *s){
+    server ser;
+    std::string file(s);
+    std::ifstream myFile(file);
+    std::string readed;
 
-        // http::TcpServer server = http::TcpServer("0.0.0.0", 8080);
-        // server.startListen();
-        return (0);
-
+    while (getline(myFile, readed) && readed.find('{') == std::string::npos);
+    ser.block_name = readed.substr(0, readed.find('{'));
+    while (getline(myFile, readed)){
+        if (readed.find('{') != std::string::npos)
+            ser.block.push_back(read_block(myFile, readed));
+        else if (readed.find(';') != std::string::npos)
+            ser.dir.push_back(readed);
     }
+    return ser;
+}
+
+
+int main(int ac, char **av){
+    server sr;    
+    sr = parec(av[1]);
+    std::vector<server>::iterator it = sr.block.begin();
+    while(it< sr.block.end()){
+        std::vector<std::string>::iterator its;
+        for (its = (*it).dir.begin(); its < (*it).dir.end(); its++){
+        std::cout << (*it).block_name << ">> ";
+            std::cout << *its << std::endl;
+
+        }
+        it++;
+    }
+    // http::TcpServer server = http::TcpServer("0.0.0.0", 8080);
+    // server.startListen();
+    return (0);
+
+    // }
 }
