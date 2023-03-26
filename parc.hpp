@@ -7,16 +7,35 @@
 #include <string>
 #include <fstream>
 
-struct server_data{
+// struct location
+// {
+    
+// };
+
+
+// struct server{
+//     std::vector<struct location> location;
+//     std::string listen;
+//     std::string server_name;
+//     std::vector<std::pair<short, std::string>> error_page;
+//     std::string client_max_body_size;
+//     std::vector<std::string> index;
+//     std::string autoindex;
+//     std::string chunked_transfer_encoding;
+// };
+
+struct data_reader
+{
     std::string block_name;
-    std::vector<struct server_data> block;
-    int level;
     std::vector<std::string> dir;
+    std::vector<std::string> others;
+    std::vector<struct data_reader> block;
 };
 
-server_data read_block(std::ifstream &myFile, std::string block_start){
+
+data_reader read_block(std::ifstream &myFile, std::string block_start){
     int i;
-    server_data s;
+    data_reader s;
     std::string readed;
 
 
@@ -26,23 +45,30 @@ server_data read_block(std::ifstream &myFile, std::string block_start){
             return s;
         else if (readed.find(';') != std::string::npos)
             s.dir.push_back(readed);
+        else
+            s.others.push_back(readed);
     }
     return s;
 }
 
-server_data parec(char *s){
-    server_data ser;
+
+
+data_reader *parec(char *s){
+    data_reader *ser;
     std::string file(s);
     std::ifstream myFile(file);
     std::string readed;
 
+    ser = new data_reader();
     while (getline(myFile, readed) && readed.find('{') == std::string::npos);
-    ser.block_name = readed.substr(0, readed.find('{'));
+    ser->block_name = readed.substr(0, readed.find('{'));
     while (getline(myFile, readed)){
         if (readed.find('{') != std::string::npos)
-            ser.block.push_back(read_block(myFile, readed));
+            ser->block.push_back(read_block(myFile, readed));
         else if (readed.find(';') != std::string::npos)
-            ser.dir.push_back(readed);
+            ser->dir.push_back(readed);
+        else
+            ser->others.push_back(readed);
     }
     return ser;
 }
@@ -50,16 +76,17 @@ server_data parec(char *s){
 
 class Parsed
 {
-private:
-    server_data s;
-    
-public:
-    Parsed();
-    Parsed &operator=(const Parsed & parsed);
-    Parsed(const server_data &s);
-    server_data getServer_data() const;
-    Parsed(char *);
-    ~Parsed();
+    private:
+        data_reader *s;
+        // server data_handler;
+
+    public:
+        Parsed();
+        Parsed &operator=(const Parsed & parsed);
+        Parsed(const Parsed &s);
+        data_reader *getserver() const;
+        Parsed(char *);
+        ~Parsed();
 };
 
 Parsed::Parsed(char *file)
@@ -68,32 +95,40 @@ Parsed::Parsed(char *file)
 }
 
 Parsed &Parsed::operator=(const Parsed & parsed){
-    server_data tmp;
-    std::vector<struct server_data>::iterator it = parsed.getServer_data().block.begin();
+    data_reader tmp;
+    std::vector<struct data_reader>::iterator it = parsed.getserver()->block.begin();
 
-    std::cout << "1 >>"<<( *parsed.getServer_data().block.begin()).block_name << std::endl;
-    std::cout << "2 >>"<<(*it).block_name << std::endl;
-    while(it < parsed.getServer_data().block.end()){
-        s.block.push_back(*it);
+    delete s;
+    s = new data_reader();
+    while (it <  parsed.getserver()->block.end()){
+        s->block.push_back(*it);
         it++;
     }
-    while (1);
-    
+    s->block_name = parsed.getserver()->block_name;
+    std::vector<std::string>::iterator it2;
+    for (it2 = parsed.getserver()->dir.begin(); it2 < parsed.getserver()->dir.end(); it2++){
+        s->dir.push_back(*it2);
+    }
+    for (it2 = parsed.getserver()->others.begin(); it2 < parsed.getserver()->others.end(); it2++){
+        s->others.push_back(*it2);
+    }
     return *this;
 }
-Parsed::Parsed(const server_data &s)
+Parsed::Parsed(const Parsed &s)
 {
-    this->s = s;
+    *this = s;
 }
 Parsed::Parsed(){
 
+    s = new data_reader();
 }
 
-server_data Parsed::getServer_data() const{
+data_reader *Parsed::getserver() const{
     return s;
 }
 Parsed::~Parsed()
 {
+    delete s;
 }
 
 #endif
