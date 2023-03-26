@@ -71,7 +71,7 @@ server
     error_page 500 502 503 504 /50x.html;
 
     # Set the path for PATH_INFO for CGI scripts
-    fastcgi_param PATH_INFO $fastcgi_path_info;
+    cgi_param PATH_INFO $fastcgi_path_info;
 
     # Make the server unchunk chunked requests
     chunked_transfer_encoding off;
