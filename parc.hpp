@@ -86,7 +86,7 @@ class Parsed
 {
 private:
     data_reader *s;
-    server handled_data;
+    server *handled_data;
 
 public:
     Parsed();
@@ -97,11 +97,11 @@ public:
     ~Parsed();
 };
 
-server data_handler(Parsed *obj, data_reader *s)
+server *data_handler(Parsed *obj, data_reader *s)
 {
     std::vector<std::string>::iterator it = s->dir.begin();
     (void)obj;
-    server ret;
+    // server ret;
     server *x = new (server);
 
     while (it < s->dir.end()) // for ()
@@ -127,12 +127,12 @@ server data_handler(Parsed *obj, data_reader *s)
 
         it++;
     }
-    // std::cout << "listen :-> > " << x->listen << "\n";
-    // std::cout << "server_name :-> > " << x->server_name << "\n";
-    // std::cout << "root :-> > " << x->root << "\n";
-    // std::cout << "client_max_body_size :-> > " << x->client_max_body_size << "\n";
+    std::cout << "listen :-> > " << x->listen << "\n";
+    std::cout << "server_name :-> > " << x->server_name << "\n";
+    std::cout << "root :-> > " << x->root << "\n";
+    std::cout << "client_max_body_size :-> > " << x->client_max_body_size << "\n";
 
-    return (ret);
+    return (x);
 }
 
 Parsed::Parsed(char *file)
@@ -167,6 +167,7 @@ Parsed &Parsed::operator=(const Parsed &parsed)
 }
 Parsed::Parsed(const Parsed &s)
 {
+    this->s = new data_reader();
     *this = s;
 }
 Parsed::Parsed()
