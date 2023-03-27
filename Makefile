@@ -2,7 +2,7 @@ SRC = server.cpp #https_Tcpserver.cpp
 
 NAME = webserv
 
-FLAG = g++ -Wall -Wextra -Werror -std=c++98
+FLAG = c++ -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 
 all : ${NAME}
 
