@@ -42,7 +42,6 @@ struct data_reader
 
 data_reader read_block(std::ifstream &myFile, std::string block_start)
 {
-    // int i;
     data_reader s;
     std::string readed;
 
@@ -54,7 +53,7 @@ data_reader read_block(std::ifstream &myFile, std::string block_start)
         else if (readed.find(';') != std::string::npos)
             s.dir.push_back(readed);
         else
-            ; // error
+            ;
     }
     return s;
 }
@@ -77,7 +76,7 @@ data_reader *parec(char *s)
         else if (readed.find(';') != std::string::npos)
             ser->dir.push_back(readed);
         else
-            ; // error
+            ;
     }
     return ser;
 }
@@ -98,45 +97,41 @@ public:
     ~Parsed();
 };
 
-server *data_handler(Parsed *obj, data_reader *s)
+server *data_handler(data_reader *s)
 {
     std::vector<std::string>::iterator it = s->dir.begin();
-    (void)obj;
-    // server ret;
+
+
     server *x = new (server);
 
-    while (it < s->dir.end()) // for ()
+    while (it < s->dir.end())
     {
         std::istringstream iss(*it);
         std::string tmp;
+        std::string tmp2;
 
         iss >> tmp;
+        iss >> tmp2;
+        if (tmp2.find(';') != std::string::npos)
+            tmp2.erase(tmp2.find(';'), 1);
 
-        // std::cout << "token == " << tmp << " | " << (tmp).compare("server_name") << std::endl;
         if (tmp.compare("server_name") == 0)
-            iss >> x->server_name;
+            x->server_name = tmp2;
         else if (tmp.compare("listen") == 0){
-            iss >> tmp;
+            tmp = tmp2;
             x->listen.first = tmp.substr(0, tmp.find(':'));
-            x->listen.second = tmp.substr(tmp.find(':') + 1 , tmp.size());
+            x->listen.second = tmp.substr(tmp.find(':') + 1 , tmp.find(';')  - tmp.find(':') -1);
         }
         else if (tmp.compare("root") == 0)
-            iss >> x->root;
+            x->root = tmp2;
         else if (tmp.compare("client_max_body_size") == 0)
-            iss >> x->client_max_body_size;
+            x->client_max_body_size = tmp2;
         else if (tmp.compare("autoindex") == 0)
-            iss >> x->autoindex;
+            x->autoindex = tmp2;
         else if (tmp.compare("chunked_transfer_encoding") == 0)
-            iss >> x->chunked_transfer_encoding;
-
+            x->chunked_transfer_encoding = tmp2;
         it++;
     }
-    std::cout << "listen :-> > " << x->listen.first << "\n";
-    std::cout << "listen :-> > " << x->listen.second << "\n";
-    std::cout << "server_name :-> > " << x->server_name << "\n";
-    std::cout << "root :-> > " << x->root << "\n";
-    std::cout << "client_max_body_size :-> > " << x->client_max_body_size << "\n";
-
     return (x);
 }
 
@@ -148,7 +143,7 @@ server *Parsed::getDate() const{
 Parsed::Parsed(char *file)
 {
     s = parec(file);
-    handled_data = data_handler(this, s);
+    handled_data = data_handler(s);
 }
 
 Parsed &Parsed::operator=(const Parsed &parsed)
@@ -169,10 +164,6 @@ Parsed &Parsed::operator=(const Parsed &parsed)
     {
         s->dir.push_back(*it2);
     }
-    // for (it2 = parsed.getserver()->others.begin(); it2 < parsed.getserver()->others.end(); it2++)
-    // {
-    //     s->others.push_back(*it2);
-    // }
     return *this;
 }
 Parsed::Parsed(const Parsed &s)
