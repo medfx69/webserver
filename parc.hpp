@@ -21,7 +21,7 @@ struct location
 struct server
 {
     std::vector<struct location> location;
-    std::string listen;
+    std::pair<std::string, std::string> listen;
     std::string server_name;
     std::vector<std::pair<short, std::string> > error_page;
     std::string client_max_body_size;
@@ -93,6 +93,7 @@ public:
     Parsed &operator=(const Parsed &parsed);
     Parsed(const Parsed &s);
     data_reader *getserver() const;
+    server *getDate() const;
     Parsed(char *);
     ~Parsed();
 };
@@ -114,8 +115,11 @@ server *data_handler(Parsed *obj, data_reader *s)
         // std::cout << "token == " << tmp << " | " << (tmp).compare("server_name") << std::endl;
         if (tmp.compare("server_name") == 0)
             iss >> x->server_name;
-        else if (tmp.compare("listen") == 0)
-            iss >> x->listen;
+        else if (tmp.compare("listen") == 0){
+            iss >> tmp;
+            x->listen.first = tmp.substr(0, tmp.find(':'));
+            x->listen.second = tmp.substr(tmp.find(':') + 1 , tmp.size());
+        }
         else if (tmp.compare("root") == 0)
             iss >> x->root;
         else if (tmp.compare("client_max_body_size") == 0)
@@ -127,13 +131,19 @@ server *data_handler(Parsed *obj, data_reader *s)
 
         it++;
     }
-    std::cout << "listen :-> > " << x->listen << "\n";
+    std::cout << "listen :-> > " << x->listen.first << "\n";
+    std::cout << "listen :-> > " << x->listen.second << "\n";
     std::cout << "server_name :-> > " << x->server_name << "\n";
     std::cout << "root :-> > " << x->root << "\n";
     std::cout << "client_max_body_size :-> > " << x->client_max_body_size << "\n";
 
     return (x);
 }
+
+server *Parsed::getDate() const{
+    return handled_data;
+}
+
 
 Parsed::Parsed(char *file)
 {

@@ -68,6 +68,7 @@ void http::TcpServer::startListen(){
         acceptConnection(m_new_socket);
         char buffer[BUFFER_SIZE] = {0};
         bytesReceived = read(m_new_socket, buffer, BUFFER_SIZE);
+        std::cout <<  buffer;
         if (bytesReceived < 0)
             exitWithError("Failed to read bytes from client socket connection");
         std::ostringstream ss;
