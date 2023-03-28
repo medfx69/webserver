@@ -1,8 +1,8 @@
-SRC = server.cpp #https_Tcpserver.cpp
+SRC = server.cpp http_TcpServer.cpp
 
 NAME = webserv
 
-FLAG = c++ -Wall -Wextra -Werror -std=c++98 -fsanitize=address
+FLAG = c++  -fsanitize=address #-Wall -Wextra -Werror -std=c++98
 
 all : ${NAME}
 

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <sys/types.h>
 #include <sstream>
+#include <string>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #define BUFFER_SIZE 400000
