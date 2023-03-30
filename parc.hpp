@@ -12,7 +12,7 @@ struct location
 {
     std::vector<std::pair<std::vector<std::string>, std::string> > error_page;
     std::string client_max_body_size;
-    std::vector<std::string> index;
+    // std::vector<std::string> index;
     std::vector<std::vector<std::string> > try_files;
     std::string autoindex;
     std::string chunked_transfer_encoding;
@@ -102,13 +102,11 @@ std::vector<std::string>    parser_helper(std::string s)
     std::vector<std::string> ret;
     std::istringstream iss(s);
     std::string tmp;
-
     iss >> tmp;
     while(iss >> tmp)
         ret.push_back(tmp);
     return ret;
 }
-
 void    pars_locations(Parsed *data)
 {
     std::vector<struct data_reader>::iterator it = data->getserver()->block.begin();
