@@ -4,7 +4,7 @@
 int main(int ac, char **av)
 {
     Parsed pr(av[1]);
-    Parsed prq = pr;
+    // Parsed prq = pr;
 
     (void)ac;
     // std::cout << (*pr.getserver()->block.begin()).block_name << std::endl;
