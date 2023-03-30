@@ -60,7 +60,7 @@ void http::TcpServer::acceptConnection(int &new_socket){
 void http::TcpServer::startListen(){
     int bytesReceived;
     int i = 1;
-    if (listen(m_socket, 20) < 0){
+    if (listen(m_socket, SOMAXCONN) < 0){
         exitWithError("Socket listen failed");
     }
     std::ostringstream ss;
