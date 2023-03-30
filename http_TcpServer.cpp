@@ -28,6 +28,8 @@ http::TcpServer::~TcpServer()
 {
     closeServer();
 }
+
+
 int http::TcpServer::startServer(){
     m_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (m_socket < 0){
@@ -40,6 +42,8 @@ int http::TcpServer::startServer(){
     }
     return 0;
 }
+
+
 void http::TcpServer::acceptConnection(int &new_socket){
     new_socket = accept(m_socket, (sockaddr *)&m_socketAress, &m_socketAddress_len);
     if (new_socket < 0){
@@ -51,8 +55,11 @@ void http::TcpServer::acceptConnection(int &new_socket){
         exitWithError(ss.str());
     }
 }
+
+
 void http::TcpServer::startListen(){
     int bytesReceived;
+    int i = 1;
     if (listen(m_socket, 20) < 0){
         exitWithError("Socket listen failed");
     }
@@ -66,11 +73,16 @@ void http::TcpServer::startListen(){
     {
         log("====== Waiting for a new connection ======\n\n\n");
         acceptConnection(m_new_socket);
+        if(setsockopt(m_new_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&i, sizeof(i)) < 0 )
+            exitWithError("setsockopt");
         char buffer[BUFFER_SIZE] = {0};
         bytesReceived = read(m_new_socket, buffer, BUFFER_SIZE);
-        std::cout <<  buffer;
         if (bytesReceived < 0)
             exitWithError("Failed to read bytes from client socket connection");
+        std::ofstream reFile("./usefull_files/request");
+        std::cout << buffer;
+        reFile << buffer;
+        reFile.close();
         std::ostringstream ss;
         ss << "------ Received Request from client ------\n\n";
         log(ss.str());
@@ -78,6 +90,8 @@ void http::TcpServer::startListen(){
         close(m_new_socket);
     }
 }
+
+
 int http::TcpServer::closeServer(){
     close(m_socket);
     close(m_new_socket);
@@ -93,6 +107,8 @@ std::string http::TcpServer::buildResponse(){
     return ss.str();
 
 }
+
+ 
 void http::TcpServer::sendResponse(){
     long bytesSent;
 
@@ -102,3 +118,4 @@ void http::TcpServer::sendResponse(){
     else
         log("Error sending response to client");
 }
+
