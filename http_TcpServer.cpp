@@ -24,28 +24,25 @@ http::TcpServer::TcpServer(std::string ip_address, int port):m_ip_address(ip_add
 
 }
 
-http::TcpServer::~TcpServer()
-{
+http::TcpServer::~TcpServer(){
     closeServer();
 }
 
 
 int http::TcpServer::startServer(){
     m_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (m_socket < 0){
+    if (m_socket < 0)
         exitWithError("Cannot create socket");
-        return 1;
-    }
-    if (bind(m_socket, (sockaddr *) &m_socketAress, m_socketAddress_len) < 0){
+    if (bind(m_socket, (sockaddr *) &m_socketAress, m_socketAddress_len) < 0)
         exitWithError("Cannot connect socket to address");
-        return 1;
-    }
     return 0;
 }
 
 
 void http::TcpServer::acceptConnection(int &new_socket){
+    std::cout << "hello \n";
     new_socket = accept(m_socket, (sockaddr *)&m_socketAress, &m_socketAddress_len);
+    std::cout << "hello2 \n";
     if (new_socket < 0){
         std::ostringstream ss;
         ss <<
@@ -58,9 +55,12 @@ void http::TcpServer::acceptConnection(int &new_socket){
 
 
 void http::TcpServer::startListen(){
-    int bytesReceived;
-    int i = 1;
-    if (listen(m_socket, 20) < 0){
+    int     bytesReceived;
+    int     i = 1;
+    int     act;
+    fd_set  readfds;
+
+    if (listen(m_socket, SOMAXCONN) < 0){
         exitWithError("Socket listen failed");
     }
     std::ostringstream ss;
@@ -69,25 +69,37 @@ void http::TcpServer::startListen(){
         << " PORT:" << ntohs(m_socketAress.sin_port)
         << "*****\n\n";
     log(ss.str());
+    FD_ZERO(&readfds);
+    if (act < 0)
+        exitWithError("--------select error-------");
+    if(setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&i, sizeof(i)) < 0 )
+        exitWithError("setsockopt");
     while (true)
     {
-        log("====== Waiting for a new connection ======\n\n\n");
-        acceptConnection(m_new_socket);
-        if(setsockopt(m_new_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&i, sizeof(i)) < 0 )
-            exitWithError("setsockopt");
-        char buffer[BUFFER_SIZE] = {0};
-        bytesReceived = read(m_new_socket, buffer, BUFFER_SIZE);
-        if (bytesReceived < 0)
-            exitWithError("Failed to read bytes from client socket connection");
-        std::ofstream reFile("./usefull_files/request");
-        std::cout << buffer;
-        reFile << buffer;
-        reFile.close();
-        std::ostringstream ss;
-        ss << "------ Received Request from client ------\n\n";
-        log(ss.str());
-        sendResponse();
-        close(m_new_socket);
+        FD_ZERO(&readfds);
+        FD_ZERO(&readfds);
+        FD_SET(m_socket, &readfds);
+        if (FD_ISSET(m_socket, &readfds)){
+            log("====== Waiting for a new connection ======\n\n\n");
+            acceptConnection(m_new_socket);
+            FD_SET(m_new_socket, &readfds);
+            act = select(m_new_socket + 1, &readfds, NULL, NULL, NULL);
+            if (act < 0)
+                exitWithError("--------select error-------");
+            char buffer[BUFFER_SIZE] = {0};
+            bytesReceived = read(m_new_socket, buffer, BUFFER_SIZE);
+            if (bytesReceived < 0)
+                exitWithError("Failed to read bytes from client socket connection");
+            std::ofstream reFile("./usefull_files/request");
+            std::cout << buffer;
+            reFile << buffer;
+            reFile.close();
+            std::ostringstream ss;
+            ss << "------ Received Request from client ------\n\n";
+            log(ss.str());
+            sendResponse();
+            // close(m_new_socket);
+        }
     }
 }
 
@@ -110,7 +122,7 @@ std::string http::TcpServer::buildResponse(){
 
  
 void http::TcpServer::sendResponse(){
-    long bytesSent;
+    long    bytesSent;
 
     bytesSent = write(m_new_socket, m_serverMessage.c_str(), m_serverMessage.size());
     if (bytesSent == m_serverMessage.size())
