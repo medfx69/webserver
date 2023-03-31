@@ -12,6 +12,7 @@ struct location
 {
     std::vector<std::pair<std::vector<std::string>, std::string> > error_page;
     std::string client_max_body_size;
+    // std::vector<std::string> index;
     std::vector<std::vector<std::string> > try_files;
     std::string autoindex;
     std::string chunked_transfer_encoding;
@@ -134,9 +135,14 @@ void    pars_locations(Parsed *data)
 
             if (tmp.compare("try_files") == 0)
                 x->try_files.push_back(parser_helper(*it2));
+            else if (tmp.compare("client_max_body_size") == 0)
+                x->client_max_body_size = tmp2;
+            else if (tmp.compare("autoindex") == 0)
+                x->autoindex = tmp2;
+            else if (tmp.compare("chunked_transfer_encoding") == 0)
+                x->chunked_transfer_encoding = tmp2;
             else if (tmp.compare("error_page") == 0)
             {
-                // std::vector<std::pair<std::vector<std::string>, std::string> >::iterator it3 = x->error_page.begin();
                 std::pair<std::vector<std::string>, std::string> adder;
                 adder.first = parser_helper(*it2);
                 while(iss2 >> tmp2);
@@ -144,15 +150,15 @@ void    pars_locations(Parsed *data)
                     tmp2.erase(tmp2.find(';'), 1);
                 adder.second = tmp2;
                 x->error_page.push_back(adder);
-                // std::cout << "Vector of pair the first :: " << std::endl;
-                // std::vector<std::string>::iterator itt = adder.first.begin(); 
-                // while (itt < adder.first.end())
-                // {
-                //     std::cout << "this is vector first element  -> " << (*itt) << std::endl;
+                std::cout << "Vector of pair the first :: " << std::endl;
+                std::vector<std::string>::iterator itt = adder.first.begin();
+                while (itt < adder.first.end())
+                {
+                    std::cout << "this is vector first element  -> " << (*itt) << std::endl;
 
-                //     itt++;
-                // }
-                // std::cout << "this is second -> " << adder.second << std::endl;
+                    itt++;
+                }
+                std::cout << "this is second -> " << adder.second << std::endl;
             }
             
             it2++;
