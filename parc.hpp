@@ -4,9 +4,6 @@
 #include <fcntl.h>
 #include <vector>
 #include <map>
-#include <iostream>
-#include <string>
-#include <fstream>
 
 #include <sstream>
 
@@ -66,6 +63,7 @@ public:
 	Parsed(char *);
 	~Parsed();
 };
+
 
 data_reader read_block(std::ifstream &myFile, std::string block_start)
 {
