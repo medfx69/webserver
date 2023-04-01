@@ -150,15 +150,6 @@ void    pars_locations(Parsed *data)
                     tmp2.erase(tmp2.find(';'), 1);
                 adder.second = tmp2;
                 x->error_page.push_back(adder);
-                std::cout << "Vector of pair the first :: " << std::endl;
-                std::vector<std::string>::iterator itt = adder.first.begin(); 
-                while (itt < adder.first.end())
-                {
-                    std::cout << "this is vector first element  -> " << (*itt) << std::endl;
-
-                    itt++;
-                }
-                std::cout << "this is second -> " << adder.second << std::endl;
             }
             
             it2++;
