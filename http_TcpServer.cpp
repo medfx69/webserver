@@ -93,6 +93,7 @@ void http::TcpServer::startListen(Parsed *data){
             reFile << buffer;
             reFile.close();
             pars_request(data);
+            
             std::ostringstream ss;
             ss << "------ Received Request from client ------\n\n";
             log(ss.str());
