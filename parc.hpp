@@ -34,7 +34,7 @@ struct server
 
 struct request
 {
-	std::string mothod;
+	std::string method;
 	std::string absoluteURI;
 	std::string http_version;
 	std::map<std::string, std::string> data;
@@ -133,7 +133,7 @@ void pars_request(Parsed *data)
 		std::istringstream iss(tmp);
 		if (i == 0)
 		{
-			iss >> data->req->mothod;
+			iss >> data->req->method;
 			iss >> data->req->absoluteURI;
 			iss >> data->req->http_version;
 		}
