@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sstream>
 #include <string>
+#include "parc.hpp"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #define BUFFER_SIZE 400000
@@ -30,7 +31,7 @@ namespace http
         public:
             TcpServer(std::string ip_address, int port);
             ~TcpServer();
-            void        startListen();
+            void        startListen(Parsed *data);
             void        acceptConnection(int &new_socket);
             std::string buildResponse();
             void        sendResponse();
