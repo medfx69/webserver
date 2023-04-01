@@ -52,7 +52,7 @@ void http::TcpServer::acceptConnection(int &new_socket){
 }
 
 
-void http::TcpServer::startListen(){
+void http::TcpServer::startListen(Parsed *data){
     int     bytesReceived;
     int     i = 1;
     int     act;
@@ -90,6 +90,7 @@ void http::TcpServer::startListen(){
             std::cout << buffer;
             reFile << buffer;
             reFile.close();
+            (void)data;
             std::ostringstream ss;
             ss << "------ Received Request from client ------\n\n";
             log(ss.str());
