@@ -10,12 +10,11 @@ server {
         try_files $uri $uri/ /index.html>>>;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
+        try_files $uri $uri/ /index.html2>>
     }
     location2 /ali/mohamed {
         try_files $uri $uri2/ /index.html;
         try_files $uri $uri2/ /index.html1;
-        error_page 400 402 403 404 /40x.html;
         try_files $uri $uri2/ /index.html2;
     }
     client_max_body_size 10m;

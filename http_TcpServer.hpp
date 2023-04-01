@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <fstream>
+#include <sys/select.h>
 #include <sys/types.h>
 #include <sstream>
 #include <string>
@@ -16,24 +17,23 @@ namespace http
     class TcpServer
     {
         private:
-            std::string m_ip_address;
-            int m_socket;
-            int m_new_socket;
-            int m_port;
-            long m_incomingMessage;
-            struct sockaddr_in m_socketAress;
-            unsigned int m_socketAddress_len;
-            std::string m_serverMessage;
-
-            int startServer();
-            int closeServer();
+            std::string         m_ip_address;
+            int                 m_socket;
+            int                 m_new_socket;
+            int                 m_port;
+            long                m_incomingMessage;
+            struct sockaddr_in  m_socketAress;
+            unsigned int        m_socketAddress_len;
+            std::string         m_serverMessage;
+            int                 startServer();
+            int                 closeServer();
         public:
             TcpServer(std::string ip_address, int port);
             ~TcpServer();
-            void startListen();
-            void acceptConnection(int &new_socket);
+            void        startListen();
+            void        acceptConnection(int &new_socket);
             std::string buildResponse();
-            void sendResponse();
+            void        sendResponse();
     };
 } // namespace http`
 void exitWithError(const std::string& message);
