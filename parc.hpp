@@ -144,21 +144,11 @@ void pars_request(Parsed *data)
 			iss >> tmp2;
 			iss >> tmp3;
 			std::pair<std::string, std::string> pr;
-			// std::cout << tmp2 << " ||  " << tmp3 << '\n';
 			pr.first = tmp2;
 			pr.second = tmp3;
 			data->req->data.insert(pr);
 		}
 		i++;
-	}
-	std::cout << data->req->mothod << std::endl;
-	std::cout << data->req->absoluteURI << std::endl;
-	std::cout << data->req->http_version << std::endl;
-	std::cout << "KEY\t\tELEMENT\n";
-	for (std::map<std::string, std::string>::iterator itr = data->req->data.begin(); itr != data->req->data.end(); ++itr)
-	{
-		std::cout << itr->first
-				  << "               " << itr->second << '\n';
 	}
 }
 
@@ -269,7 +259,6 @@ Parsed::Parsed(char *file)
 	s = parec(file);
 	handled_data = data_handler(s);
 	pars_locations(this);
-	pars_request(this);
 }
 
 Parsed &Parsed::operator=(const Parsed &parsed)
