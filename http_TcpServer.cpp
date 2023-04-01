@@ -1,4 +1,6 @@
 #include "http_TcpServer.hpp"
+
+
 void log(const std::string & message){
     std::cout << message<< std::endl;
 }
@@ -90,7 +92,7 @@ void http::TcpServer::startListen(Parsed *data){
             std::cout << buffer;
             reFile << buffer;
             reFile.close();
-            (void)data;
+            pars_request(data);
             std::ostringstream ss;
             ss << "------ Received Request from client ------\n\n";
             log(ss.str());
@@ -108,7 +110,7 @@ int http::TcpServer::closeServer(){
 }
 
 std::string http::TcpServer::buildResponse(){
-    std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) </p></body></html>";
+    std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) <img src='u.jpeg'/></p></body></html>";
     std::ostringstream ss;
     
     ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"

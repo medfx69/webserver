@@ -8,10 +8,12 @@
 #include <sys/types.h>
 #include <sstream>
 #include <string>
-#include "parc.hpp"
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #define BUFFER_SIZE 400000
+
+class Parsed;
+void pars_request(Parsed *data);
 
 namespace http
 {
