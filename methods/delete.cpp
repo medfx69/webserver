@@ -1,22 +1,26 @@
-#include "./http_TcpServer.hpp"
+#include "../http_TcpServer.hpp"
+#include <sys/stat.h>
+#include <stdbool.h>
 
-void  delete(Parsed *data)
+bool file_exists(const char *filename)
 {
-  ifstream file;
-
-  file.open(data->req->absoluteURI);
-  if (file)
-  {
-    int status;
-    if(!remove(file))
-      std::cout << "file exist 200 (OK)" << std::endl;
-    else
-      std::cout << "202 (Accepted, deletion is not a single operation)." << std::endl;
-  }
-  else
-    std::cout << "file doesn't exist 204" << std::endl;
+    struct stat buffer;
+    return stat(filename, &buffer) == 0 ? true : false;
 }
 
 int main()
 {
+    char *filename = "test";
+
+    if (file_exists(filename))
+    {
+      std::cout << "FILE " << filename << " exists" << std::endl;
+      if(!remove(filename))
+        std::cout << "file exist 200 (OK)" << std::endl;
+      else
+        std::cout << "202 (Accepted, deletion is not a single operation)." << std::endl;
+    }
+    else
+      std::cout << "FILE " << filename << " doesn't exists 204" << std::endl;
+    return 0;
 }
