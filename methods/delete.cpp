@@ -1,13 +1,22 @@
 #include "../http_TcpServer.hpp"
+#include "methods.hpp"
+
 #include <sys/stat.h>
 #include <stdbool.h>
 #include <iostream>
 #include <cstring>
 #include <dirent.h>
 
+void  file_remove(const char *filename)
+{
+  if(!remove(filename))
+    std::cout << "204 No Content status code." << std::endl;
+}
+
 bool folder_exists(const char *folder_path)
 {
   DIR* dir = opendir(folder_path);
+  del jj;
   if (dir != NULL)
   {
     struct dirent* entry;
@@ -15,10 +24,28 @@ bool folder_exists(const char *folder_path)
     {
       if (entry->d_type == DT_REG)
       {
-        std::cout << "File found: " << entry->d_name << std::endl;
+        jj.filename = folder_path;
+        jj.filename += "/";
+        jj.filename += entry->d_name;
+        file_remove(jj.filename.c_str());
+        std::cout << "File found: " << jj.filename << std::endl;
       }
       else if (entry->d_type == DT_DIR)
-        std::cout << "Subdirectory found: " << entry->d_name << std::endl;
+      {
+        std::string fd = entry->d_name;
+        if(fd == "." || fd == "..")
+          std::cout << entry->d_name << std::endl;
+        else
+        {
+          jj.foldername= folder_path;
+          jj.foldername += "/";
+          jj.foldername += entry->d_name;
+          std::cout << "Subdirectory found: " << jj.foldername << std::endl;
+          folder_exists(jj.foldername.c_str());
+          file_remove(jj.foldername.c_str());
+        } 
+      }
+      file_remove(folder_path);
     }
     closedir(dir);
   }
@@ -35,13 +62,13 @@ bool file_exists(const char *filename)
 
 int main()
 {
-  char *filename = "test.jj";
-  folder_exists(filename);
+  std::string filename = "folder";
+  folder_exists(filename.c_str());
   return (0);
-  if (file_exists(filename))
+  if (file_exists(filename.c_str()))
   {
     std::cout << "FILE " << filename << " exists" << std::endl;
-    if(!remove(filename))
+    if(!remove(filename.c_str()))
       std::cout << "204 No Content status code." << std::endl;
   }
   else
