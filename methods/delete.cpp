@@ -7,15 +7,22 @@
 #include <cstring>
 #include <dirent.h>
 
-void  file_remove(const char *filename)
+void  f_remove(std::string path)
 {
-  if(!remove(filename))
-    std::cout << "204 No Content status code." << std::endl;
+  if(remove(path.c_str()))
+    std::cout << "204 No Content status code. " << path.c_str()  << std::endl;
+  else
+    std::cout << path << " deleted" << std::endl;
 }
 
-bool folder_exists(const char *folder_path)
+std::string path_creat(std::string path, std::string join_path)
 {
-  DIR* dir = opendir(folder_path);
+  return path += "/" + join_path;
+}
+
+bool folder_exists(std::string folder_path)
+{
+  DIR* dir = opendir(folder_path.c_str());
   del jj;
   if (dir != NULL)
   {
@@ -24,11 +31,9 @@ bool folder_exists(const char *folder_path)
     {
       if (entry->d_type == DT_REG)
       {
-        jj.filename = folder_path;
-        jj.filename += "/";
-        jj.filename += entry->d_name;
-        file_remove(jj.filename.c_str());
+        jj.filename = path_creat(folder_path, entry->d_name);
         std::cout << "File found: " << jj.filename << std::endl;
+        f_remove(jj.filename);
       }
       else if (entry->d_type == DT_DIR)
       {
@@ -37,16 +42,15 @@ bool folder_exists(const char *folder_path)
           std::cout << entry->d_name << std::endl;
         else
         {
-          jj.foldername= folder_path;
-          jj.foldername += "/";
-          jj.foldername += entry->d_name;
+          jj.foldername = path_creat(folder_path, entry->d_name);
           std::cout << "Subdirectory found: " << jj.foldername << std::endl;
-          folder_exists(jj.foldername.c_str());
-          file_remove(jj.foldername.c_str());
+          folder_exists(jj.foldername);
+          f_remove(jj.foldername);
         } 
       }
-      file_remove(folder_path);
     }
+    // if(entry == NULL)
+    //     f_remove(folder_path);
     closedir(dir);
   }
   else
@@ -54,26 +58,9 @@ bool folder_exists(const char *folder_path)
   return 0;
 }
 
-bool file_exists(const char *filename)
-{
-  struct stat buffer;
-  return stat(filename, &buffer) == 0 ? true : false;
-}
-
 int main()
 {
-  std::string filename = "folder";
-  folder_exists(filename.c_str());
-  return (0);
-  if (file_exists(filename.c_str()))
-  {
-    std::cout << "FILE " << filename << " exists" << std::endl;
-    if(!remove(filename.c_str()))
-      std::cout << "204 No Content status code." << std::endl;
-  }
-  else
-    std::cout << "FILE " << filename << "404 Not Found status code" << std::endl;
-  return 0;
+  folder_exists("folder");
 }
 
 // an example of a DELETE request in HTTP:
