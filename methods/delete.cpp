@@ -10,7 +10,7 @@
 void  f_remove(std::string path)
 {
   if(remove(path.c_str()))
-    std::cout << "204 No Content status code. " << path.c_str()  << std::endl;
+    std::cout << "204 No Content status code. " << path << std::endl;
   else
     std::cout << path << " deleted" << std::endl;
 }
@@ -49,9 +49,8 @@ bool folder_exists(std::string folder_path)
         } 
       }
     }
-    // if(entry == NULL)
-    //     f_remove(folder_path);
     closedir(dir);
+    return 1;
   }
   else
       std::cout << "Folder not found or could not be opened" << std::endl;
@@ -60,7 +59,9 @@ bool folder_exists(std::string folder_path)
 
 int main()
 {
-  folder_exists("folder");
+  std::string fd = "folder";
+  if(folder_exists(fd))
+    f_remove(fd);
 }
 
 // an example of a DELETE request in HTTP:
