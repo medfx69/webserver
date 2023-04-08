@@ -60,6 +60,7 @@ void http::TcpServer::startListen(Parsed *data){
     int                 act;
     int                 new_fd;
     int                 i = 1;
+    timeval             timer;
     fd_set              tmp_set;
     int                 max_fd;
     std::ostringstream  ss;
@@ -79,42 +80,47 @@ void http::TcpServer::startListen(Parsed *data){
     FD_ZERO(&writest);
     FD_SET(m_socket, &readst);
     max_fd = m_socket;
-    // if (fcntl(max_fd, F_SETFL, O_NONBLOCK))
-    //     exitWithError("--------fcntl error-------");
+    timer.tv_sec = 10;
     while (true)
     {
         tmp_set = readst;
-        act = select(max_fd + 1, &tmp_set, &writest, NULL, NULL);
+        log("====== Waiting for a new connection ======\n\n\n");
+        act = select(max_fd + 1, &tmp_set, &writest, NULL, &timer);
+        log("====== Waiting for a new connection1 ======\n\n\n");
         if (act < 0)
             exitWithError("--------select error-------");
-        log("====== Waiting for a new connection ======\n\n\n");
+        // if (fcntl(max_fd, F_SETFL, O_NONBLOCK))
+        //     exitWithError("--------fcntl error-------");
         for (int i = 0; i < max_fd +1 ; i++){
-            if (FD_ISSET(i, &tmp_set) || FD_ISSET(i, &writest)){
+            if (FD_ISSET(i, &readst) || FD_ISSET(i, &writest)){
                 if (i == m_socket){
-                    // do {
-                        max_fd = acceptConnection();
-                        FD_SET(max_fd, &readst);
-                        m_new_socket.push_back(max_fd);
-                    // }while (max_fd != -1);
+                    max_fd = acceptConnection();
+                    FD_SET(max_fd, &readst);
+                    m_new_socket.push_back(max_fd);
                 }
                 else{
                     for (std::vector<int>::iterator it = m_new_socket.begin(); it < m_new_socket.end(); it++){
-                        char buffer[BUFFER_SIZE] = {0};
-                        std::ofstream reFile("./usefull_files/request_" + *it);
-                        while(bytesReceived = read(i, buffer, BUFFER_SIZE)){
+                        if (FD_ISSET(*it, &readst)){
+                            char buffer[BUFFER_SIZE] = {0};
+                            std::ostringstream  ss1;
+                            ss1 << "./usefull_files/request_" << *it;
+                            std::cout << ss1.str() << std::endl;
+                            std::ofstream reFile(ss1.str());
+                            bytesReceived = read(i, buffer, BUFFER_SIZE);
                             if (bytesReceived < 0)
                                 exitWithError("Failed to read bytes from client socket connection");
                             std::cout << buffer;
                             reFile << buffer;
+                            reFile.close();
+                            FD_SET(*it, &writest);
+                            FD_CLR(*it, &readst);
+                            pars_request(data);
+                            std::ostringstream ss;
+                            ss << "------ Received Request from client ------\n\n";
+                            log(ss.str());
+                            sendResponse(*it);
+                            FD_CLR(*it, &writest);
                         }
-                        reFile.close();
-                        FD_CLR(*it, &readst);
-                        FD_SET(*it, &writest);
-                        pars_request(data);
-                        std::ostringstream ss;
-                        ss << "------ Received Request from client ------\n\n";
-                        log(ss.str());
-                        sendResponse(*it);
                     }
                 }
             }
