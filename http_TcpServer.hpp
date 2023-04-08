@@ -41,7 +41,7 @@ namespace http
             void        startListen(Parsed *data);
             int        acceptConnection();
             std::string buildResponse();
-            void        sendResponse();
+            void        sendResponse(int fd);
     };
 } // namespace http`
 void exitWithError(const std::string& message);
