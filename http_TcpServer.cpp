@@ -58,11 +58,11 @@ int http::TcpServer::acceptConnection(){
 void http::TcpServer::startListen(Parsed *data){
     int                 bytesReceived;
     int                 act;
-    int                 new_fd;
     int                 i = 1;
     timeval             timer;
     fd_set              tmp_set;
     int                 max_fd;
+    int                 max_fd_check;
     std::ostringstream  ss;
 
     if (listen(m_socket, SOMAXCONN) < 0)
@@ -72,48 +72,50 @@ void http::TcpServer::startListen(Parsed *data){
         << " PORT:" << ntohs(m_socketAress.sin_port)
         << "*****\n\n";
     log(ss.str());
-    if (act < 0)
-        exitWithError("--------select error-------");
     if(setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&i, sizeof(i)) < 0 )
         exitWithError("----------setsockopt-----------");
     FD_ZERO(&readst);
     FD_ZERO(&writest);
     FD_SET(m_socket, &readst);
     max_fd = m_socket;
-    timer.tv_sec = 10;
+    timer.tv_sec = 40;
     while (true)
     {
         tmp_set = readst;
         log("====== Waiting for a new connection ======\n\n\n");
-        act = select(max_fd + 1, &tmp_set, &writest, NULL, &timer);
-        log("====== Waiting for a new connection1 ======\n\n\n");
+        act = select(max_fd + 1, &tmp_set, &writest, NULL, NULL);
         if (act < 0)
             exitWithError("--------select error-------");
-        // if (fcntl(max_fd, F_SETFL, O_NONBLOCK))
-        //     exitWithError("--------fcntl error-------");
-        for (int i = 0; i < max_fd +1 ; i++){
-            if (FD_ISSET(i, &readst) || FD_ISSET(i, &writest)){
+        else if (act == 0)
+            log("--------time out-------");
+        for (int i = 0; i < max_fd +1 && act > 0 ; i++){
+            if (FD_ISSET(i, &tmp_set) || FD_ISSET(i, &writest)){
+                act = -1;
                 if (i == m_socket){
-                    max_fd = acceptConnection();
-                    FD_SET(max_fd, &readst);
-                    m_new_socket.push_back(max_fd);
+                    max_fd_check = acceptConnection();
+                    std::cout <<"conection from : "<< max_fd_check << std::endl;
+                    if (fcntl(max_fd_check, F_SETFL, O_NONBLOCK))
+                        exitWithError("--------fcntl error-------");
+                    FD_SET(max_fd_check, &readst);
+                    m_new_socket.push_back(max_fd_check);
+                    if (max_fd_check > max_fd)
+                        max_fd = max_fd_check;
                 }
                 else{
                     for (std::vector<int>::iterator it = m_new_socket.begin(); it < m_new_socket.end(); it++){
-                        if (FD_ISSET(*it, &readst)){
+                        if (FD_ISSET(*it, &tmp_set)){
                             char buffer[BUFFER_SIZE] = {0};
                             std::ostringstream  ss1;
-                            ss1 << "./usefull_files/request_" << *it;
                             std::cout << ss1.str() << std::endl;
                             std::ofstream reFile(ss1.str());
                             bytesReceived = read(i, buffer, BUFFER_SIZE);
                             if (bytesReceived < 0)
                                 exitWithError("Failed to read bytes from client socket connection");
-                            std::cout << buffer;
+                            // std::cout << buffmer;
                             reFile << buffer;
                             reFile.close();
                             FD_SET(*it, &writest);
-                            FD_CLR(*it, &readst);
+                            FD_CLR(*it, &tmp_set);
                             pars_request(data);
                             std::ostringstream ss;
                             ss << "------ Received Request from client ------\n\n";
