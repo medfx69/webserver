@@ -1,5 +1,5 @@
 server {
-    listen 127.0.0.1:8082;
+    listen 127.0.0.1:8081;
     server_name example.com;
 
     root /var/www/example.com;
