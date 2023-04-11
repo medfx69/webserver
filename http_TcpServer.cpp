@@ -31,9 +31,13 @@ http::TcpServer::~TcpServer(){
 
 
 int http::TcpServer::startServer(){
+    int i = 1;
+
     m_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (m_socket < 0)
         exitWithError("Cannot create socket");
+    if(setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&i, sizeof(i)) < 0 )
+        exitWithError("----------setsockopt-----------");
     if (bind(m_socket, (sockaddr *) &m_socketAress, m_socketAddress_len) < 0)
         exitWithError("Cannot connect socket to address");
     return 0;
@@ -54,13 +58,21 @@ int http::TcpServer::acceptConnection(){
     return new_socket;
 }
 
+int setNonblocking(int fd)
+{
+    int flags;
+
+    if (-1 == (flags = fcntl(fd, F_GETFL, 0)))
+        flags = 0;
+    return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
+
 
 void http::TcpServer::startListen(Parsed *data){
     int                 bytesReceived;
     int                 act;
-    int                 i = 1;
+
     timeval             timer;
-    fd_set              tmp_set;
     int                 max_fd;
     int                 max_fd_check;
     std::ostringstream  ss;
@@ -72,30 +84,26 @@ void http::TcpServer::startListen(Parsed *data){
         << " PORT:" << ntohs(m_socketAress.sin_port)
         << "*****\n\n";
     log(ss.str());
-    if(setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&i, sizeof(i)) < 0 )
-        exitWithError("----------setsockopt-----------");
+
     FD_ZERO(&readst);
     FD_ZERO(&writest);
-    FD_SET(m_socket, &readst);
     max_fd = m_socket;
     timer.tv_sec = 40;
     while (true)
     {
-        tmp_set = readst;
+        FD_SET(m_socket, &readst);
         log("====== Waiting for a new connection ======\n\n\n");
-        act = select(max_fd + 1, &tmp_set, &writest, NULL, NULL);
+        act = select(max_fd + 1, &readst, &writest, NULL, NULL);
         if (act < 0)
             exitWithError("--------select error-------");
         else if (act == 0)
             log("--------time out-------");
-        for (int i = 0; i < max_fd +1 && act > 0 ; i++){
-            if (FD_ISSET(i, &tmp_set) || FD_ISSET(i, &writest)){
-                act = -1;
+        for (int i = 0; i < max_fd +1 ; i++){
+            if (FD_ISSET(i, &readst) || FD_ISSET(i, &writest)){
                 if (i == m_socket){
                     max_fd_check = acceptConnection();
-                    std::cout <<"conection from : "<< max_fd_check << std::endl;
-                    if (fcntl(max_fd_check, F_SETFL, O_NONBLOCK))
-                        exitWithError("--------fcntl error-------");
+                    int flags;
+                    // setNonblocking(max_fd_check);
                     FD_SET(max_fd_check, &readst);
                     m_new_socket.push_back(max_fd_check);
                     if (max_fd_check > max_fd)
@@ -103,25 +111,28 @@ void http::TcpServer::startListen(Parsed *data){
                 }
                 else{
                     for (std::vector<int>::iterator it = m_new_socket.begin(); it < m_new_socket.end(); it++){
-                        if (FD_ISSET(*it, &tmp_set)){
+                        if (FD_ISSET(*it, &readst)){
                             char buffer[BUFFER_SIZE] = {0};
                             std::ostringstream  ss1;
-                            std::cout << ss1.str() << std::endl;
+                            std::cout << "catshing " <<*it << std::endl;
+                            ss1 << "./usefull_files/request_" << *it;
                             std::ofstream reFile(ss1.str());
                             bytesReceived = read(i, buffer, BUFFER_SIZE);
                             if (bytesReceived < 0)
                                 exitWithError("Failed to read bytes from client socket connection");
-                            // std::cout << buffmer;
                             reFile << buffer;
                             reFile.close();
-                            FD_SET(*it, &writest);
-                            FD_CLR(*it, &tmp_set);
+                            if (*it != m_socket){
+                                FD_SET(*it, &writest);
+                                FD_CLR(*it, &readst);
+                            }
                             pars_request(data);
                             std::ostringstream ss;
                             ss << "------ Received Request from client ------\n\n";
                             log(ss.str());
                             sendResponse(*it);
                             FD_CLR(*it, &writest);
+                            close(*it);
                         }
                     }
                 }
