@@ -96,8 +96,8 @@ void http::TcpServer::startListen(Parsed *data){
         act = select(max_fd + 1, &readst, &writest, NULL, NULL);
         if (act < 0)
             exitWithError("--------select error-------");
-        else if (act == 0)
-            log("--------time out-------");
+        // else if (act == 0)
+        //     log("--------time out-------");
         for (int i = 0; i < max_fd +1 ; i++){
             if (FD_ISSET(i, &readst) || FD_ISSET(i, &writest)){
                 if (i == m_socket){
