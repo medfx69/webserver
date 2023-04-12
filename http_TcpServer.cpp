@@ -103,7 +103,7 @@ void http::TcpServer::startListen(Parsed *data){
                 if (i == m_socket){
                     max_fd_check = acceptConnection();
                     int flags;
-                    // setNonblocking(max_fd_check);
+                    setNonblocking(max_fd_check);
                     FD_SET(max_fd_check, &readst);
                     m_new_socket.push_back(max_fd_check);
                     if (max_fd_check > max_fd)
@@ -114,25 +114,24 @@ void http::TcpServer::startListen(Parsed *data){
                         if (FD_ISSET(*it, &readst)){
                             char buffer[BUFFER_SIZE] = {0};
                             std::ostringstream  ss1;
-                            std::cout << "catshing " <<*it << std::endl;
-                            ss1 << "./usefull_files/request_" << *it;
+                            ss1 << "/usefull_files/request_" << *it;
                             std::ofstream reFile(ss1.str());
                             bytesReceived = read(i, buffer, BUFFER_SIZE);
-                            if (bytesReceived < 0)
-                                exitWithError("Failed to read bytes from client socket connection");
-                            reFile << buffer;
-                            reFile.close();
-                            if (*it != m_socket){
-                                FD_SET(*it, &writest);
-                                FD_CLR(*it, &readst);
+                            if (bytesReceived >= 0){
+                                reFile << buffer;
+                                reFile.close();
+                                if (*it != m_socket){
+                                    FD_SET(*it, &writest);
+                                    FD_CLR(*it, &readst);
+                                }
+                                pars_request(data);
+                                std::ostringstream ss;
+                                ss << "------ Received Request from client ------\n\n";
+                                log(ss.str());
+                                sendResponse(*it);
+                                FD_CLR(*it, &writest);
+                                // close(*it);
                             }
-                            pars_request(data);
-                            std::ostringstream ss;
-                            ss << "------ Received Request from client ------\n\n";
-                            log(ss.str());
-                            sendResponse(*it);
-                            FD_CLR(*it, &writest);
-                            close(*it);
                         }
                     }
                 }
