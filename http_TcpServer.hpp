@@ -8,8 +8,12 @@
 #include <sys/types.h>
 #include <sstream>
 #include <string>
+#include <iterator>
+#include <unistd.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <vector>
 #define BUFFER_SIZE 400000
 
 class Parsed;
@@ -22,7 +26,8 @@ namespace http
         private:
             std::string         m_ip_address;
             int                 m_socket;
-            int                 m_new_socket;
+            std::vector<int>    m_new_socket;
+            fd_set              readst, writest;
             int                 m_port;
             long                m_incomingMessage;
             struct sockaddr_in  m_socketAress;
@@ -34,9 +39,9 @@ namespace http
             TcpServer(std::string ip_address, int port);
             ~TcpServer();
             void        startListen(Parsed *data);
-            void        acceptConnection(int &new_socket);
+            int        acceptConnection();
             std::string buildResponse();
-            void        sendResponse();
+            void        sendResponse(int fd);
     };
 } // namespace http`
 void exitWithError(const std::string& message);
