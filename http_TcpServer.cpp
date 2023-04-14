@@ -69,13 +69,10 @@ int setNonblocking(int fd)
 
 
 void http::TcpServer::startListen(Parsed *data){
-    int                 bytesReceived;
-    int                 act;
-    timeval             timer;
-    int                 max_fd;
-    int                 max_fd_tmp;
-    int                 max_fd_check;
+    int                 bytesReceived, max_fd, max_fd_tmp, act, max_fd_check;
+    fd_set              read_tmp, write_tmp;
     std::ostringstream  ss;
+    timeval             timer;
 
     if (listen(m_socket, SOMAXCONN) < 0)
         exitWithError("Socket listen failed");
@@ -90,54 +87,49 @@ void http::TcpServer::startListen(Parsed *data){
     max_fd = m_socket;
     max_fd_tmp = m_socket;
     timer.tv_sec = 40;
+    FD_SET(m_socket, &readst);
     while (true)
     {
-        FD_SET(m_socket, &readst);
+        read_tmp = readst;
+        write_tmp = writest;
         log("====== Waiting for a new connection ======\n\n\n");
         act = select(max_fd +1, &readst, &writest, NULL, NULL);
         if (act < 0)
             exitWithError("--------select error-------");
-        else if (act == 0)
-            break;
-        for (int i = 0; i < max_fd +1 && act > 0 ; i++){
+        for (int i = 0; i < max_fd +1 ; i++){
             if (FD_ISSET(i, &readst) || FD_ISSET(i, &writest)){
                 if (i == m_socket){
-                    act = -1;
                     max_fd_check = acceptConnection();
-                    setNonblocking(max_fd_check);
-                    int flags;
-                    FD_SET(max_fd_check, &readst);
+                    FD_SET(max_fd_check, &read_tmp);
                     m_new_socket.push_back(max_fd_check);
                     if (max_fd_check > max_fd_tmp)
                         max_fd_tmp = max_fd_check;
+                    setNonblocking(max_fd_check);
                 }
                 else{
-                    for (std::vector<int>::iterator it = m_new_socket.begin(); it < m_new_socket.end(); it++){
-                        if (FD_ISSET(*it, &readst) || FD_ISSET(*it, &writest)){
-                            char buffer[BUFFER_SIZE] = {0};
-                            bytesReceived = read(i, buffer, BUFFER_SIZE);
-                            if (bytesReceived >= 0){
-                                std::ostringstream  ss1;
-                                ss1 << "/usefull_files/request_" << *it;
-                                std::ofstream reFile(ss1.str());
-                                reFile << buffer;
-                                reFile.close();
-                                if (*it != m_socket){
-                                    FD_SET(*it, &writest);
-                                    FD_CLR(*it, &readst);
-                                }
-                                pars_request(data);
-                                std::ostringstream ss;
-                                ss << "------ Received Request from client ------\n\n";
-                                log(ss.str());
-                                sendResponse(*it);
-                                FD_CLR(*it, &writest);
-                            }
-                        }
+                    char buffer[BUFFER_SIZE] = {0};
+                    bytesReceived = read(i, buffer, BUFFER_SIZE);
+                    if (bytesReceived >= 0){
+                        std::ostringstream  ss1;
+                        ss1 << "./usefull_files/request_" << i;
+                        std::ofstream reFile(ss1.str());
+                        reFile << buffer;
+                        reFile.close();
+                        FD_SET(i, &write_tmp);
+                        FD_CLR(i, &read_tmp);
+                        pars_request(data);
+                        std::ostringstream ss;
+                        ss << "------ Received Request from client ------\n\n";
+                        log(ss.str());
+                        if (FD_ISSET(i, &write_tmp))
+                            sendResponse(i);
+                        FD_CLR(i, &writest);
                     }
                 }
             }
         }
+        writest = write_tmp;
+        readst = read_tmp;
         max_fd = max_fd_tmp;
     }
 }
@@ -163,13 +155,10 @@ std::string http::TcpServer::buildResponse(){
 void http::TcpServer::sendResponse(int fd){
     long    bytesSent;
 
-        if (FD_ISSET(fd, &writest)){
-            bytesSent = write(fd, m_serverMessage.c_str(), m_serverMessage.size());
-            if (bytesSent > 0){
-                FD_CLR(fd, &writest);
-                // close(fd);
-            }
-
+        bytesSent = write(fd, m_serverMessage.c_str(), m_serverMessage.size());
+        if (bytesSent > 0){
+            FD_CLR(fd, &writest);
+            // close(fd);
         }
     // if (bytesSent == m_serverMessage.size())
     //     log("------ Server Response sent to client ------\n\n");
