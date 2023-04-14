@@ -81,7 +81,6 @@ void http::TcpServer::startListen(Parsed *data){
         << " PORT:" << ntohs(m_socketAress.sin_port)
         << "*****\n\n";
     log(ss.str());
-
     FD_ZERO(&readst);
     FD_ZERO(&writest);
     max_fd = m_socket;
@@ -137,7 +136,6 @@ void http::TcpServer::startListen(Parsed *data){
 
 int http::TcpServer::closeServer(){
     close(m_socket);
-    close(*(m_new_socket.end() -1));
     exit(0);
 }
 
