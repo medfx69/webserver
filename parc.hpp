@@ -41,9 +41,9 @@ public:
 	std::string absoluteURI;
 	std::string http_version;
 	std::map<std::string, std::string> data;
-	// request(std::string x){
 
-	// }
+	
+	request(std::string x);
 };
 
 class data_reader
@@ -70,6 +70,40 @@ public:
 	Parsed(char *);
 	~Parsed();
 };
+
+request::request(std::string x)
+{
+	std::ifstream myfile;
+	std::string tmp;
+	int i = 0;
+	myfile.open(x);
+	if (myfile.fail())
+	{
+		// error msg;
+	}
+	while (getline(myfile, tmp))
+	{
+		std::istringstream iss(tmp);
+		if (i == 0)
+		{
+			iss >> method;
+			iss >> absoluteURI;
+			iss >> http_version;
+		}
+		else
+		{
+			std::string tmp2;
+			std::string tmp3;
+			iss >> tmp2;
+			iss >> tmp3;
+			std::pair<std::string, std::string> pr;
+			pr.first = tmp2;
+			pr.second = tmp3;
+			data.insert(pr);
+		}
+		i++;
+	}
+}
 
 data_reader read_block(std::ifstream &myFile, std::string block_start)
 {
@@ -126,36 +160,36 @@ std::vector<std::string> parser_helper(std::string s)
 
 void pars_request(Parsed *data)
 {
-	std::ifstream myfile;
-	std::string tmp;
-	int i = 0;
-	data->req = new request();
-	myfile.open("usefull_files/request");
-	if (myfile.fail())
-	{
-	}
-	while (getline(myfile, tmp))
-	{
-		std::istringstream iss(tmp);
-		if (i == 0)
-		{
-			iss >> data->req->method;
-			iss >> data->req->absoluteURI;
-			iss >> data->req->http_version;
-		}
-		else
-		{
-			std::string tmp2;
-			std::string tmp3;
-			iss >> tmp2;
-			iss >> tmp3;
-			std::pair<std::string, std::string> pr;
-			pr.first = tmp2;
-			pr.second = tmp3;
-			data->req->data.insert(pr);
-		}
-		i++;
-	}
+	// std::ifstream myfile;
+	// std::string tmp;
+	// int i = 0;
+	data->req = new request("usefull_files/request");
+	// myfile.open("usefull_files/request");
+	// if (myfile.fail())
+	// {
+	// }
+	// while (getline(myfile, tmp))
+	// {
+	// 	std::istringstream iss(tmp);
+	// 	if (i == 0)
+	// 	{
+	// 		iss >> data->req->method;
+	// 		iss >> data->req->absoluteURI;
+	// 		iss >> data->req->http_version;
+	// 	}
+	// 	else
+	// 	{
+	// 		std::string tmp2;
+	// 		std::string tmp3;
+	// 		iss >> tmp2;
+	// 		iss >> tmp3;
+	// 		std::pair<std::string, std::string> pr;
+	// 		pr.first = tmp2;
+	// 		pr.second = tmp3;
+	// 		data->req->data.insert(pr);
+	// 	}
+	// 	i++;
+	// }
 }
 
 void pars_locations(Parsed *data)
