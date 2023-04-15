@@ -7,8 +7,9 @@
 
 #include <sstream>
 
-struct location
+class location
 {
+public:
 	std::vector<std::pair<std::vector<std::string>, std::string> > error_page;
 	std::string client_max_body_size;
 	// std::vector<std::string> index;
@@ -17,9 +18,10 @@ struct location
 	std::string chunked_transfer_encoding;
 };
 
-struct server
+class server
 {
-	std::vector<struct location> location;
+public:
+	std::vector<location> location;
 	std::pair<std::string, std::string> listen;
 	std::string server_name;
 	std::vector<std::pair<std::vector<std::string>, std::string> > error_page;
@@ -32,19 +34,24 @@ struct server
 	std::string chunked_transfer_encoding;
 };
 
-struct request
+class request
 {
+public:
 	std::string method;
 	std::string absoluteURI;
 	std::string http_version;
 	std::map<std::string, std::string> data;
+	// request(std::string x){
+
+	// }
 };
 
-struct data_reader
+class data_reader
 {
+public:
 	std::string block_name;
 	std::vector<std::string> dir;
-	std::vector<struct data_reader> block;
+	std::vector<data_reader> block;
 };
 
 class Parsed
@@ -63,7 +70,6 @@ public:
 	Parsed(char *);
 	~Parsed();
 };
-
 
 data_reader read_block(std::ifstream &myFile, std::string block_start)
 {
@@ -154,7 +160,7 @@ void pars_request(Parsed *data)
 
 void pars_locations(Parsed *data)
 {
-	std::vector<struct data_reader>::iterator it = data->getserver()->block.begin();
+	std::vector<data_reader>::iterator it = data->getserver()->block.begin();
 
 	while (it < data->getserver()->block.end())
 	{
@@ -264,7 +270,7 @@ Parsed::Parsed(char *file)
 Parsed &Parsed::operator=(const Parsed &parsed)
 {
 	data_reader tmp;
-	std::vector<struct data_reader>::iterator it = parsed.getserver()->block.begin();
+	std::vector<data_reader>::iterator it = parsed.getserver()->block.begin();
 
 	delete s;
 	s = new data_reader();
