@@ -18,6 +18,8 @@ data_reader read_block(std::ifstream &myFile, std::string block_start)
 	return s;
 }
 
+// this function need to return a vector
+
 data_reader *parec(char *s)
 {
 	data_reader *ser;
@@ -26,6 +28,7 @@ data_reader *parec(char *s)
 	std::string readed;
 
 	ser = new data_reader();
+	//------------------ this should have othere loop that gathers all the server blocks ---------------
 	while (getline(myFile, readed) && readed.find('{') == std::string::npos)
 		;
 	ser->block_name = readed.substr(0, readed.find('{'));
@@ -38,6 +41,7 @@ data_reader *parec(char *s)
 		else
 			;
 	}
+	//--------------------------------------------------------------------------------------------------
 	return ser;
 }
 
@@ -145,13 +149,13 @@ void pars_locations(Parsed *data)
 		it++;
 	}
 }
-
+// this function should return a vector of servers and take a vector also of data_readers
 server *data_handler(data_reader *s)
 {
 	std::vector<std::string>::iterator it = s->dir.begin();
 
 	server *x = new (server);
-
+// in this loop we should itrate over all s <vector> elements to get the data of all the servers
 	while (it < s->dir.end())
 	{
 		std::istringstream iss(*it);
@@ -181,5 +185,6 @@ server *data_handler(data_reader *s)
 			x->chunked_transfer_encoding = tmp2;
 		it++;
 	}
+// ----------------------------------------------------------------------------------------------
 	return (x);
 }
