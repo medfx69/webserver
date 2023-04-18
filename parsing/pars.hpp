@@ -9,18 +9,18 @@ class data_reader;
 class Parsed
 {
 private:
-	data_reader *s;
-	server *handled_data;
+	std::vector<data_reader> s;
+	std::vector<server> handled_data;
 
 public:
 	request *req;
 	Parsed();
 	Parsed &operator=(const Parsed &parsed);
 	Parsed(const Parsed &s);
-	data_reader *getserver() const;
-	server *getDate() const;
+	std::vector<data_reader> getserver() const;
+	std::vector<server> getDate() const;
 	Parsed(char *);
-	~Parsed();
+	// ~Parsed();
 };
 
 #endif

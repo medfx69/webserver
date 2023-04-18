@@ -1,5 +1,30 @@
+dfgfgfd
+
 server {
     listen 127.0.0.1:8080;
+    server_name example.com;
+
+    root /var/www/example.com;
+    error_page 404 /404.html;
+    error_page 500 502 503 504 /50x.html;
+
+    location /dsfdsf/dsfdsf/dsf {
+        try_files $uri $uri/ /index.html>>>;
+        error_page 500 502 503 504 /50x.html;
+        try_files $uri $uri/ /index.html1>>>;
+        try_files $uri $uri/ /index.html2>>
+    }
+    location2 /ali/mohamed {
+        try_files $uri $uri2/ /index.html;
+        try_files $uri $uri2/ /index.html1;
+        try_files $uri $uri2/ /index.html2;
+    }
+    client_max_body_size 10m;
+}
+
+
+server {
+    listen 1.1.1.1:9000;
     server_name example.com;
 
     root /var/www/example.com;
