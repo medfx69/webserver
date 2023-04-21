@@ -64,12 +64,5 @@ int main()
     f_remove(fd);
 }
 
-// an example of a DELETE request in HTTP:
-// DELETE /resource HTTP/1.1
-// Host: example.com
-// Authorization: Basic YWxhZGRpbjpvcGVuc2VzYW1l
-
-// If the client is not authorized to delete the resource,
-// the server should respond with a 403 Forbidden status code
 
 
