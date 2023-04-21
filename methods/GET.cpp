@@ -1,6 +1,6 @@
 #include "../http_TcpServer.hpp"
 
-void   get_resp(std::string request_method,int &new_socket, std::string request_path)
+void   get_response(std::string request_method,int &new_socket, std::string request_path)
 {
     if (request_method != "GET") {
         std::cerr << "Unsupported HTTP method: " << request_method << '\n';
