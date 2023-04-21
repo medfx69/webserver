@@ -110,6 +110,7 @@ int http::TcpServer::closeServer(){
     exit(0);
 }
 
+
 std::string http::TcpServer::buildResponse(){
     std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :) <img src='u.jpeg'/></p></body></html>";
     std::ostringstream ss;
