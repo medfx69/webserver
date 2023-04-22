@@ -24,6 +24,19 @@ struct clinte
     std::string clinte_resFile;
 };
 
+struct server_fd
+{
+    int socket_fd;
+    int max_fd;
+    fd_set writeset, readset;
+    server_fd(int fd){
+        socket_fd = fd;
+        max_fd = fd;
+        FD_SET(fd, &readset);
+        FD_ZERO(&writeset);
+    }
+}; 
+
 
 namespace http
 {
@@ -34,6 +47,7 @@ namespace http
             std::vector<std::string>            m_ip_address;
             std::vector<int>                    m_port;
             std::vector<int>                    m_socket;
+            std::vector<server_fd>              serverFd;
             std::vector<int>                    m_new_socket;
             std::vector<clinte>                 clintes;
             std::string                         m_serverMessage;

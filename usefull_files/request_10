@@ -1,5 +1,5 @@
 GET /null HTTP/1.1
-Host: 127.0.0.1:8080
+Host: localhost:8080
 Connection: keep-alive
 sec-ch-ua: "Google Chrome";v="111", "Not(A:Brand";v="8", "Chromium";v="111"
 sec-ch-ua-mobile: ?0
@@ -9,7 +9,7 @@ Accept: image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8
 Sec-Fetch-Site: same-origin
 Sec-Fetch-Mode: no-cors
 Sec-Fetch-Dest: image
-Referer: http://127.0.0.1:8080/
+Referer: http://localhost:8080/
 Accept-Encoding: gzip, deflate, br
 Accept-Language: en,ar;q=0.9,en-US;q=0.8
 
