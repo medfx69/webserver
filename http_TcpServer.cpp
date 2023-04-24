@@ -11,8 +11,7 @@ void exitWithError(const std::string &message)
 }
 
 http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket(), m_incomingMessage(),
-                                                               m_socketAress(),
-                                                               m_serverMessage(buildResponse())
+                                                               m_socketAress()
 {
     std::vector<server>::iterator it;
     for(it = _data->getDate().begin(); it < _data->getDate().end(); it++){
@@ -128,6 +127,7 @@ void http::TcpServer::startListen(Parsed *data){
                             FD_SET(i, &write_tmp);
                             FD_CLR(i, &read_tmp);
                             pars_request(data);
+                            buildResponse();
                             std::ostringstream ss;
                             ss << "------ Received Request from client ------\n\n";
                             log(ss.str());
@@ -155,14 +155,25 @@ int http::TcpServer::closeServer()
     exit(0);
 }
 
-std::string http::TcpServer::buildResponse()
+void http::TcpServer::buildResponse()
 {
+    if(_data->req->method == "GET") {
+        resp->get_response();
+        return ;
+    }
+    else if(_data->req->method == "DELETE")
+        ;
+    else if(_data->req->method == "POST")
+        ;
+    else {
+        std::cerr << "Unsupported HTTP method: " << _data->req->method << '\n';
+        this->m_serverMessage = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
+        return ;
+    }
     std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :)</body></html>";
     std::ostringstream ss;
-
-    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n"
-       << htmlFile;
-    return ss.str();
+    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n" << htmlFile;
+    this->m_serverMessage = ss.str();
 }
 
 void http::TcpServer::sendResponse(int fd)
