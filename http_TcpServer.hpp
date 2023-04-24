@@ -15,8 +15,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <vector>
+#include <methods/http_response.hpp>
 #define BUFFER_SIZE 400000
 
+ 
 struct clinte
 {
     int clinte_fd;
@@ -37,6 +39,7 @@ struct server_fd
     }
 }; 
 
+class response;
 
 namespace http
 {
@@ -44,6 +47,7 @@ namespace http
     {
         private:
             Parsed *_data;
+            response *resp;
             std::vector<std::string>            m_ip_address;
             std::vector<int>                    m_port;
             std::vector<int>                    m_socket;
@@ -62,7 +66,7 @@ namespace http
             ~TcpServer();
             void                                startListen(Parsed *data);
             int                                 acceptConnection(int fd);
-            std::string                         buildResponse();
+            void                                buildResponse();
             void                                sendResponse(int fd);
     };
 } // namespace http`
