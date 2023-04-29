@@ -1,5 +1,5 @@
-#ifndef HTTP_RESPONSE.HPP
-#define HTTP_RESPONSE.HPP
+#ifndef HTTP_RESPONSE_HPP
+#define HTTP_RESPONSE_HPP
 
 #include "../parsing/includes.hpp"
 #include "../http_TcpServer.hpp"
@@ -7,10 +7,10 @@
 class response
 {
     private:
-        http::TcpServer *tcp;
+        // http::TcpServer *tcp;
     public:
         // response();
-        void get_response();
+        std::string get_response(Parsed *data);
 };
 
 #endif

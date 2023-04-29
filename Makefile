@@ -1,4 +1,4 @@
-SRC = server.cpp http_TcpServer.cpp parsing/request.cpp parsing/pars.cpp  parsing/func.cpp
+SRC = server.cpp http_TcpServer.cpp parsing/request.cpp parsing/pars.cpp  parsing/func.cpp methods/http_response.cpp
 
 NAME = webserv
 

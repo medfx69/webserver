@@ -92,17 +92,18 @@ void http::TcpServer::startListen(Parsed *data){
             exitWithError("Socket listen failed");
     max_fd = *(m_socket.end() - 1);
     max_fd_tmp = max_fd;
-    timer.tv_sec = 40;
+    timer.tv_sec = 4;
     for (std::vector<int>::iterator it = m_socket.begin(); it < m_socket.end(); it++)
         FD_SET(*it, &readst);
     while (true)
     {
+        int j = 0;
         for (std::vector<int>::iterator it = m_socket.begin(); it < m_socket.end(); it++){
             read_tmp = readst;
             write_tmp = writest;
             // log("====== Waiting for a new connection ======\n\n\n");
             act = select(max_fd +1, &readst, &writest, NULL, &timer);
-            std::cout << act << std::endl;
+            // std::cout << act << std::endl;
             if (act < 0)
                 exitWithError("--------select error-------");
             for (int i = 0; i < max_fd +1 ; i++){
@@ -121,13 +122,16 @@ void http::TcpServer::startListen(Parsed *data){
                         if (bytesReceived >= 0){
                             std::ostringstream  ss1;
                             ss1 << "./usefull_files/request_" << i;
+                            clintes.push_back(clinte(data[j], ss1.str(), i));
+                            data->reqPath = ss1.str();
                             std::ofstream reFile(ss1.str());
                             reFile << buffer;
                             reFile.close();
                             FD_SET(i, &write_tmp);
                             FD_CLR(i, &read_tmp);
-                            pars_request(data);
-                            buildResponse();
+                            std::cout << "hello\n";
+                            data->req = pars_request(data);
+                            buildResponse(data);
                             std::ostringstream ss;
                             ss << "------ Received Request from client ------\n\n";
                             log(ss.str());
@@ -135,10 +139,9 @@ void http::TcpServer::startListen(Parsed *data){
                                 sendResponse(i);
                             FD_CLR(i, &write_tmp);
                         }
-                        else if (bytesReceived == 0)
-                            close(i);
                     }
                 }
+                j++;
             }
             writest = write_tmp;
             readst = read_tmp;
@@ -155,18 +158,19 @@ int http::TcpServer::closeServer()
     exit(0);
 }
 
-void http::TcpServer::buildResponse()
+void http::TcpServer::buildResponse(Parsed *data)
 {
-    if(_data->req->method == "GET") {
-        resp->get_response();
+    std::cout << ">>>>>" <<  data->req->method<< std::endl;
+    if(data->req->method == "GET") {
+        m_serverMessage = resp->get_response(data);
         return ;
     }
-    else if(_data->req->method == "DELETE")
+    else if(data->req->method == "DELETE")
         ;
-    else if(_data->req->method == "POST")
+    else if(data->req->method == "POST")
         ;
     else {
-        std::cerr << "Unsupported HTTP method: " << _data->req->method << '\n';
+        std::cerr << "Unsupported HTTP method: " << data->req->method << '\n';
         this->m_serverMessage = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
         return ;
     }
