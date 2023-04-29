@@ -5,6 +5,7 @@
 class server;
 class data_reader;
 class Parsed;
+class request;
 struct data_reader
 {
 public:
@@ -16,7 +17,7 @@ public:
 data_reader read_block(std::ifstream &myFile, std::string block_start);
 std::vector<data_reader> parec(char *s);
 std::vector<std::string> parser_helper(std::string s);
-void pars_request(Parsed *data);
+request * pars_request(Parsed *data);
 void pars_locations(Parsed *data);
 std::vector<server> data_handler(std::vector<data_reader> s);
 

@@ -1,16 +1,20 @@
 #include "http_response.hpp"
 
-void   response::get_response()
+std::string   response::get_response(Parsed *data)
 {
-    std::string file_path = "." + this->tcp->_data->req->absoluteURI;
+    std::string     m_serverMessage;
+
+
+    std::string file_path = "." + data->req->absoluteURI;
     std::ifstream file(file_path.c_str());
     if (!file.is_open()) {
         std::cerr << "Failed to open file: " << file_path << '\n';
-        this->tcp->m_serverMessage = "HTTP/1.1 404 Not Found\r\n\r\n";
-        return ;
+        m_serverMessage = "HTTP/1.1 404 Not Found\r\n\r\n";
+        return m_serverMessage;
     }
     std::ostringstream file_content;
     file_content << file.rdbuf();
     file.close();
-    this->tcp->m_serverMessage = "HTTP/1.1 200 OK\r\n\r\n" + file_content.str();
+    m_serverMessage = "HTTP/1.1 200 OK\r\n\r\n" + file_content.str();
+    return m_serverMessage;
 }
