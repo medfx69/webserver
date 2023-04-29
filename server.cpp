@@ -7,7 +7,7 @@ int main(int ac, char **av)
     if (ac == 2)
     {
         Parsed pr(av[1]);
-        Parsed *prq = &pr;
+        // Parsed *prq = &pr;
 
         (void)ac;
         {
@@ -18,7 +18,7 @@ int main(int ac, char **av)
                std::cout << (*it).listen.first << "      " << (*it).listen.second << std::endl;
                std::cout << (*it).root << "     " <<  (*it).client_max_body_size << std::endl;
                std::cout << "---------- location -----------------\n\n" << std::endl;
-               for (std::vector<location>::iterator it2 = (*it).location.begin(); it2 < (*it).location.end();it2++)
+               for (std::vector<Location>::iterator it2 = (*it).location.begin(); it2 < (*it).location.end();it2++)
                {
                 //    std::cout << "---------" << std::endl;
                }

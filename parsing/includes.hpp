@@ -9,7 +9,7 @@
 #include <sstream>
 #include <fstream>
 #include "func.hpp"
-#include "location.hpp"
+#include "Location.hpp"
 #include "server.hpp"
 #include "request.hpp"
 #include "pars.hpp"

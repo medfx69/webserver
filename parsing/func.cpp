@@ -1,5 +1,19 @@
 #include "func.hpp"
 
+data_reader &data_reader::operator=(data_reader& data)
+{
+	block_name = data.block_name;
+	dir = copyy(data.dir);
+	std::cout << "sdffdsfadsfads" << std::endl;
+	// kfor (int i = 0; i < data.block.size(); i++)
+	// {
+	// 	// std::cout << ">>>>";
+	// 	std::cout << ">>>>" << data.block[i].block_name << std::endl;
+	// }
+		
+	return *this;
+}
+
 data_reader read_block(std::ifstream &myFile, std::string block_start)
 {
 	data_reader s;
@@ -72,77 +86,57 @@ void pars_request(Parsed *data)
 	data->req = new request("usefull_files/request");
 }
 
-void pars_locations(Parsed *data)
+std::vector<Location> pars_locations(data_reader data)
 {
-
-	for (std::vector<server>::iterator it = data->getDate().begin(); it < data->getDate().end(); it++)
+	std::vector<Location> locv;
+	std::vector<data_reader>::iterator it0 = data.block.begin();
+	while (it0 < data.block.end())
 	{
-		// std::cout << ((*it).location)[0] << std::endl;
-		std::cout << (*it).listen.first << "   <-------->   "  << (*it).listen.second << std::endl;
-		std::cout << (*it).server_name << std::endl;
-		// std::cout << (*it).error_page << std::endl;
-		std::cout << (*it).client_max_body_size << std::endl;
-		std::cout << (*it).root << std::endl;
-		std::cout << (*it).autoindex << std::endl;
-		std::cout << (*it).chunked_transfer_encoding << std::endl;
+		std::istringstream iss((*it0).block_name);
+		std::string tmp;
+		iss >> tmp;
+		iss >> tmp;
+		(*it0).block_name = tmp;
+		std::vector<std::string>::iterator iite2 = (*it0).dir.begin();
+		Location x;
+		while (iite2 < (*it0).dir.end())
+		{
+			std::istringstream iss2(*iite2);
+			std::string tmp;
+			std::string tmp2;
+
+			iss2 >> tmp;
+			iss2 >> tmp2;
+			if (tmp2.find(';') != std::string::npos)
+				tmp2.erase(tmp2.find(';'), 1);
+
+			if (tmp.compare("try_files") == 0)
+				x.try_files.push_back(parser_helper(*iite2));
+			else if (tmp.compare("client_max_body_size") == 0)
+				x.client_max_body_size = tmp2;
+			else if (tmp.compare("autoindex") == 0)
+				x.autoindex = tmp2;
+			else if (tmp.compare("chunked_transfer_encoding") == 0)
+				x.chunked_transfer_encoding = tmp2;
+			else if (tmp.compare("error_page") == 0)
+			{
+				std::pair<std::vector<std::string>, std::string> adder;
+				adder.first = parser_helper(*iite2);
+				while (iss2 >> tmp2)
+					;
+				if (tmp2.find(';') != std::string::npos)
+					tmp2.erase(tmp2.find(';'), 1);
+				adder.second = tmp2;
+				x.error_page.push_back(adder);
+			}
+			iite2++;
+		}
+		it0++;
+		locv.push_back(x);
 	}
-	// std::vector<data_reader>::iterator it = data->getserver()->block.begin();
-
-	// while (it < data->getserver()->block.end())
-	// {
-	// 	std::istringstream iss((*it).block_name);
-	// 	std::string tmp;
-	// 	iss >> tmp;
-	// 	iss >> tmp;
-	// 	(*it).block_name = tmp;
-	// 	std::vector<std::string>::iterator it2 = (*it).dir.begin();
-	// 	location *x = new location();
-	// 	while (it2 < (*it).dir.end())
-	// 	{
-	// 		std::istringstream iss2(*it2);
-	// 		std::string tmp;
-	// 		std::string tmp2;
-
-	// 		iss2 >> tmp;
-	// 		iss2 >> tmp2;
-	// 		if (tmp2.find(';') != std::string::npos)
-	// 			tmp2.erase(tmp2.find(';'), 1);
-
-	// 		if (tmp.compare("try_files") == 0)
-	// 			x->try_files.push_back(parser_helper(*it2));
-	// 		else if (tmp.compare("client_max_body_size") == 0)
-	// 			x->client_max_body_size = tmp2;
-	// 		else if (tmp.compare("autoindex") == 0)
-	// 			x->autoindex = tmp2;
-	// 		else if (tmp.compare("chunked_transfer_encoding") == 0)
-	// 			x->chunked_transfer_encoding = tmp2;
-	// 		else if (tmp.compare("error_page") == 0)
-	// 		{
-	// 			std::pair<std::vector<std::string>, std::string> adder;
-	// 			adder.first = parser_helper(*it2);
-	// 			while (iss2 >> tmp2)
-	// 				;
-	// 			if (tmp2.find(';') != std::string::npos)
-	// 				tmp2.erase(tmp2.find(';'), 1);
-	// 			adder.second = tmp2;
-	// 			x->error_page.push_back(adder);
-	// 			// std::cout << "Vector of pair the first :: " << std::endl;
-	// 			// std::vector<std::string>::iterator itt = adder.first.begin();
-	// 			// while (itt < adder.first.end())
-	// 			// {
-	// 			//     std::cout << "this is vector first element  -> " << (*itt) << std::endl;
-
-	// 			//     itt++;
-	// 			// }
-	// 			// std::cout << "this is second -> " << adder.second << std::endl;
-	// 		}
-
-	// 		it2++;
-	// 	}
-	// 	it++;
-	// }
+	return locv;
 }
-// this function should return a vector of servers and take a vector also of data_readers
+
 std::vector<server> data_handler(std::vector<data_reader> s)
 {
 	std::vector<server> serv;
@@ -181,6 +175,7 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 				x.chunked_transfer_encoding = tmp2;
 			it++;
 		}
+		x.location = pars_locations(*it0);
 		serv.push_back(x);
 	}
 	return (serv);
