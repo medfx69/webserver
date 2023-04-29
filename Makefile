@@ -1,8 +1,8 @@
-SRC = server.cpp http_TcpServer.cpp parsing/request.cpp parsing/pars.cpp  parsing/func.cpp parsing/location.cpp parsing/server.cpp
+SRC = server.cpp http_TcpServer.cpp parsing/request.cpp parsing/pars.cpp  parsing/func.cpp parsing/Location.cpp parsing/server.cpp
 
 NAME = webserv
 
-FLAG = c++  #-fsanitize=address -g3#-Wall -Wextra -Werror -std=c++98
+FLAG = c++ -g #-fsanitize=address -g3#-Wall -Wextra -Werror -std=c++98
 
 all : ${NAME}
 

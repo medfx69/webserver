@@ -1,6 +1,6 @@
-#include "location.hpp"
+#include "Location.hpp"
 
-location	&location::operator=(location &x)
+Location	&Location::operator=(Location &x)
 {
 	this->client_max_body_size = x.client_max_body_size;
 	this->autoindex = x.autoindex;

@@ -9,7 +9,7 @@ Parsed::Parsed(char *file)
 {
 	s = parec(file);
 	handled_data = data_handler(s);
-	pars_locations(this);
+	
 }
 
 Parsed &Parsed::operator=(const Parsed &parsed)
