@@ -1,5 +1,6 @@
 #include "server.hpp"
 
+
 std::vector<std::string> copyy(std::vector<std::string> &x)
 {
 	std::vector<std::string> res;
@@ -15,12 +16,14 @@ server &server::operator=(server &x)
 			server_name = x.server_name;
 			client_max_body_size = x.client_max_body_size;
 			root = x.root;
-			location = x.location;
+			
 			listen.first = x.listen.first;
 			listen.second = x.listen.second;
 			index = copyy(x.index);
 			allow = copyy(x.allow);
 			deny = copyy(x.deny);
+			for (std::vector<Location>::iterator it = x.location.begin(); it < x.location.end();it++)
+					location.push_back(*it);
 			for (std::vector<std::pair<std::vector<std::string>, std::string> >::iterator it = x.error_page.begin(); it < x.error_page.end(); it++)
 			{
 				std::pair<std::vector<std::string>, std::string>	pr;

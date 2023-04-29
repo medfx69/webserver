@@ -1,7 +1,7 @@
 #ifndef LOCATION_HPP
 #define LOCATION_HPP
 #include "includes.hpp"
-class location
+class Location
 {
 public:
 	std::vector<std::pair<std::vector<std::string>, std::string> > error_page;
@@ -10,7 +10,7 @@ public:
 	std::vector<std::vector<std::string> > try_files;
 	std::string autoindex;
 	std::string chunked_transfer_encoding;
-	location	&operator=(location &x);
+	Location	&operator=(Location &x);
 };
 
 

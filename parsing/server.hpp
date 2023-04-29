@@ -5,12 +5,12 @@
 
 std::vector<std::string> copyy(std::vector<std::string> &x);
 
-class location;
+class Location;
 
 class server
 {
 	public:
-		std::vector<location> location;
+		std::vector<Location> location;
 		std::pair<std::string, std::string> listen;
 		std::string server_name;
 		std::vector<std::pair<std::vector<std::string>, std::string> > error_page;
