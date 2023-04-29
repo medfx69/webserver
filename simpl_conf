@@ -2,7 +2,7 @@ dfgfgfd
 
 server {
     listen 127.0.0.1:8080;
-    server_name example.com;
+    server_name examplenumber1.com;
 
     root /var/www/example.com;
     error_page 404 /404.html;
@@ -25,7 +25,7 @@ server {
 
 server {
     listen 1.1.1.1:9000;
-    server_name example.com;
+    server_name examplenumber2.com;
 
     root /var/www/example.com;
     error_page 404 /404.html;
