@@ -67,9 +67,9 @@ std::vector<std::string> parser_helper(std::string s)
 	return ret;
 }
 
-void pars_request(Parsed *data)
+request *pars_request(Parsed *data)
 {
-	data->req = new request("usefull_files/request");
+	return new request(data->reqPath);
 }
 
 void pars_locations(Parsed *data)

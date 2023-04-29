@@ -15,15 +15,17 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <vector>
-#include <methods/http_response.hpp>
+#include "methods/http_response.hpp"
 #define BUFFER_SIZE 400000
 
  
 struct clinte
 {
     int clinte_fd;
+    Parsed _pr;
     std::string clinte_reqFile;
     std::string clinte_resFile;
+    clinte(Parsed pr, std::string file, int fd):_pr(pr), clinte_reqFile(file), clinte_fd(fd){}
 };
 
 struct server_fd
@@ -66,7 +68,7 @@ namespace http
             ~TcpServer();
             void                                startListen(Parsed *data);
             int                                 acceptConnection(int fd);
-            void                                buildResponse();
+            void                                buildResponse(Parsed *data);
             void                                sendResponse(int fd);
     };
 } // namespace http`
