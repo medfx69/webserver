@@ -13,7 +13,6 @@ private:
 	std::vector<server> handled_data;
 
 public:
-	std::string reqPath;
 	request *req;
 	Parsed();
 	Parsed &operator=(const Parsed &parsed);
