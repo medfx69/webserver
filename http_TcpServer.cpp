@@ -114,7 +114,7 @@ void http::TcpServer::startListen(Parsed *data){
                         m_new_socket.push_back(max_fd_check);
                         if (max_fd_check > max_fd_tmp)
                             max_fd_tmp = max_fd_check;
-                        setNonblocking(max_fd_check);
+                        // setNonblocking(max_fd_check);
                     }
                     else{
                         char buffer[BUFFER_SIZE] = {0};
@@ -123,14 +123,14 @@ void http::TcpServer::startListen(Parsed *data){
                             std::ostringstream  ss1;
                             ss1 << "./usefull_files/request_" << i;
                             clintes.push_back(clinte(data[j], ss1.str(), i));
-                            data->reqPath = ss1.str();
+                            // data->reqPath = ss1.str();
                             std::ofstream reFile(ss1.str());
                             reFile << buffer;
                             reFile.close();
                             FD_SET(i, &write_tmp);
                             FD_CLR(i, &read_tmp);
                             std::cout << "hello\n";
-                            data->req = pars_request(data);
+                            // data->req = pars_request(data);
                             buildResponse(data);
                             std::ostringstream ss;
                             ss << "------ Received Request from client ------\n\n";

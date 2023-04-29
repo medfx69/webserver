@@ -9,13 +9,13 @@ Parsed::Parsed(char *file)
 {
 	s = parec(file);
 	handled_data = data_handler(s);
-	pars_locations(this);
+	
 }
 
 Parsed &Parsed::operator=(const Parsed &parsed)
 {
 	// data_reader tmp;
-	// // std::vector<data_reader>::iterator it = this->getserver()->block.begin();
+	// std::vector<data_reader>::iterator it = this->getserver()->block.begin();
 
 	// delete s;
 	// s = new data_reader();
@@ -30,6 +30,11 @@ Parsed &Parsed::operator=(const Parsed &parsed)
 	// {
 	// 	s->dir.push_back(*it2);
 	// }
+	// this->handled_data = parsed.getDate();
+	for (std::vector<server>::iterator it = parsed.getDate().begin(); it < parsed.getDate().end(); it++)
+	{
+		this->handled_data.push_back(*it);
+	}
 	return *this;
 }
 Parsed::Parsed(const Parsed &s)
