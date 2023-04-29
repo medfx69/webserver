@@ -2,6 +2,10 @@
 #define SERVER_HPP
 #include "includes.hpp"
 
+std::vector<std::string> copyy(std::vector<std::string> &x);
+
+class Location;
+
 class server
 {
 	public:
@@ -16,6 +20,7 @@ class server
 		std::vector<std::string> deny;
 		std::string autoindex;
 		std::string chunked_transfer_encoding;
+		server &operator=(server &x);
 };
 
 #endif

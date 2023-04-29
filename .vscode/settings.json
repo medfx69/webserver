@@ -71,6 +71,14 @@
         "algorithm": "cpp",
         "functional": "cpp",
         "iterator": "cpp",
+<<<<<<< HEAD
         "utility": "cpp"
+=======
+        "utility": "cpp",
+        "__tree": "cpp",
+        "map": "cpp",
+        "__functional_03": "cpp",
+        "memory_resource": "cpp"
+>>>>>>> 5012af8411d9f4018ca5ff413b6ae94de489d099
     }
 }
