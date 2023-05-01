@@ -31,9 +31,13 @@ Parsed &Parsed::operator=(const Parsed &parsed)
 	// 	s->dir.push_back(*it2);
 	// }
 	// this->handled_data = parsed.getDate();
+	int i = 0;
 	for (std::vector<server>::iterator it = parsed.getDate().begin(); it < parsed.getDate().end(); it++)
 	{
-		this->handled_data.push_back(*it);
+		std::cout << "hello\n";
+		handled_data.push_back(server());
+		handled_data[i] = *it;
+		i++;
 	}
 	return *this;
 }
