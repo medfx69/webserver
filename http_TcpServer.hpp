@@ -21,10 +21,10 @@
  
 struct clinte
 {
-    int clinte_fd;
     Parsed _pr;
     std::string clinte_reqFile;
     std::string clinte_resFile;
+    int clinte_fd;
     clinte(Parsed pr, std::string file, int fd):_pr(pr), clinte_reqFile(file), clinte_fd(fd){}
 };
 
@@ -58,16 +58,16 @@ namespace http
             std::vector<clinte>                 clintes;
             std::string                         m_serverMessage;
             fd_set                              readst, writest;
-            long                                m_incomingMessage;
-            struct sockaddr_in                  m_socketAress;
-            unsigned int                        m_socketAddress_len;
+            // long                                m_incomingMessage;
+            std::vector<struct sockaddr_in>     class_m_socketAress;
+            std::vector <unsigned int>          m_socketAddress_len;
             int                                 startServer();
             int                                 closeServer();
         public:
             TcpServer(Parsed *data);
             ~TcpServer();
             void                                startListen(Parsed *data);
-            int                                 acceptConnection(int fd);
+            int                                 acceptConnection(int fd, int c);
             void                                buildResponse(Parsed *data);
             void                                sendResponse(int fd);
     };

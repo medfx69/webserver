@@ -3,7 +3,7 @@
 #define FUNC_HPP
 #include "includes.hpp"
 class server;
-class data_reader;
+struct data_reader;
 class Location;
 class Parsed;
 struct data_reader
