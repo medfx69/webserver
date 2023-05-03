@@ -48,8 +48,8 @@ namespace http
     class TcpServer
     {
         private:
-            Parsed *_data;
-            response *resp;
+            Parsed                              *_data;
+            response                            *resp;
             std::vector<std::string>            m_ip_address;
             std::vector<int>                    m_port;
             std::vector<int>                    m_socket;
@@ -57,15 +57,19 @@ namespace http
             std::vector<int>                    m_new_socket;
             std::vector<clinte>                 clintes;
             std::string                         m_serverMessage;
+            char                                buffer[BUFFER_SIZE];
             fd_set                              readst, writest;
             // long                                m_incomingMessage;
             std::vector<struct sockaddr_in>     class_m_socketAress;
+            timeval                             timer;
             std::vector <unsigned int>          m_socketAddress_len;
             int                                 startServer();
             int                                 closeServer();
         public:
             TcpServer(Parsed *data);
             ~TcpServer();
+            int                                 listening();
+            void                                save(int fd);
             void                                startListen(Parsed *data);
             int                                 acceptConnection(int fd, int c);
             void                                buildResponse(Parsed *data);
