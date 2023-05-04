@@ -22,8 +22,12 @@ server &server::operator=(server &x)
 			index = copyy(x.index);
 			allow = copyy(x.allow);
 			deny = copyy(x.deny);
-			for (std::vector<Location>::iterator it = x.location.begin(); it < x.location.end();it++)
-					location.push_back(*it);
+			int i = 0;
+			for (std::vector<Location>::iterator it = x.location.begin(); it < x.location.end();it++){
+				location.push_back(Location());
+				location[i] = *it;
+				i++;
+			}
 			for (std::vector<std::pair<std::vector<std::string>, std::string> >::iterator it = x.error_page.begin(); it < x.error_page.end(); it++)
 			{
 				std::pair<std::vector<std::string>, std::string>	pr;

@@ -4,7 +4,7 @@
 #include "includes.hpp"
 
 class request;
-class data_reader;
+struct data_reader;
 
 class Parsed
 {
