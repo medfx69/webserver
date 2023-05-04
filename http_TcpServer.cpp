@@ -1,5 +1,5 @@
 #include "http_TcpServer.hpp"
-
+#define IMHERE std::cout  <<__FILE__ <<":"<<__LINE__ << " executed\n";
 void log(const std::string &message)
 {
     std::cout << message << std::endl;
@@ -72,7 +72,10 @@ int http::TcpServer::acceptConnection(int fd, int c)
     m_socketAddress_len = class_m_socketAddress_len[c];
     std::cout << inet_ntoa(m_socketAress.sin_addr) << std::endl;
     std::cout << ntohs(m_socketAress.sin_port) << std::endl;
+    IMHERE
+    std::cout << "ACCEPTED FROM: " << fd << std::endl;
     new_socket = accept(fd, (sockaddr *)&m_socketAress, (socklen_t *) &m_socketAddress_len);
+    IMHERE
     if (new_socket < 0)
     {
         std::cout << errno << std::endl;
@@ -135,17 +138,24 @@ void http::TcpServer::startListen(Parsed *data){
     max_fd_tmp = max_fd;
     while (true)
     {
+        system("lsof -i tcp | grep webserv");
+        IMHERE
+        read_tmp = readst;
+        write_tmp = writest;
+        log("====== Waiting for a new connection ======\n");
+        act = select(max_fd +1, &readst, &writest, NULL, NULL);
         for (size_t c = 0; c < m_socket.size(); c++){
-            read_tmp = readst;
-            write_tmp = writest;
-            log("====== Waiting for a new connection ======\n");
-            act = select(max_fd +1, &readst, &writest, NULL, NULL);
+           
+            IMHERE
             if (act < 0)
                 exitWithError("--------select error-------");
             std::vector<std::pair<int, bool> > fds;
             for (int i = 0; i < max_fd + 1 ; i++){
-                if (FD_ISSET(i, &read_tmp) || FD_ISSET(i, &write_tmp)){
+                if (FD_ISSET(i, &read_tmp))
+                {
+                    IMHERE
                     if (isMaster(i)){
+                        IMHERE
                         fds.push_back(std::make_pair(i, true));
                         max_fd_check = acceptConnection(i, c);
                         FD_SET(max_fd_check, &read_tmp);
@@ -153,19 +163,30 @@ void http::TcpServer::startListen(Parsed *data){
                             max_fd_tmp = max_fd_check;
                     }
                     else{
+                        IMHERE
                         fds.push_back(std::make_pair(i, false));
                         bytesReceived = read(i, buffer, BUFFER_SIZE);
-                        save(i);
-                        FD_SET(i, &write_tmp);
-                        FD_CLR(i, &read_tmp);
-                        (void)data;
-                        buildResponse(data);
-                        if (FD_ISSET(i, &write_tmp))
-                            sendResponse(i);
-                        FD_CLR(i, &write_tmp);
-                        // close(i);
-
-                    }                  
+                        if (bytesReceived >= 0)
+                        {
+                            std::cout << "Read Return: " << bytesReceived << " {}" << buffer << std::endl;
+                            save(i);
+                            FD_SET(i, &write_tmp);
+                            FD_CLR(i, &read_tmp);
+                        }
+                    }
+                }
+                if (FD_ISSET(i, &write_tmp))
+                {
+                    IMHERE
+                    (void)data;
+                    buildResponse(data);
+                    if (FD_ISSET(i, &write_tmp))
+                        sendResponse(i);
+                    IMHERE
+                    FD_CLR(i, &write_tmp);
+                    close(i);
+                    IMHERE
+                    
                 }
             }
             for (size_t x = 0; x < fds.size(); x++){
