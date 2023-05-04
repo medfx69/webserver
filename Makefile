@@ -2,7 +2,7 @@ SRC = server.cpp http_TcpServer.cpp methods/http_response.cpp parsing/request.cp
 
 NAME = webserv
 
-FLAG = c++ -g #-fsanitize=address -g3#-Wall -Wextra -Werror -std=c++98
+FLAG = c++ -g -fsanitize=address -g3#-Wall -Wextra -Werror -std=c++98
 
 all : ${NAME}
 
