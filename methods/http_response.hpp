@@ -9,8 +9,9 @@ class response
 {
     private:
     public:
-        // response();
-        std::string get_response(Parsed *data);
+        std::string	get_response(Parsed& data, server& config);
+		std::string    CheckPathType(Parsed& data);
+
 };
 
 #endif
