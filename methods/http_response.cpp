@@ -1,49 +1,69 @@
 #include "http_response.hpp"
 #include <sys/stat.h>
 
-std::string   response::get_response(Parsed *data)
+std::string    CheckPathType(Parsed& data)
+{
+    struct stat st;
+    if(stat(data.req->absoluteURI.c_str(), &st) != 0)
+        return "NOT FOUND";
+    else if(S_ISDIR(st.st_mode))
+        return "FOLDER";
+    else
+        return "FILE";
+}
+
+std::string getfile(std::string& pathfile)
+{
+    std::ifstream file(pathfile);
+    if (!file.is_open()) {
+        std::cerr << "Failed to open file: " << pathfile << '\n';
+        return "HTTP/1.1 404 Not Found\r\n\r\n";
+    }
+    std::ostringstream file_content;
+    file_content << file.rdbuf();
+    file.close();
+    return "HTTP/1.1 200 OK\r\n\r\n" + file_content.str();
+}
+
+std::string getfolder(Parsed& data, server& config)
+{
+    if(data.req->absoluteURI.back() != '/')
+        return "HTTP/1.1 301 Moved Permanently\r\n\r\n";
+    if (!config.index.empty())
+        return getfile(data.req->absoluteURI + "/" + config.index[0]);
+    else if(config.autoindex == "OFF")
+        return "HTTP/1.1 301 Moved Permanently\r\n\r\n";
+    else if(config.autoindex == "ON")
+    {
+        DIR* dir = opendir(data.req->absoluteURI.c_str());
+        if(dir != NULL)
+        {
+            struct dirent* entry;
+            while((entry = readdir(dir)) != NULL)
+            {
+                if (entry->d_type == DT_REG)
+                {
+                    std::string file = entry->d_name;
+                    if(file == config.index[0])
+                        return getfile(file);
+                }
+            }
+            closedir(dir);
+        }
+    }
+}
+
+std::string   response::get_response(Parsed& data, server& config)
 {
     std::string     m_serverMessage;
-    std::string pathtype = CheckPathType(data->req->absoluteURI);
+    std::string pathtype = CheckPathType(data);
     if(pathtype == "FILE")
-    {
-        std::string file_path = "." + data->req->absoluteURI;
-        std::ifstream file(file_path.c_str());
-        if (!file.is_open()) {
-            std::cerr << "Failed to open file: " << file_path << '\n';
-            m_serverMessage = "HTTP/1.1 404 Not Found\r\n\r\n";
-        }
-        std::ostringstream file_content;
-        file_content << file.rdbuf();
-        file.close();
-        m_serverMessage = "HTTP/1.1 200 OK\r\n\r\n" + file_content.str();
-        return m_serverMessage;
-    }
-    else if(pathtype == "FOLDER") {
-		if(data->req->absoluteURI.back() != '/') {
-			m_serverMessage = "HTTP/1.1 301 Moved Permanently\r\n\r\n";
-		}
-		else {
-			// check if dir has index files
-		}
-    }
+        return getfile(data.req->absoluteURI);
+    else if(pathtype == "FOLDER")
+        return getfolder(data, config);
     else {
 		m_serverMessage = "HTTP/1.1 404 Not Found\r\n\r\n";
     }
     return m_serverMessage;
 }
 
-std::string    CheckPathType(const std::string& path)
-{
-    struct stat st;
-    if(stat(path.c_str(), &st) != 0)
-    {
-        DIR* dir = opendir(path.c_str());
-        if(dir == NULL)
-            return "NOT FOUND";
-        else
-            return "FOLDER"
-    }
-    else
-        return "FILE";
-}
