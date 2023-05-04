@@ -6,6 +6,7 @@
 #include <fstream>
 #include "parsing/includes.hpp"
 #include <sys/select.h>
+#include <sys/socket.h>
 #include <sys/types.h>
 #include <sstream>
 #include <string>
@@ -56,19 +57,22 @@ namespace http
             std::vector<server_fd>              serverFd;
             std::vector<int>                    m_new_socket;
             std::vector<clinte>                 clintes;
+            struct sockaddr_in                  m_socketAress;
+            int                                 m_socketAddress_len;
             std::string                         m_serverMessage;
             char                                buffer[BUFFER_SIZE];
             fd_set                              readst, writest;
             // long                                m_incomingMessage;
             std::vector<struct sockaddr_in>     class_m_socketAress;
             timeval                             timer;
-            std::vector <unsigned int>          m_socketAddress_len;
+            std::vector <unsigned int>          class_m_socketAddress_len;
             int                                 startServer();
             int                                 closeServer();
         public:
             TcpServer(Parsed *data);
             ~TcpServer();
             int                                 listening();
+            bool                                isMaster(int fd);
             void                                save(int fd);
             void                                startListen(Parsed *data);
             int                                 acceptConnection(int fd, int c);
