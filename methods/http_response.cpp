@@ -3,6 +3,18 @@
 response::response()
 {}
 
+const std::map<std::string, std::string> response::mimeTypeMap = {
+    {"html", "text/html"},
+    {"htm", "text/html"},
+    {"css", "text/css"},
+    {"js", "application/javascript"},
+    {"jpg", "image/jpeg"},
+    {"jpeg", "image/jpeg"},
+    {"png", "image/png"},
+    {"gif", "image/gif"},
+    {"pdf", "application/pdf"}
+};
+
 std::string    response::checkPathType(Parsed* data)
 {
 	struct stat st;
@@ -47,7 +59,8 @@ std::string response::getfile(std::string pathfile)
 	std::ostringstream file_content;
 	file_content << file.rdbuf();
 	file.close();
-	return "HTTP/1.1 200 OK\r\n\r\n" + file_content.str();
+	this->content_lenght = file_content.str().size();
+	return generateResponseHeader(pathfile) + file_content.str();
 }
 
 std::string response::getfolder(Parsed* data, server config)
@@ -83,6 +96,8 @@ std::string response::generateResponseHeader(const std::string& filePath)
 {
 	std::string header = "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + contentType(filePath) + "\r\n";
+	header += "Content-Lenght: \r\n"; // specifies the lenght of the content in bytes
+	header += "Cache-Control: max-age=3600\r\n";
 	header += "Connection: close\r\n\r\n";
 	return header;
 }
@@ -97,3 +112,28 @@ std::string   response::get_response(Parsed* data, server config)
 	return "HTTP/1.1 404 Not Found\r\n\r\n";
 }
 
+// int main()
+// {
+// 	std::string pathdir = "/Users/omar/Desktop/web";
+// 	DIR* dir = opendir(pathdir.c_str());
+// 	if(dir != NULL)
+// 	{
+// 		std::ofstream htmlfile("index.html");
+// 		// std::ostringstream htmlfile;
+// 		htmlfile << "<!DOCTYPE html><html lang=\"en\"><body>";
+// 		struct dirent* entry;
+// 		while((entry = readdir(dir)) != NULL)
+// 		{
+// 			std::string fd = entry->d_name;
+// 			if(fd == "." || fd == "..")
+// 				;
+// 			else
+// 				htmlfile << "<a href='" << "./" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
+// 		}
+// 		closedir(dir);
+// 		htmlfile << "</body></html>";
+// 		;
+// 	}
+// 	return 0;
+// 	// return "HTTP/1.1 404 Not Found\r\n\r\n";
+// }
