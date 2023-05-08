@@ -9,6 +9,7 @@
 class response
 {
 	private:
+		int content_lenght;
 		static const std::map<std::string, std::string> mimeTypeMap;
 	public:
 		response ();
@@ -20,18 +21,6 @@ class response
 		std::string getFileExtension(const std::string& filePath);
 		std::string generateResponseHeader(const std::string& filePath);
 		std::string contentType(const std::string& filePath);
-};
-
-const std::map<std::string, std::string> response::mimeTypeMap = {
-    {"html", "text/html"},
-    {"htm", "text/html"},
-    {"css", "text/css"},
-    {"js", "application/javascript"},
-    {"jpg", "image/jpeg"},
-    {"jpeg", "image/jpeg"},
-    {"png", "image/png"},
-    {"gif", "image/gif"},
-    {"pdf", "application/pdf"}
 };
 
 #endif
