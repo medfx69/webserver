@@ -1,5 +1,5 @@
 #include "http_TcpServer.hpp"
-
+#define IMHERE std::cout  <<__FILE__ <<":"<<__LINE__ << " executed\n";
 void log(const std::string &message)
 {
     std::cout << message << std::endl;
@@ -12,6 +12,8 @@ void exitWithError(const std::string &message)
 
 http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket()
 {
+    readStatus = 0;
+    writeStatus = 0;
     for (size_t i = 0; i < _data->getDate().size(); i++){
         if ((_data->getDate()[i]).listen.first.find('.') != std::string::npos){
             m_ip_address.push_back((_data->getDate()[i]).listen.first);
@@ -72,7 +74,10 @@ int http::TcpServer::acceptConnection(int fd, int c)
     m_socketAddress_len = class_m_socketAddress_len[c];
     std::cout << inet_ntoa(m_socketAress.sin_addr) << std::endl;
     std::cout << ntohs(m_socketAress.sin_port) << std::endl;
+    IMHERE
+    std::cout << "ACCEPTED FROM: " << fd << std::endl;
     new_socket = accept(fd, (sockaddr *)&m_socketAress, (socklen_t *) &m_socketAddress_len);
+    IMHERE
     if (new_socket < 0)
     {
         std::cout << errno << std::endl;
@@ -108,13 +113,16 @@ int http::TcpServer::listening(){
     return max_fd;
 }
 
-void http::TcpServer::save(int fd){
+void http::TcpServer::save(int fd, int client){
     std::ostringstream  ss1;
 
-    ss1 << "./usefull_files/request_" << fd;
+    ss1 << "/tmp/request_" << fd;
     std::ofstream reFile(ss1.str());
+
     reFile << buffer;
-    reFile.close();
+    if (status == 1)
+        reFile.close();
+    clients[client]._pr.req = pars_request(clients[client]._pr, clients[client].client_fd, &this->clients[client].read_status);
 }
 
 bool http::TcpServer::isMaster(int fd){
@@ -135,44 +143,79 @@ void http::TcpServer::startListen(Parsed *data){
     max_fd_tmp = max_fd;
     while (true)
     {
+        // system("lsof -i tcp | grep webserv");
+        // IMHERE
+        read_tmp = readst;
+        write_tmp = writest;
+        log("====== Waiting for a new connection ======\n");
+        act = select(max_fd +1, &readst, &writest, NULL, NULL);
         for (size_t c = 0; c < m_socket.size(); c++){
-            read_tmp = readst;
-            write_tmp = writest;
-            log("====== Waiting for a new connection ======\n");
-            act = select(max_fd +1, &readst, &writest, NULL, NULL);
+           
+            // IMHERE
             if (act < 0)
                 exitWithError("--------select error-------");
-            std::vector<std::pair<int, bool> > fds;
             for (int i = 0; i < max_fd + 1 ; i++){
-                if (FD_ISSET(i, &read_tmp) || FD_ISSET(i, &write_tmp)){
+                if (FD_ISSET(i, &read_tmp))
+                {
+                    // IMHERE
                     if (isMaster(i)){
-                        fds.push_back(std::make_pair(i, true));
+                        // IMHERE
                         max_fd_check = acceptConnection(i, c);
                         FD_SET(max_fd_check, &read_tmp);
                         if (max_fd_check > max_fd_tmp)
                             max_fd_tmp = max_fd_check;
+                        size_t cl = 0;
+                        for (; cl < clients.size(); cl++){
+                            if (clients[cl].client_fd == max_fd_check){
+                                clients[cl].read_status = 0;
+                                clients[cl].write_status = 0;
+                                clients[cl].fd_enabeld = 1;
+                            }
+                        }
+                        if (cl == clients.size()){
+                            std::ostringstream  ss1;
+                            ss1 << "/tmp/request_" << max_fd_check;
+                            clients.push_back(client(data[c], ss1.str(), 0, 0, 1, max_fd_check));
+                        }
                     }
                     else{
-                        fds.push_back(std::make_pair(i, false));
+                        // IMHERE
                         bytesReceived = read(i, buffer, BUFFER_SIZE);
-                        save(i);
-                        FD_SET(i, &write_tmp);
-                        FD_CLR(i, &read_tmp);
-                        (void)data;
-                        pars_request(data);
-                        buildResponse(data, data->getDate()[c]);
-                        if (FD_ISSET(i, &write_tmp))
-                            sendResponse(i);
-                        FD_CLR(i, &write_tmp);
-                        // close(i);
+                        if (bytesReceived >= 0)
+                        {
+                            size_t cl1 = 0;
+                            // std::cout << "Read Return: " << bytesReceived << " {}" << buffer << std::endl;
+                            // here i should pars requust and return status code
+                            for (; cl1 < clients.size(); cl1++){
+                                if (clients[cl1].client_fd == i){
+                                    save(i, cl1);
+                                    clients[cl1].read_status = status;
+                                    clients[cl1].write_status = 0;
+                                    clients[cl1].fd_enabeld = 1;
+                                }
+                            }
+                            FD_SET(i, &write_tmp);
+                            FD_CLR(i, &read_tmp);
+                        }
+                    }
+                }
+                if (FD_ISSET(i, &write_tmp))
+                {
+                    // IMHERE
+                    (void)data;
+                    buildResponse(data);
+                    if (FD_ISSET(i, &write_tmp)){
 
-                    }                  
+                        if(sendResponse(i) > 0){
+                            FD_CLR(i, &write_tmp);
+                            close(i);
+                        }
+                    }
+                    // IMHERE
+                    // IMHERE
+                    
                 }
             }
-            for (size_t x = 0; x < fds.size(); x++){
-                std::cout << fds[x].first << ":" << fds[x].second << ";  ";
-            }
-            std::cout << std::endl;
             max_fd = max_fd_tmp;
             readst = read_tmp;
             writest = write_tmp;
@@ -188,34 +231,33 @@ int http::TcpServer::closeServer()
     exit(0);
 }
 
-void http::TcpServer::buildResponse(Parsed* data, server config)
+void http::TcpServer::buildResponse(Parsed *data)
 {
-    if(data->req->method.empty())
-    {
-        std::cout << ">>>>>" <<  data->req->method<< std::endl;
-        std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :)</body></html>";
-        std::ostringstream ss;
-        ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n" << htmlFile;
-        this->m_serverMessage = ss.str();
-    }
-    else if(data->req->method == "GET") {
-        m_serverMessage = resp->get_response(data, config);
-        return ;
-    }
-    else if(data->req->method == "DELETE")
-        ;
-    else if(data->req->method == "POST")
-        ;
-    else {
-        std::cerr << "Unsupported HTTP method: " << data->req->method << '\n';
-        this->m_serverMessage = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
-        return ;
-    }
+    // std::cout << ">>>>>" <<  data->req->method<< std::endl;
+    // if(data->req->method == "GET") {
+    //     m_serverMessage = resp->get_response(data);
+    //     return ;
+    // }
+    // else if(data->req->method == "DELETE")
+    //     ;
+    // else if(data->req->method == "POST")
+    //     ;
+    // else {
+    //     std::cerr << "Unsupported HTTP method: " << data->req->method << '\n';
+    //     this->m_serverMessage = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
+    //     return ;
+    // }
+    (void) data;
+    (void) resp;
+    std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :)</body></html>";
+    std::ostringstream ss;
+    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n" << htmlFile;
+    this->m_serverMessage = ss.str();
 }
 
-void http::TcpServer::sendResponse(int fd)
+int http::TcpServer::sendResponse(int fd)
 {
-    write(fd, m_serverMessage.c_str(), m_serverMessage.size());
+    return (write(fd, m_serverMessage.c_str(), m_serverMessage.size()));
     // if (bytesSent == m_serverMessage.size())
     //     log("------ Server Response sent to client ------\n\n");
     // else

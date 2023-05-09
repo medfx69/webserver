@@ -92,20 +92,12 @@ std::string response::contentType(const std::string& filePath)
 	else
 		return "application/octet-stream";
 }
-
-std::string	get_date()
-{
-	
-}
-
 std::string response::generateResponseHeader(const std::string& filePath)
 {
-	std::string header = "HTTP/1.1 200 OK\r\n\r\n";
+	std::string header = "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + contentType(filePath) + "\r\n";
-	header += "Content-Lenght: " + std::to_string(this->content_lenght) + "\r\n";
-	header += "Server: nginxa\r\n";
+	header += "Content-Lenght: \r\n"; // specifies the lenght of the content in bytes
 	header += "Cache-Control: max-age=3600\r\n";
-	header += "Date: " + get_date();
 	header += "Connection: close\r\n\r\n";
 	return header;
 }
