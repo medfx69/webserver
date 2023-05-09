@@ -8,7 +8,7 @@ request::request(std::string x, int *status)
 	myfile.open(x);
 	if (myfile.fail())
 		exit(0);
-		(void)status;
+	(void)status;
 	while (getline(myfile, tmp))
 	{
 		std::istringstream iss(tmp);
