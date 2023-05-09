@@ -113,15 +113,16 @@ int http::TcpServer::listening(){
     return max_fd;
 }
 
-void http::TcpServer::save(int fd, int clinte){
+void http::TcpServer::save(int fd, int client){
     std::ostringstream  ss1;
 
-    ss1 << "./usefull_files/request_" << fd;
+    ss1 << "/tmp/request_" << fd;
     std::ofstream reFile(ss1.str());
+
     reFile << buffer;
-    clintes[clinte]._pr.req = pars_request(clintes[clinte]._pr, clintes[clinte].clinte_fd);
     if (status == 1)
         reFile.close();
+    clients[client]._pr.req = pars_request(clients[client]._pr, clients[client].client_fd, &this->clients[client].read_status);
 }
 
 bool http::TcpServer::isMaster(int fd){
@@ -164,17 +165,17 @@ void http::TcpServer::startListen(Parsed *data){
                         if (max_fd_check > max_fd_tmp)
                             max_fd_tmp = max_fd_check;
                         size_t cl = 0;
-                        for (; cl < clintes.size(); cl++){
-                            if (clintes[cl].clinte_fd == max_fd_check){
-                                clintes[cl].read_status = 0;
-                                clintes[cl].write_status = 0;
-                                clintes[cl].fd_enabeld = 1;
+                        for (; cl < clients.size(); cl++){
+                            if (clients[cl].client_fd == max_fd_check){
+                                clients[cl].read_status = 0;
+                                clients[cl].write_status = 0;
+                                clients[cl].fd_enabeld = 1;
                             }
                         }
-                        if (cl == clintes.size()){
+                        if (cl == clients.size()){
                             std::ostringstream  ss1;
-                            ss1 << "./usefull_files/request_" << max_fd_check;
-                            clintes.push_back(clinte(data[c], ss1.str(), 0, 0, 1, max_fd_check));
+                            ss1 << "/tmp/request_" << max_fd_check;
+                            clients.push_back(client(data[c], ss1.str(), 0, 0, 1, max_fd_check));
                         }
                     }
                     else{
@@ -183,14 +184,14 @@ void http::TcpServer::startListen(Parsed *data){
                         if (bytesReceived >= 0)
                         {
                             size_t cl1 = 0;
-                            std::cout << "Read Return: " << bytesReceived << " {}" << buffer << std::endl;
+                            // std::cout << "Read Return: " << bytesReceived << " {}" << buffer << std::endl;
                             // here i should pars requust and return status code
-                            for (; cl1 < clintes.size(); cl1++){
-                                if (clintes[cl1].clinte_fd == i){
+                            for (; cl1 < clients.size(); cl1++){
+                                if (clients[cl1].client_fd == i){
                                     save(i, cl1);
-                                    clintes[cl1].read_status = status;
-                                    clintes[cl1].write_status = 0;
-                                    clintes[cl1].fd_enabeld = 1;
+                                    clients[cl1].read_status = status;
+                                    clients[cl1].write_status = 0;
+                                    clients[cl1].fd_enabeld = 1;
                                 }
                             }
                             FD_SET(i, &write_tmp);
