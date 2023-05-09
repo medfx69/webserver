@@ -174,7 +174,7 @@ void http::TcpServer::startListen(Parsed *data){
                         if (cl == clintes.size()){
                             std::ostringstream  ss1;
                             ss1 << "./usefull_files/request_" << max_fd_check;
-                            clintes.push_back(clinte(&data[c], ss1.str(), 0, 0, 1, max_fd_check));
+                            clintes.push_back(clinte(data[c], ss1.str(), 0, 0, 1, max_fd_check));
                         }
                     }
                     else{
