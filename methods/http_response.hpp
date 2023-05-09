@@ -10,7 +10,7 @@ class response
 {
 	private:
 		int content_lenght;
-		static const std::map<std::string, std::string> mimeTypeMap;
+		std::map<std::string, std::string> mimeTypeMap;
 	public:
 		response ();
 		std::string	get_response(Parsed* data, server config);
