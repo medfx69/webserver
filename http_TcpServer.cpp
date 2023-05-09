@@ -12,6 +12,8 @@ void exitWithError(const std::string &message)
 
 http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket()
 {
+    readStatus = 0;
+    writeStatus = 0;
     for (size_t i = 0; i < _data->getDate().size(); i++){
         if ((_data->getDate()[i]).listen.first.find('.') != std::string::npos){
             m_ip_address.push_back((_data->getDate()[i]).listen.first);
@@ -111,13 +113,15 @@ int http::TcpServer::listening(){
     return max_fd;
 }
 
-void http::TcpServer::save(int fd){
+void http::TcpServer::save(int fd, int clinte){
     std::ostringstream  ss1;
 
     ss1 << "./usefull_files/request_" << fd;
     std::ofstream reFile(ss1.str());
     reFile << buffer;
-    reFile.close();
+    clintes[clinte]._pr.req = pars_request(clintes[clinte]._pr, clintes[clinte].clinte_fd);
+    if (status == 1)
+        reFile.close();
 }
 
 bool http::TcpServer::isMaster(int fd){
@@ -138,38 +142,57 @@ void http::TcpServer::startListen(Parsed *data){
     max_fd_tmp = max_fd;
     while (true)
     {
-        system("lsof -i tcp | grep webserv");
-        IMHERE
+        // system("lsof -i tcp | grep webserv");
+        // IMHERE
         read_tmp = readst;
         write_tmp = writest;
         log("====== Waiting for a new connection ======\n");
         act = select(max_fd +1, &readst, &writest, NULL, NULL);
         for (size_t c = 0; c < m_socket.size(); c++){
            
-            IMHERE
+            // IMHERE
             if (act < 0)
                 exitWithError("--------select error-------");
-            std::vector<std::pair<int, bool> > fds;
             for (int i = 0; i < max_fd + 1 ; i++){
                 if (FD_ISSET(i, &read_tmp))
                 {
-                    IMHERE
+                    // IMHERE
                     if (isMaster(i)){
-                        IMHERE
-                        fds.push_back(std::make_pair(i, true));
+                        // IMHERE
                         max_fd_check = acceptConnection(i, c);
                         FD_SET(max_fd_check, &read_tmp);
                         if (max_fd_check > max_fd_tmp)
                             max_fd_tmp = max_fd_check;
+                        size_t cl = 0;
+                        for (; cl < clintes.size(); cl++){
+                            if (clintes[cl].clinte_fd == max_fd_check){
+                                clintes[cl].read_status = 0;
+                                clintes[cl].write_status = 0;
+                                clintes[cl].fd_enabeld = 1;
+                            }
+                        }
+                        if (cl == clintes.size()){
+                            std::ostringstream  ss1;
+                            ss1 << "./usefull_files/request_" << max_fd_check;
+                            clintes.push_back(clinte(&data[c], ss1.str(), 0, 0, 1, max_fd_check));
+                        }
                     }
                     else{
-                        IMHERE
-                        fds.push_back(std::make_pair(i, false));
+                        // IMHERE
                         bytesReceived = read(i, buffer, BUFFER_SIZE);
                         if (bytesReceived >= 0)
                         {
+                            size_t cl1 = 0;
                             std::cout << "Read Return: " << bytesReceived << " {}" << buffer << std::endl;
-                            save(i);
+                            // here i should pars requust and return status code
+                            for (; cl1 < clintes.size(); cl1++){
+                                if (clintes[cl1].clinte_fd == i){
+                                    save(i, cl1);
+                                    clintes[cl1].read_status = status;
+                                    clintes[cl1].write_status = 0;
+                                    clintes[cl1].fd_enabeld = 1;
+                                }
+                            }
                             FD_SET(i, &write_tmp);
                             FD_CLR(i, &read_tmp);
                         }
@@ -177,22 +200,21 @@ void http::TcpServer::startListen(Parsed *data){
                 }
                 if (FD_ISSET(i, &write_tmp))
                 {
-                    IMHERE
+                    // IMHERE
                     (void)data;
                     buildResponse(data);
-                    if (FD_ISSET(i, &write_tmp))
-                        sendResponse(i);
-                    IMHERE
-                    FD_CLR(i, &write_tmp);
-                    close(i);
-                    IMHERE
+                    if (FD_ISSET(i, &write_tmp)){
+
+                        if(sendResponse(i) > 0){
+                            FD_CLR(i, &write_tmp);
+                            close(i);
+                        }
+                    }
+                    // IMHERE
+                    // IMHERE
                     
                 }
             }
-            for (size_t x = 0; x < fds.size(); x++){
-                std::cout << fds[x].first << ":" << fds[x].second << ";  ";
-            }
-            std::cout << std::endl;
             max_fd = max_fd_tmp;
             readst = read_tmp;
             writest = write_tmp;
@@ -232,9 +254,9 @@ void http::TcpServer::buildResponse(Parsed *data)
     this->m_serverMessage = ss.str();
 }
 
-void http::TcpServer::sendResponse(int fd)
+int http::TcpServer::sendResponse(int fd)
 {
-    write(fd, m_serverMessage.c_str(), m_serverMessage.size());
+    return (write(fd, m_serverMessage.c_str(), m_serverMessage.size()));
     // if (bytesSent == m_serverMessage.size())
     //     log("------ Server Response sent to client ------\n\n");
     // else
