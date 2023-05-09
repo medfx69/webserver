@@ -233,7 +233,7 @@ int http::TcpServer::closeServer()
 
 void http::TcpServer::buildResponse(Parsed *data)
 {
-    // std::cout << ">>>>>" <<  data->req->method<< std::endl;
+    std::cout << ">>>>>" <<  data->req->method<< std::endl;
     // if(data->req->method == "GET") {
     //     m_serverMessage = resp->get_response(data);
     //     return ;
