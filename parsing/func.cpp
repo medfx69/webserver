@@ -85,7 +85,7 @@ request *pars_request(Parsed data, int fd)
 {
     std::ostringstream  ss1;
 
-	ss1 << "./usefull_files/request_" << fd;
+	ss1 << "/tmp/.request_" << fd;
 	data.req = new request(ss1.str());
 	return data.req;
 }
