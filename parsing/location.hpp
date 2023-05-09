@@ -10,6 +10,7 @@ public:
 	std::vector<std::vector<std::string> > try_files;
 	std::string autoindex;
 	std::string chunked_transfer_encoding;
+	Location        &operator=(Location &x);
 };
 
 
