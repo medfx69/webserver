@@ -1,15 +1,14 @@
 #include "request.hpp"
 
-request::request(std::string x)
+request::request(std::string x, int *status)
 {
 	std::ifstream myfile;
 	std::string tmp;
 	int i = 0;
 	myfile.open(x);
 	if (myfile.fail())
-	{
-		// error msg;
-	}
+		exit(0);
+		(void)status;
 	while (getline(myfile, tmp))
 	{
 		std::istringstream iss(tmp);
