@@ -1,19 +1,18 @@
 #include "http_response.hpp"
 
 response::response()
-{}
+{
+	mimeTypeMap.insert(std::make_pair("html", "text/html"));
+    mimeTypeMap.insert(std::make_pair("htm", "text/html"));
+    mimeTypeMap.insert(std::make_pair("css", "text/css"));
+    mimeTypeMap.insert(std::make_pair("js", "application/javascript"));
+    mimeTypeMap.insert(std::make_pair("jpg", "image/jpeg"));
+    mimeTypeMap.insert(std::make_pair("jpeg", "image/jpeg"));
+    mimeTypeMap.insert(std::make_pair("png", "image/png"));
+    mimeTypeMap.insert(std::make_pair("gif", "image/gif"));
+    mimeTypeMap.insert(std::make_pair("pdf", "application/pdf"));
+}
 
-const std::map<std::string, std::string> response::mimeTypeMap = {
-    {"html", "text/html"},
-    {"htm", "text/html"},
-    {"css", "text/css"},
-    {"js", "application/javascript"},
-    {"jpg", "image/jpeg"},
-    {"jpeg", "image/jpeg"},
-    {"png", "image/png"},
-    {"gif", "image/gif"},
-    {"pdf", "application/pdf"}
-};
 
 std::string    response::checkPathType(Parsed* data)
 {
