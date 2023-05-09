@@ -21,6 +21,7 @@ class response
 		std::string getFileExtension(const std::string& filePath);
 		std::string generateResponseHeader(const std::string& filePath);
 		std::string contentType(const std::string& filePath);
+		std::string	get_date();
 };
 
 #endif

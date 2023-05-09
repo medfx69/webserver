@@ -30,8 +30,9 @@ std::string response::createIndexHtml(std::string pathdir)
 	DIR* dir = opendir(pathdir.c_str());
 	if(dir != NULL)
 	{
+		// std::ofstream htmlfile("index.html");
 		std::ostringstream htmlfile;
-		htmlfile << "<!DOCTYPE html><html lang=\"en\"><body>";
+		htmlfile << "<!DOCTYPE html>\n<html lang=\"en\">\n\t\t<body>\n";
 		struct dirent* entry;
 		while((entry = readdir(dir)) != NULL)
 		{
@@ -39,10 +40,10 @@ std::string response::createIndexHtml(std::string pathdir)
 			if(fd == "." || fd == "..")
 				;
 			else
-				htmlfile << "<a href='" << "./" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
+				htmlfile << "\t\t\t<a href='" << "./" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
 		}
 		closedir(dir);
-		htmlfile << "</body></html>";
+		htmlfile << "\t\t</body>\n</html>";
 		return htmlfile.str();
 	}
 	return "HTTP/1.1 404 Not Found\r\n\r\n";
@@ -91,12 +92,25 @@ std::string response::contentType(const std::string& filePath)
 	else
 		return "application/octet-stream";
 }
+
+std::string	response::get_date()
+{
+	time_t     now = time(0);
+	struct tm *newtime = localtime(&now);
+	char buf[80];
+	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", newtime);
+	std::string date_str(buf);
+	return date_str;
+}
+
 std::string response::generateResponseHeader(const std::string& filePath)
 {
-	std::string header = "HTTP/1.1 200 OK\r\n";
+	std::string header = "HTTP/1.1 200 OK\r\n\r\n";
 	header += "Content-Type: " + contentType(filePath) + "\r\n";
-	header += "Content-Lenght: \r\n"; // specifies the lenght of the content in bytes
+	header += "Content-Lenght: " + std::to_string(this->content_lenght) + "\r\n";
+	header += "Server: nginxa\r\n";
 	header += "Cache-Control: max-age=3600\r\n";
+	header += "Date: " + get_date();
 	header += "Connection: close\r\n\r\n";
 	return header;
 }
@@ -113,13 +127,13 @@ std::string   response::get_response(Parsed* data, server config)
 
 // int main()
 // {
-// 	std::string pathdir = "/Users/omar/Desktop/web";
+// 	std::string pathdir = "/Users/omar/Desktop/leetcode";
 // 	DIR* dir = opendir(pathdir.c_str());
 // 	if(dir != NULL)
 // 	{
 // 		std::ofstream htmlfile("index.html");
 // 		// std::ostringstream htmlfile;
-// 		htmlfile << "<!DOCTYPE html><html lang=\"en\"><body>";
+// 		htmlfile << "<!DOCTYPE html>\n<html lang=\"en\">\n\t\t<body>\n";
 // 		struct dirent* entry;
 // 		while((entry = readdir(dir)) != NULL)
 // 		{
@@ -127,11 +141,10 @@ std::string   response::get_response(Parsed* data, server config)
 // 			if(fd == "." || fd == "..")
 // 				;
 // 			else
-// 				htmlfile << "<a href='" << "./" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
+// 				htmlfile << "\t\t\t<a href='" << "./" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
 // 		}
 // 		closedir(dir);
-// 		htmlfile << "</body></html>";
-// 		;
+// 		htmlfile << "\t\t</body>\n</html>";
 // 	}
 // 	return 0;
 // 	// return "HTTP/1.1 404 Not Found\r\n\r\n";
