@@ -55,8 +55,10 @@ int http::TcpServer::startServer()
         exitWithError("Cannot create socket");
     if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&i, sizeof(i)) < 0 )
         exitWithError("----------setsockopt-----------");
-    if (bind(fd, (sockaddr *) &m_socketAress, m_socketAddress_len) < 0)
+    if (bind(fd, (sockaddr *) &m_socketAress, m_socketAddress_len) < 0){
+        std::cout << errno << std::endl;
         exitWithError("Cannot connect socket to address");
+    }
     m_socket.push_back(fd);
     return 0;
 }
@@ -202,8 +204,7 @@ void http::TcpServer::startListen(Parsed *data){
                 if (FD_ISSET(i, &write_tmp))
                 {
                     // IMHERE
-                    (void)data;
-                    buildResponse(&clients[c]._pr);
+                    buildResponse(&clients[c]._pr, c);
                     if (FD_ISSET(i, &write_tmp)){
 
                         if(sendResponse(i) > 0){
@@ -231,14 +232,16 @@ int http::TcpServer::closeServer()
     exit(0);
 }
 
-void http::TcpServer::buildResponse(Parsed *data)
+void http::TcpServer::buildResponse(Parsed *data, int cl)
 {
+    static int i = 0;
     // if (data->req->method.empty())
     std::cout << ">>>>>" << data->req->method<< std::endl;
-    // if(data->req->method == "GET") {
-    //     m_serverMessage = resp->get_response(data);
-    //     return ;
-    // }
+    if(data->req->method == "GET" && i > 0) {
+        m_serverMessage = resp->get_response(data, _data->getDate()[cl]);
+        return ;
+    }
+    i++;
     // else if(data->req->method == "DELETE")
     //     ;
     // else if(data->req->method == "POST")

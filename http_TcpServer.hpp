@@ -84,7 +84,7 @@ namespace http
             void                                save(int fd, int client);
             void                                startListen(Parsed *data);
             int                                 acceptConnection(int fd, int c);
-            void                                buildResponse(Parsed *data);
+            void                                buildResponse(Parsed *data, int cl);
             int                                 sendResponse(int fd);
     };
 } // namespace http`
