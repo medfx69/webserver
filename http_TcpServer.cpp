@@ -120,7 +120,7 @@ void http::TcpServer::save(int fd, int client){
     std::ofstream reFile(ss1.str());
 
     reFile << buffer;
-    if (status == 1)
+    // if (status == 1)
         reFile.close();
     clients[client]._pr.req = pars_request(clients[client]._pr, clients[client].client_fd, &this->clients[client].read_status);
 }
@@ -203,7 +203,7 @@ void http::TcpServer::startListen(Parsed *data){
                 {
                     // IMHERE
                     (void)data;
-                    buildResponse(data);
+                    buildResponse(&clients[c]._pr);
                     if (FD_ISSET(i, &write_tmp)){
 
                         if(sendResponse(i) > 0){
@@ -233,7 +233,8 @@ int http::TcpServer::closeServer()
 
 void http::TcpServer::buildResponse(Parsed *data)
 {
-    std::cout << ">>>>>" <<  data->req->method<< std::endl;
+    // if (data->req->method.empty())
+    std::cout << ">>>>>" << data->req->method<< std::endl;
     // if(data->req->method == "GET") {
     //     m_serverMessage = resp->get_response(data);
     //     return ;

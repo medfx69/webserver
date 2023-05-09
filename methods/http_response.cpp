@@ -125,6 +125,12 @@ std::string   response::get_response(Parsed* data, server config)
 	return "HTTP/1.1 404 Not Found\r\n\r\n";
 }
 
+std::string	responseError()
+{
+	return "HTTP/1.1 404 Not Found\r\n\r\n";
+	return "HTTP/1.1 301 Moved Permanently\r\n\r\n";
+}
+
 // int main()
 // {
 // 	std::string pathdir = "/Users/omar/Desktop/leetcode";
