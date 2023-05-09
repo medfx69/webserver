@@ -81,9 +81,13 @@ std::vector<std::string> parser_helper(std::string s)
 	return ret;
 }
 
-void pars_request(Parsed *data)
+request *pars_request(Parsed data, int fd)
 {
-	data->req = new request("usefull_files/request");
+    std::ostringstream  ss1;
+
+	ss1 << "./usefull_files/request_" << fd;
+	data.req = new request(ss1.str());
+	return data.req;
 }
 
 std::vector<Location> pars_locations(data_reader data)

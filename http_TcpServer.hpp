@@ -25,8 +25,13 @@ struct clinte
     Parsed _pr;
     std::string clinte_reqFile;
     std::string clinte_resFile;
+    int read_status;
+    int write_status;
+    int fd_enabeld;
     int clinte_fd;
-    clinte(Parsed pr, std::string file, int fd):_pr(pr), clinte_reqFile(file), clinte_fd(fd){}
+    clinte(Parsed *pr, std::string file, int r_status, int w_status, int en, int fd):_pr(*pr), clinte_reqFile(file),
+        read_status(r_status), write_status(w_status),
+        fd_enabeld(en), clinte_fd(fd){}
 };
 
 struct server_fd
@@ -59,6 +64,9 @@ namespace http
             std::vector<clinte>                 clintes;
             struct sockaddr_in                  m_socketAress;
             int                                 m_socketAddress_len;
+            int                                 readStatus;
+            int                                 status;
+            int                                 writeStatus;
             std::string                         m_serverMessage;
             char                                buffer[BUFFER_SIZE];
             fd_set                              readst, writest;
@@ -73,11 +81,11 @@ namespace http
             ~TcpServer();
             int                                 listening();
             bool                                isMaster(int fd);
-            void                                save(int fd);
+            void                                save(int fd, int clinte);
             void                                startListen(Parsed *data);
             int                                 acceptConnection(int fd, int c);
             void                                buildResponse(Parsed *data);
-            void                                sendResponse(int fd);
+            int                                 sendResponse(int fd);
     };
 } // namespace http`
 void exitWithError(const std::string& message);
