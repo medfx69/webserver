@@ -120,7 +120,7 @@ void http::TcpServer::save(int fd, int client){
     std::ofstream reFile(ss1.str());
 
     reFile << buffer;
-    if (status == 1)
+    // if (status == 1)
         reFile.close();
     clients[client]._pr.req = pars_request(clients[client]._pr, clients[client].client_fd, &this->clients[client].read_status);
 }
@@ -233,7 +233,7 @@ int http::TcpServer::closeServer()
 
 void http::TcpServer::buildResponse(Parsed *data)
 {
-    // std::cout << ">>>>>" <<  data->req->method<< std::endl;
+    // std::cout << ">>>>>" <<  this->clients[0]._pr.req->body.str() << std::endl;
     // if(data->req->method == "GET") {
     //     m_serverMessage = resp->get_response(data);
     //     return ;
