@@ -85,7 +85,6 @@ request *pars_request(Parsed data, int fd, int *status)
 {
     std::ostringstream  ss1;
 
-	std::cout << ">>>>>my fd  >>>" << fd << std::endl;
 	ss1 << "/tmp/request_" << fd;
 	data.req = new request(ss1.str(), status);
 	return data.req;
