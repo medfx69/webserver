@@ -29,7 +29,7 @@ struct clinte
     int write_status;
     int fd_enabeld;
     int clinte_fd;
-    clinte(Parsed *pr, std::string file, int r_status, int w_status, int en, int fd):_pr(*pr), clinte_reqFile(file),
+    clinte(Parsed pr, std::string file, int r_status, int w_status, int en, int fd):_pr(pr), clinte_reqFile(file),
         read_status(r_status), write_status(w_status),
         fd_enabeld(en), clinte_fd(fd){}
 };
