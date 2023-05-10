@@ -178,6 +178,8 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 				x.autoindex = tmp2;
 			else if (tmp.compare("chunked_transfer_encoding") == 0)
 				x.chunked_transfer_encoding = tmp2;
+			else if (tmp.compare("methods") == 0)
+				x.methods = parser_helper(*it);
 			it++;
 		}
 		x.location = pars_locations(*it0);
