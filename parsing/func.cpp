@@ -144,6 +144,8 @@ std::vector<Location> pars_locations(data_reader data)
 				x.try_files.push_back(parser_helper(*iite2));
 			else if (tmp.compare("client_max_body_size") == 0)
 				x.client_max_body_size = tmp2;
+			else if (tmp.compare("root") == 0)
+				x.root = tmp2;
 			else if (tmp.compare("autoindex") == 0)
 				x.autoindex = tmp2;
 			else if (tmp.compare("chunked_transfer_encoding") == 0)
