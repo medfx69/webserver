@@ -115,8 +115,15 @@ std::string response::generateResponseHeader(const std::string& filePath)
 	return header;
 }
 
+void	matchLocation(Parsed* data, server& config)
+{
+	config.location[0].location_name += data->req->absoluteURI;
+}
+
+
 std::string   response::get_response(Parsed* data, server config)
 {
+	matchLocation(data, config);
 	std::string pathtype = checkPathType(data);
 	if(pathtype == "FILE")
 		return getfile(data->req->absoluteURI);
