@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.html": "css",
+        "memory": "cpp"
+    }
+}
