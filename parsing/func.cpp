@@ -81,13 +81,13 @@ std::vector<std::string> parser_helper(std::string s)
 	return ret;
 }
 
-request *pars_request(Parsed data, int fd)
+request *pars_request(int fd, int *status)
 {
     std::ostringstream  ss1;
 
-	ss1 << "/tmp/.request_" << fd;
-	data.req = new request(ss1.str());
-	return data.req;
+	ss1 << "/tmp/request_" << fd;
+	request *req = new request(ss1.str(), status);
+	return req;
 }
 
 std::vector<Location> pars_locations(data_reader data)
@@ -98,11 +98,12 @@ std::vector<Location> pars_locations(data_reader data)
 	{
 		std::istringstream iss((*it0).block_name);
 		std::string tmp;
+		Location x;
 		iss >> tmp;
 		iss >> tmp;
 		(*it0).block_name = tmp;
+		x.location_name = (*it0).block_name;
 		std::vector<std::string>::iterator iite2 = (*it0).dir.begin();
-		Location x;
 		while (iite2 < (*it0).dir.end())
 		{
 			std::istringstream iss2(*iite2);
