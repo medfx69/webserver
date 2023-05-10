@@ -84,9 +84,10 @@ std::vector<std::string> parser_helper(std::string s)
 request *pars_request(int fd, int *status)
 {
     std::ostringstream  ss1;
+	request *req;
 
 	ss1 << "/tmp/request_" << fd;
-	request *req = new request(ss1.str(), status);
+	req = new request(ss1.str(), status);
 	return req;
 }
 

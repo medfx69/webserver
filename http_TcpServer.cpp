@@ -265,10 +265,10 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     }
     std::cout << req->method << std::endl;
     std::cout << data->getDate()[i].listen.first << ":" << data->getDate()[i].listen.second << std::endl;
-    // if(data->req->method == "GET" && i > 0) {
-        // m_serverMessage = resp->get_response(data, _data->getDate()[i]);
-    //     return ;
-    // }
+    if(req->method == "GET" && i > 0) {
+        m_serverMessage = resp->get_response(req, _data->getDate()[i]);
+        return ;
+    }
     // i++;
     // else if(data->req->method == "DELETE")
     //     ;
@@ -279,12 +279,12 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     //     this->m_serverMessage = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
     //     return ;
     // }
-    (void) data;
-    (void) resp;
-    std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :)</body></html>";
-    std::ostringstream ss;
-    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n" << htmlFile;
-    this->m_serverMessage = ss.str();
+    // (void) data;
+    // (void) resp;
+    // std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :)</body></html>";
+    // std::ostringstream ss;
+    // ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n" << htmlFile;
+    // this->m_serverMessage = ss.str();
 }
 
 int http::TcpServer::sendResponse(int fd)
