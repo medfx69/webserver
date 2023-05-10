@@ -1,5 +1,19 @@
 #include "http_response.hpp"
 
+// response::response(request _req, server _config)
+// {
+// 	this->req = _req;
+// 	this->config = _config
+// 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
+//     mimeTypeMap.insert(std::make_pair("htm", "text/html"));
+//     mimeTypeMap.insert(std::make_pair("css", "text/css"));
+//     mimeTypeMap.insert(std::make_pair("js", "application/javascript"));
+//     mimeTypeMap.insert(std::make_pair("jpg", "image/jpeg"));
+//     mimeTypeMap.insert(std::make_pair("jpeg", "image/jpeg"));
+//     mimeTypeMap.insert(std::make_pair("png", "image/png"));
+//     mimeTypeMap.insert(std::make_pair("gif", "image/gif"));
+//     mimeTypeMap.insert(std::make_pair("pdf", "application/pdf"));
+// }
 response::response()
 {
 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
@@ -115,14 +129,27 @@ std::string response::generateResponseHeader(const std::string& filePath)
 	return header;
 }
 
-void	matchLocation(request* req, server config)
+std::string	response::matchLocation(request* req, server config)
 {
-	for(int i = 0; i < config.location.size(); i++)
+	int index = -1;
+	std::string location;
+	for(size_t i = 0; i < config.location.size(); i++)
 	{
 		if(req->absoluteURI.find(config.location[i].location_name) == 0)
-			req->absoluteURI = config.root + req->absoluteURI;
+		{
+			if(config.location[i].location_name.size() > location.size())
+			{
+				location = config.location[i].location_name;
+				index = i;
+			}
+		}
 	}
-	
+	if(!location.empty())
+		return config.location[index].root + req->absoluteURI;
+	else if(!config.root.empty())
+		return config.root + req->absoluteURI;
+	return "";
+
 }
 
 std::string   response::get_response(request* req, server config)
@@ -130,6 +157,7 @@ std::string   response::get_response(request* req, server config)
 	// std::cout << "data+++++++++ " << req->absoluteURI << std::endl;
 	// matchLocation(req, config);
 	// std::cout << "config+++++++++ " << req->absoluteURI << std::endl;
+	req->absoluteURI = matchLocation(req, config);
 	std::string pathtype = checkPathType(req);
 	if(pathtype == "FILE")
 		return getfile(req->absoluteURI);
