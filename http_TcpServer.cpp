@@ -247,7 +247,7 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     }
     std::cout << ">>>>>" << data->req->method<< std::endl;
     if(data->req->method == "GET") {
-        m_serverMessage = resp->get_response(data, _data->getDate()[cl]);
+        m_serverMessage = resp->get_response(data->req, _data->getDate()[cl]);
         return ;
     }
     // else if(data->req->method == "DELETE")

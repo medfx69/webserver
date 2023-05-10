@@ -4,11 +4,24 @@ server {
     listen 127.0.0.1:8081;
     server_name examplenumber1.com;
 
+    index index.html index.php
     root /var/www/example.com;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
 
-    location /dsfdsf/dsfdsf/dsf {
+    location /
+    {
+
+    }
+    location /dsfdsf/dsfdsf/dsf/ {
+        root /var/html/www/
+        try_files $uri $uri/ /index.html>>>;
+        error_page 500 502 503 504 /50x.html;
+        try_files $uri $uri/ /index.html1>>>;
+        try_files $uri $uri/ /index.html2>>
+    }
+    location /dsfdsf/dsfdsf/dsf/jj {
+        root /var/html/zzz/
         try_files $uri $uri/ /index.html>>>;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html1>>>;
@@ -21,5 +34,5 @@ server {
     }
     client_max_body_size 10m;
 }
-
+/dsfdsf/dsfdsf/dsf/jj/hy
 
