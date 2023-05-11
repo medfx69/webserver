@@ -25,6 +25,7 @@ class response
 		std::string generateResponseHeader(const std::string& filePath);
 		std::string contentType(const std::string& filePath);
 		std::string	matchLocation(request* req, server config);
+		std::string	status_code(int );
 		std::string	get_date();
 };
 

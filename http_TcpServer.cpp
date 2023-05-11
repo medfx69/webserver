@@ -55,10 +55,13 @@ int http::TcpServer::startServer()
         exitWithError("Cannot create socket");
     if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&i, sizeof(i)) < 0 )
         exitWithError("----------setsockopt-----------");
+<<<<<<< HEAD
     if (bind(fd, (sockaddr *) &m_socketAress, m_socketAddress_len) < 0){
         std::cout << errno << std::endl;
         exitWithError("Cannot connect socket to address");
     }
+    if (bind(fd, (sockaddr *) &m_socketAress, m_socketAddress_len) < 0)
+        exitWithError("Cannot connect socket to address");
     m_socket.push_back(fd);
     return 0;
 }
@@ -115,6 +118,7 @@ int http::TcpServer::listening(){
     return max_fd;
 }
 
+<<<<<<< HEAD
 void http::TcpServer::save(int fd, int client){
     std::ostringstream  ss1;
 
@@ -125,6 +129,17 @@ void http::TcpServer::save(int fd, int client){
     // if (status == 1)
         reFile.close();
     clients[client]._pr.req = pars_request(clients[client]._pr, clients[client].client_fd, &this->clients[client].read_status);
+=======
+void http::TcpServer::save(int fd, int clinte){
+    std::ostringstream  ss1;
+
+    ss1 << "./usefull_files/request_" << fd;
+    std::ofstream reFile(ss1.str());
+    reFile << buffer;
+    clintes[clinte]._pr.req = pars_request(clintes[clinte]._pr, clintes[clinte].clinte_fd);
+    if (status == 1)
+        reFile.close();
+>>>>>>> origin/medBranch
 }
 
 bool http::TcpServer::isMaster(int fd){
@@ -167,6 +182,7 @@ void http::TcpServer::startListen(Parsed *data){
                         if (max_fd_check > max_fd_tmp)
                             max_fd_tmp = max_fd_check;
                         size_t cl = 0;
+<<<<<<< HEAD
                         for (; cl < clients.size(); cl++){
                             if (clients[cl].client_fd == max_fd_check){
                                 clients[cl].read_status = 0;
@@ -178,6 +194,19 @@ void http::TcpServer::startListen(Parsed *data){
                             std::ostringstream  ss1;
                             ss1 << "/tmp/request_" << max_fd_check;
                             clients.push_back(client(data[c], ss1.str(), 0, 0, 1, max_fd_check));
+=======
+                        for (; cl < clintes.size(); cl++){
+                            if (clintes[cl].clinte_fd == max_fd_check){
+                                clintes[cl].read_status = 0;
+                                clintes[cl].write_status = 0;
+                                clintes[cl].fd_enabeld = 1;
+                            }
+                        }
+                        if (cl == clintes.size()){
+                            std::ostringstream  ss1;
+                            ss1 << "./usefull_files/request_" << max_fd_check;
+                            clintes.push_back(clinte(data[c], ss1.str(), 0, 0, 1, max_fd_check));
+>>>>>>> origin/medBranch
                         }
                     }
                     else{
@@ -186,6 +215,7 @@ void http::TcpServer::startListen(Parsed *data){
                         if (bytesReceived >= 0)
                         {
                             size_t cl1 = 0;
+<<<<<<< HEAD
                             // std::cout << "Read Return: " << bytesReceived << " {}" << buffer << std::endl;
                             // here i should pars requust and return status code
                             for (; cl1 < clients.size(); cl1++){
@@ -194,6 +224,16 @@ void http::TcpServer::startListen(Parsed *data){
                                     clients[cl1].read_status = status;
                                     clients[cl1].write_status = 0;
                                     clients[cl1].fd_enabeld = 1;
+=======
+                            std::cout << "Read Return: " << bytesReceived << " {}" << buffer << std::endl;
+                            // here i should pars requust and return status code
+                            for (; cl1 < clintes.size(); cl1++){
+                                if (clintes[cl1].clinte_fd == i){
+                                    save(i, cl1);
+                                    clintes[cl1].read_status = status;
+                                    clintes[cl1].write_status = 0;
+                                    clintes[cl1].fd_enabeld = 1;
+>>>>>>> origin/medBranch
                                 }
                             }
                             FD_SET(i, &write_tmp);
@@ -204,7 +244,12 @@ void http::TcpServer::startListen(Parsed *data){
                 if (FD_ISSET(i, &write_tmp))
                 {
                     // IMHERE
+<<<<<<< HEAD
                     buildResponse(&clients[c]._pr, c);
+=======
+                    (void)data;
+                    buildResponse(data);
+>>>>>>> origin/medBranch
                     if (FD_ISSET(i, &write_tmp)){
 
                         if(sendResponse(i) > 0){
@@ -234,6 +279,7 @@ int http::TcpServer::closeServer()
 
 void http::TcpServer::buildResponse(Parsed *data, int cl)
 {
+<<<<<<< HEAD
     static int i = 0;
     // if (data->req->method.empty())
     if(!i)
@@ -250,6 +296,13 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
         m_serverMessage = resp->get_response(data->req, _data->getDate()[cl]);
         return ;
     }
+=======
+    // std::cout << ">>>>>" <<  data->req->method<< std::endl;
+    // if(data->req->method == "GET") {
+    //     m_serverMessage = resp->get_response(data);
+    //     return ;
+    // }
+>>>>>>> origin/medBranch
     // else if(data->req->method == "DELETE")
     //     ;
     // else if(data->req->method == "POST")
@@ -261,6 +314,13 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     // }
     (void) data;
     (void) resp;
+<<<<<<< HEAD
+=======
+    std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :)</body></html>";
+    std::ostringstream ss;
+    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n" << htmlFile;
+    this->m_serverMessage = ss.str();
+>>>>>>> origin/medBranch
 }
 
 int http::TcpServer::sendResponse(int fd)

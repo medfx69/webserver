@@ -23,6 +23,7 @@
 struct client
 {
     Parsed _pr;
+<<<<<<< HEAD
     std::string client_reqFile;
     std::string client_resFile;
     int read_status;
@@ -32,6 +33,17 @@ struct client
     client(Parsed pr, std::string file, int r_status, int w_status, int en, int fd):_pr(pr), client_reqFile(file),
         read_status(r_status), write_status(w_status),
         fd_enabeld(en), client_fd(fd){}
+=======
+    std::string clinte_reqFile;
+    std::string clinte_resFile;
+    int read_status;
+    int write_status;
+    int fd_enabeld;
+    int clinte_fd;
+    clinte(Parsed pr, std::string file, int r_status, int w_status, int en, int fd):_pr(pr), clinte_reqFile(file),
+        read_status(r_status), write_status(w_status),
+        fd_enabeld(en), clinte_fd(fd){}
+>>>>>>> origin/medBranch
 };
 
 struct server_fd
@@ -61,7 +73,11 @@ namespace http
             std::vector<int>                    m_socket;
             std::vector<server_fd>              serverFd;
             std::vector<int>                    m_new_socket;
+<<<<<<< HEAD
             std::vector<client>                 clients;
+=======
+            std::vector<clinte>                 clintes;
+>>>>>>> origin/medBranch
             struct sockaddr_in                  m_socketAress;
             int                                 m_socketAddress_len;
             int                                 readStatus;
@@ -81,10 +97,17 @@ namespace http
             ~TcpServer();
             int                                 listening();
             bool                                isMaster(int fd);
+<<<<<<< HEAD
             void                                save(int fd, int client);
             void                                startListen(Parsed *data);
             int                                 acceptConnection(int fd, int c);
             void                                buildResponse(Parsed *data, int cl);
+=======
+            void                                save(int fd, int clinte);
+            void                                startListen(Parsed *data);
+            int                                 acceptConnection(int fd, int c);
+            void                                buildResponse(Parsed *data);
+>>>>>>> origin/medBranch
             int                                 sendResponse(int fd);
     };
 } // namespace http`

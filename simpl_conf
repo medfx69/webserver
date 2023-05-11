@@ -20,6 +20,7 @@ server {
         try_files $uri $uri/ /index.html1>>>;
         try_files $uri $uri/ /index.html2>>
     }
+<<<<<<< HEAD
     location /dsfdsf/dsfdsf/dsf//ihbjijhbkhjj/tex {
         root /var/html/zzz/
         try_files $uri $uri/ /index.html>>>;
@@ -27,6 +28,8 @@ server {
         try_files $uri $uri/ /index.html1>>>;
         try_files $uri $uri/ /index.html2>>
     }
+=======
+>>>>>>> origin/medBranch
     location2 /ali/mohamed {
         try_files $uri $uri2/ /index.html;
         try_files $uri $uri2/ /index.html1;
@@ -34,5 +37,9 @@ server {
     }
     client_max_body_size 10m;
 }
+<<<<<<< HEAD
 /dsfdsf/dsfdsf/dsf/jj/hy
+=======
+
+>>>>>>> origin/medBranch
 
