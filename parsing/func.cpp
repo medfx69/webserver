@@ -106,13 +106,14 @@ std::vector<std::string> parser_helper(std::string s)
 	return ret;
 }
 
-request *pars_request(Parsed data, int fd, int *status)
+request *pars_request(int fd, int *status)
 {
     std::ostringstream  ss1;
+	request *req;
 
 	ss1 << "/tmp/request_" << fd;
-	data.req = new request(ss1.str(), status);
-	return data.req;
+	req = new request(ss1.str(), status);
+	return req;
 }
 
 std::vector<Location> pars_locations(data_reader data)
