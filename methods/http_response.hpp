@@ -13,10 +13,10 @@ class response
 		std::map<std::string, std::string> mimeTypeMap;
 	public:
 		response ();
-		std::string	get_response(Parsed* data, server config);
-		std::string	getfolder(Parsed* data, server config);
+		std::string	get_response(request* data, server config);
+		std::string	getfolder(request* data, server config);
 		std::string	getfile(std::string pathfile);
-		std::string	checkPathType(Parsed* data);
+		std::string	checkPathType(request* data);
 		std::string createIndexHtml(std::string pathdir);
 		std::string getFileExtension(const std::string& filePath);
 		std::string generateResponseHeader(const std::string& filePath);
