@@ -14,6 +14,7 @@
 //     mimeTypeMap.insert(std::make_pair("gif", "image/gif"));
 //     mimeTypeMap.insert(std::make_pair("pdf", "application/pdf"));
 // }
+
 response::response()
 {
 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
@@ -60,7 +61,7 @@ std::string response::createIndexHtml(std::string pathdir)
 		htmlfile << "\t\t</body>\n</html>";
 		return htmlfile.str();
 	}
-	return "HTTP/1.1 404 Not Found\r\n\r\n";
+	return status_code(404);
 }
 
 std::string response::getfile(std::string pathfile)
@@ -68,7 +69,7 @@ std::string response::getfile(std::string pathfile)
 	std::ifstream file(pathfile);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << pathfile << '\n';
-		return "HTTP/1.1 404 Not Found\r\n\r\n";
+		return status_code(404);
 	}
 	std::ostringstream file_content;
 	file_content << file.rdbuf();
@@ -80,11 +81,11 @@ std::string response::getfile(std::string pathfile)
 std::string response::getfolder(request* req, server config)
 {
 	if(req->absoluteURI.back() != '/')
-		return "HTTP/1.1 301 Moved Permanently\r\n\r\n";
+		return status_code(301);
 	if (!config.index.empty())
 		return getfile(req->absoluteURI + "/" + config.index[0]);
 	else if(config.autoindex == "OFF")
-		return "HTTP/1.1 301 Moved Permanently\r\n\r\n";
+		return status_code(301);
 	else if(config.autoindex == "ON")
 		return createIndexHtml(req->absoluteURI);
 	return NULL;
@@ -157,19 +158,37 @@ std::string   response::get_response(request* req, server config)
 	// std::cout << "data+++++++++ " << req->absoluteURI << std::endl;
 	// matchLocation(req, config);
 	// std::cout << "config+++++++++ " << req->absoluteURI << std::endl;
+	if(!config.chunked_transfer_encoding.empty() && config.chunked_transfer_encoding != "chunked")
+		return status_code(501);
+	else if(req->absoluteURI.find_first_of(":?#[]@!$&'()*+,;=") != std::string::npos)
+		return status_code(400);
+	else if(req->absoluteURI.size() > 2048)
+		return status_code(414);
 	req->absoluteURI = matchLocation(req, config);
+	if(!req->absoluteURI.empty())
+		return status_code(404);
 	std::string pathtype = checkPathType(req);
 	if(pathtype == "FILE")
 		return getfile(req->absoluteURI);
 	else if(pathtype == "FOLDER")
 		return getfolder(req, config);
-	return "HTTP/1.1 404 Not Found\r\n\r\n";
+	return status_code(404);
 }
 
-std::string	responseError()
+std::string	response::status_code(int status_code)
 {
-	return "HTTP/1.1 404 Not Found\r\n\r\n";
-	return "HTTP/1.1 301 Moved Permanently\r\n\r\n";
+	if(status_code == 301)
+		return "HTTP/1.1 301 Moved Permanently\r\n\r\n";
+	else if(status_code == 400)
+		return "HTTP/1.1 400 Bad Request\r\n\r\n";
+	else if(status_code == 404)
+		return "HTTP/1.1 404 Not Found\r\n\r\n";
+	else if(status_code == 501)
+		return "HTTP/1.1 501 Not Implemented\r\n\r\n";
+	else if(status_code == 413)
+		return "HTTP/1.1 413 Request Entity Too Large\r\n\r\n";
+	else if(status_code == 414)
+		return "HTTP/1.1 414 Request-URI Too Long\r\n\r\n";
 }
 
 // int main()
