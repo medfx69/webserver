@@ -9,7 +9,7 @@ public:
 	std::string method;
 	std::string absoluteURI;
 	std::string http_version;
-	std::ostringstream body;
+	std::string body;
 	std::map<std::string, std::string> data;	
 	request(std::string x, int *status);
 };
