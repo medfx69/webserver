@@ -22,15 +22,15 @@
  
 struct client
 {
-    Parsed _pr;
     std::string client_reqFile;
-    std::string client_resFile;
-    int read_status;
-    int write_status;
-    int fd_enabeld;
-    int client_fd;
-    client(Parsed pr, std::string file, int r_status, int w_status, int en, int fd):_pr(pr), client_reqFile(file),
-        read_status(r_status), write_status(w_status),
+    std::string client_res_message;
+    request     *req;
+    size_t         read_status;
+    size_t         write_sened;
+    int         fd_enabeld;
+    int         client_fd;
+    client(std::string file, int r_status, int w_status, int en, int fd):client_reqFile(file),
+        read_status(r_status), write_sened(w_status),
         fd_enabeld(en), client_fd(fd){}
 };
 
@@ -62,11 +62,9 @@ namespace http
             std::vector<server_fd>              serverFd;
             std::vector<int>                    m_new_socket;
             std::vector<client>                 clients;
+            int                                 status;
             struct sockaddr_in                  m_socketAress;
             int                                 m_socketAddress_len;
-            int                                 readStatus;
-            int                                 status;
-            int                                 writeStatus;
             std::string                         m_serverMessage;
             char                                buffer[BUFFER_SIZE];
             fd_set                              readst, writest;
@@ -83,8 +81,8 @@ namespace http
             bool                                isMaster(int fd);
             void                                save(int fd, int client);
             void                                startListen(Parsed *data);
-            int                                 acceptConnection(int fd, int c);
-            void                                buildResponse(Parsed *data);
+            int                                 acceptConnection(int fd);
+            void                                buildResponse(Parsed *data, int cl);
             int                                 sendResponse(int fd);
     };
 } // namespace http`

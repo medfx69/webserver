@@ -14,10 +14,10 @@ response::response()
 }
 
 
-std::string    response::checkPathType(Parsed* data)
+std::string    response::checkPathType(request* req)
 {
 	struct stat st;
-	if(stat(data->req->absoluteURI.c_str(), &st) != 0)
+	if(stat(req->absoluteURI.c_str(), &st) != 0)
 		return "NOT FOUND";
 	else if(S_ISDIR(st.st_mode))
 		return "FOLDER";
@@ -63,16 +63,16 @@ std::string response::getfile(std::string pathfile)
 	return generateResponseHeader(pathfile) + file_content.str();
 }
 
-std::string response::getfolder(Parsed* data, server config)
+std::string response::getfolder(request* req, server config)
 {
-	if(data->req->absoluteURI.back() != '/')
+	if(req->absoluteURI.back() != '/')
 		return "HTTP/1.1 301 Moved Permanently\r\n\r\n";
 	if (!config.index.empty())
-		return getfile(data->req->absoluteURI + "/" + config.index[0]);
+		return getfile(req->absoluteURI + "/" + config.index[0]);
 	else if(config.autoindex == "OFF")
 		return "HTTP/1.1 301 Moved Permanently\r\n\r\n";
 	else if(config.autoindex == "ON")
-		return createIndexHtml(data->req->absoluteURI);
+		return createIndexHtml(req->absoluteURI);
 	return NULL;
 }
 
@@ -115,13 +115,26 @@ std::string response::generateResponseHeader(const std::string& filePath)
 	return header;
 }
 
-std::string   response::get_response(Parsed* data, server config)
+void	matchLocation(request* req, server config)
 {
-	std::string pathtype = checkPathType(data);
+	for(size_t i = 0; i < config.location.size(); i++)
+	{
+		if(req->absoluteURI.find(config.location[i].location_name) == 0)
+			req->absoluteURI = config.root + req->absoluteURI;
+	}
+	
+}
+
+std::string   response::get_response(request* req, server config)
+{
+	// std::cout << "data+++++++++ " << req->absoluteURI << std::endl;
+	// matchLocation(req, config);
+	// std::cout << "config+++++++++ " << req->absoluteURI << std::endl;
+	std::string pathtype = checkPathType(req);
 	if(pathtype == "FILE")
-		return getfile(data->req->absoluteURI);
+		return getfile(req->absoluteURI);
 	else if(pathtype == "FOLDER")
-		return getfolder(data, config);
+		return getfolder(req, config);
 	return "HTTP/1.1 404 Not Found\r\n\r\n";
 }
 

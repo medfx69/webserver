@@ -12,8 +12,6 @@ void exitWithError(const std::string &message)
 
 http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket()
 {
-    readStatus = 0;
-    writeStatus = 0;
     for (size_t i = 0; i < _data->getDate().size(); i++){
         if ((_data->getDate()[i]).listen.first.find('.') != std::string::npos){
             m_ip_address.push_back((_data->getDate()[i]).listen.first);
@@ -53,6 +51,8 @@ int http::TcpServer::startServer()
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0)
         exitWithError("Cannot create socket");
+    if(setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, (char *)&i, sizeof(i)) < 0 )
+        exitWithError("----------setsockopt-----------");
     if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&i, sizeof(i)) < 0 )
         exitWithError("----------setsockopt-----------");
     if (bind(fd, (sockaddr *) &m_socketAress, m_socketAddress_len) < 0)
@@ -66,10 +66,15 @@ int setNonblocking(int fd)
     return fcntl(fd, F_SETFL, O_NONBLOCK);
 }
 
-int http::TcpServer::acceptConnection(int fd, int c)
+int http::TcpServer::acceptConnection(int fd)
 {
     int new_socket;
+    size_t c;
 
+    for (c = 0; c < m_socket.size(); c++){
+        if (m_socket[c] == fd)
+            break;
+    }
     m_socketAress = class_m_socketAress[c];
     m_socketAddress_len = class_m_socketAddress_len[c];
     std::cout << inet_ntoa(m_socketAress.sin_addr) << std::endl;
@@ -117,12 +122,20 @@ void http::TcpServer::save(int fd, int client){
     std::ostringstream  ss1;
 
     ss1 << "/tmp/request_" << fd;
-    std::ofstream reFile(ss1.str());
-
-    reFile << buffer;
-    // if (status == 1)
+    if (clients[client].read_status == 0){
+        std::ofstream reFile1;
+        reFile1.open(ss1.str(), std::ios::app);
+        reFile1 << buffer;
+        reFile1.close();
+        clients[client].req = pars_request(clients[client].client_fd, (int *) &this->clients[client].read_status);
+    }
+    else{
+        std::ofstream reFile(ss1.str());
+        std::ifstream s;
+        reFile << buffer;
         reFile.close();
-    clients[client]._pr.req = pars_request(clients[client]._pr, clients[client].client_fd, &this->clients[client].read_status);
+        clients[client].req = pars_request(clients[client].client_fd, (int *) &this->clients[client].read_status);
+    }
 }
 
 bool http::TcpServer::isMaster(int fd){
@@ -149,18 +162,14 @@ void http::TcpServer::startListen(Parsed *data){
         write_tmp = writest;
         log("====== Waiting for a new connection ======\n");
         act = select(max_fd +1, &readst, &writest, NULL, NULL);
-        for (size_t c = 0; c < m_socket.size(); c++){
-           
             // IMHERE
             if (act < 0)
                 exitWithError("--------select error-------");
             for (int i = 0; i < max_fd + 1 ; i++){
                 if (FD_ISSET(i, &read_tmp))
                 {
-                    // IMHERE
                     if (isMaster(i)){
-                        // IMHERE
-                        max_fd_check = acceptConnection(i, c);
+                        max_fd_check = acceptConnection(i);
                         FD_SET(max_fd_check, &read_tmp);
                         if (max_fd_check > max_fd_tmp)
                             max_fd_tmp = max_fd_check;
@@ -168,30 +177,25 @@ void http::TcpServer::startListen(Parsed *data){
                         for (; cl < clients.size(); cl++){
                             if (clients[cl].client_fd == max_fd_check){
                                 clients[cl].read_status = 0;
-                                clients[cl].write_status = 0;
-                                clients[cl].fd_enabeld = 1;
+                                clients[cl].write_sened = 0;
                             }
                         }
                         if (cl == clients.size()){
                             std::ostringstream  ss1;
                             ss1 << "/tmp/request_" << max_fd_check;
-                            clients.push_back(client(data[c], ss1.str(), 0, 0, 1, max_fd_check));
+                            clients.push_back(client(ss1.str(), 1, 0, 0, max_fd_check));
                         }
                     }
                     else{
-                        // IMHERE
                         bytesReceived = read(i, buffer, BUFFER_SIZE);
                         if (bytesReceived >= 0)
                         {
                             size_t cl1 = 0;
-                            // std::cout << "Read Return: " << bytesReceived << " {}" << buffer << std::endl;
-                            // here i should pars requust and return status code
                             for (; cl1 < clients.size(); cl1++){
                                 if (clients[cl1].client_fd == i){
                                     save(i, cl1);
                                     clients[cl1].read_status = status;
-                                    clients[cl1].write_status = 0;
-                                    clients[cl1].fd_enabeld = 1;
+                                    clients[cl1].write_sened = 0;
                                 }
                             }
                             FD_SET(i, &write_tmp);
@@ -201,21 +205,28 @@ void http::TcpServer::startListen(Parsed *data){
                 }
                 if (FD_ISSET(i, &write_tmp))
                 {
-                    // IMHERE
-                    (void)data;
-                    buildResponse(data);
+                    buildResponse(data, i);
                     if (FD_ISSET(i, &write_tmp)){
 
-                        if(sendResponse(i) > 0){
-                            FD_CLR(i, &write_tmp);
-                            close(i);
+                        int sened = sendResponse(i);
+                        if(sened > 0){
+                            size_t cl2 = 0;
+                            for (; cl2 < clients.size(); cl2++){
+                                if (clients[cl2].client_fd == i){
+                                    save(i, cl2);
+                                    clients[cl2].read_status = status;
+                                    clients[cl2].write_sened += sened;
+                                }
+                            }
+                            if (sened < 0 && clients[cl2].write_sened == clients[cl2].client_res_message.size()){
+                                FD_CLR(i, &write_tmp);
+                                close(i);
+                                clients[cl2].fd_enabeld = 0;
+                            }
                         }
                     }
                     // IMHERE
-                    // IMHERE
-                    
                 }
-            }
             max_fd = max_fd_tmp;
             readst = read_tmp;
             writest = write_tmp;
@@ -231,14 +242,34 @@ int http::TcpServer::closeServer()
     exit(0);
 }
 
-void http::TcpServer::buildResponse(Parsed *data)
+void http::TcpServer::buildResponse(Parsed *data, int cl)
 {
-    // std::cout << ">>>>>" <<  this->clients[0]._pr.req->absoluteURI << std::endl;
-    // std::cout << ">>>>>" <<  data->getDate()[0].location[0].location_name << std::endl;
-    // if(data->req->method == "GET") {
-    //     m_serverMessage = resp->get_response(data);
-    //     return ;
-    // }
+    
+    request *req;
+    server conf;
+    size_t cl2;
+    for (cl2 = 0; cl2 < clients.size(); cl2++)
+        if (clients[cl2].client_fd == cl)
+            req = clients[cl2].req;
+    std::map<std::string, std::string>::iterator it;
+    for (it = req->data.begin(); it != req->data.end(); it++)
+        if ((*it).first.find("Host") != std::string::npos)
+            break ;
+    size_t i;
+    for (i = 0; i < data->getDate().size(); i++){
+        if (((*it).second.find(data->getDate()[i].listen.first) != std::string::npos 
+            && (*it).second.find(data->getDate()[i].listen.second) != std::string::npos)
+                || ((*it).second.find(data->getDate()[i].server_name) != std::string::npos 
+                    && (*it).second.find(data->getDate()[i].listen.second) != std::string::npos))
+            break ;
+    }
+    std::cout << req->method << std::endl;
+    std::cout << data->getDate()[i].listen.first << ":" << data->getDate()[i].listen.second << std::endl;
+    if(req->method == "GET" && i > 0) {
+        m_serverMessage = resp->get_response(req, _data->getDate()[i]);
+        return ;
+    }
+    // i++;
     // else if(data->req->method == "DELETE")
     //     ;
     // else if(data->req->method == "POST")
@@ -248,12 +279,12 @@ void http::TcpServer::buildResponse(Parsed *data)
     //     this->m_serverMessage = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
     //     return ;
     // }
-    (void) data;
-    (void) resp;
-    std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :)</body></html>";
-    std::ostringstream ss;
-    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n" << htmlFile;
-    this->m_serverMessage = ss.str();
+    // (void) data;
+    // (void) resp;
+    // std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :)</body></html>";
+    // std::ostringstream ss;
+    // ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n" << htmlFile;
+    // this->m_serverMessage = ss.str();
 }
 
 int http::TcpServer::sendResponse(int fd)

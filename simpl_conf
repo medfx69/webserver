@@ -1,8 +1,8 @@
 
 server {
     listen 127.0.0.1:8081;
-    server_name examplenumber1.com;
-    methods GET DELETE;
+    server_name localhost;
+
     root /var/www/example.com;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
