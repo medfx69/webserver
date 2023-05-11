@@ -281,10 +281,10 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     // }
     // (void) data;
     // (void) resp;
-    // std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :)</body></html>";
-    // std::ostringstream ss;
-    // ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n" << htmlFile;
-    // this->m_serverMessage = ss.str();
+    std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :)</body></html>";
+    std::ostringstream ss;
+    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n" << htmlFile;
+    this->m_serverMessage = ss.str();
 }
 
 int http::TcpServer::sendResponse(int fd)
