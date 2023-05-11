@@ -221,8 +221,8 @@ void http::TcpServer::startListen(Parsed *data){
                             }
                         }
                         if (send < 0 && clients[cl2].write_sened == clients[cl2].client_res_message.size()){
-                            // FD_CLR(i, &write_tmp);
-                            // close(i);
+                            FD_CLR(i, &write_tmp);
+                            close(i);
                             clients[cl2].fd_enabeld = 0;
                         }
                     }
