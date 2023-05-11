@@ -11,7 +11,10 @@ class response
 	private:
 		int content_lenght;
 		std::map<std::string, std::string> mimeTypeMap;
+		// request req;
+		// server config;
 	public:
+		// response (request , config);
 		response ();
 		std::string	get_response(request* data, server config);
 		std::string	getfolder(request* data, server config);
@@ -21,6 +24,8 @@ class response
 		std::string getFileExtension(const std::string& filePath);
 		std::string generateResponseHeader(const std::string& filePath);
 		std::string contentType(const std::string& filePath);
+		std::string	matchLocation(request* req, server config);
+		std::string	status_code(int );
 		std::string	get_date();
 };
 
