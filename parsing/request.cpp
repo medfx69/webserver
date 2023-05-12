@@ -22,7 +22,7 @@ request::request(std::string x, int *status)
 			iss >> absoluteURI;
 			iss >> http_version;
 		}
-		else if (tmp.find(":") != std::string::npos)
+		else if (tmp.find(":") != std::string::npos && tmp.find("<") == std::string::npos)
 		{
 			std::string tmp2;
 			std::string tmp3;
@@ -34,10 +34,11 @@ request::request(std::string x, int *status)
 			data.insert(pr);
 		}
 		else{
-			body << tmp;
+			body += tmp;
 			// std::cout << tmp << std::endl;
 		}
 		i++;
 	}
-	std::cout << ">>>>>>>>>>> start of bady" << body.str() << "   end of body<<<<<<<<<<" << std::endl;
+	std::cout << ">>>>>>>>>>> start of bady" << body << "   end of body<<<<<<<<<<" << std::endl;
 }
+request::request(){}
