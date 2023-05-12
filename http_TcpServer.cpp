@@ -204,7 +204,8 @@ void http::TcpServer::startListen(Parsed *data){
                 if (FD_ISSET(i, &write_tmp))
                 {
                     // IMHERE
-                    buildResponse(&clients[c]._pr, c);
+                    (void)data;
+                    buildResponse(&clients[c]._pr , c);
                     if (FD_ISSET(i, &write_tmp)){
 
                         if(sendResponse(i) > 0){
