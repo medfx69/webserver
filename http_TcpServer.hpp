@@ -26,6 +26,8 @@ struct client
     std::string client_res_message;
     request     *req;
     size_t      read_status;
+    int         readed;
+    int         read_len;
     size_t      write_sened;
     int         fd_enabeld;
     int         client_fd;
@@ -79,12 +81,13 @@ namespace http
             TcpServer(Parsed *data);
             ~TcpServer();
             int                                 listening();
-            int                                 isMaster(int fd);
+            bool                                 isMaster(int fd);
             void                                save(int fd, int client);
             void                                startListen(Parsed *data);
             int                                 acceptConnection(int fd);
             void                                buildResponse(Parsed *data, int cl);
             int                                 sendResponse(int fd);
+            int                                 findIndex(int fd);
     };
 } // namespace http`
 void exitWithError(const std::string& message);
