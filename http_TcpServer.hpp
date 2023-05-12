@@ -17,7 +17,7 @@
 #include <arpa/inet.h>
 #include <vector>
 #include "methods/http_response.hpp"
-#define BUFFER_SIZE 400000
+#define BUFFER_SIZE 4000000
 
  
 struct client
@@ -25,13 +25,14 @@ struct client
     std::string client_reqFile;
     std::string client_res_message;
     request     *req;
-    size_t         read_status;
-    size_t         write_sened;
+    size_t      read_status;
+    size_t      write_sened;
     int         fd_enabeld;
     int         client_fd;
-    client(std::string file, int r_status, int w_status, int en, int fd):client_reqFile(file),
+    int         serverIndex;
+    client(std::string file, int r_status, int w_status, int en, int index,int fd):client_reqFile(file),
         read_status(r_status), write_sened(w_status),
-        fd_enabeld(en), client_fd(fd){}
+        fd_enabeld(en), serverIndex(index), client_fd(fd){}
 };
 
 struct server_fd
@@ -78,7 +79,7 @@ namespace http
             TcpServer(Parsed *data);
             ~TcpServer();
             int                                 listening();
-            bool                                isMaster(int fd);
+            int                                 isMaster(int fd);
             void                                save(int fd, int client);
             void                                startListen(Parsed *data);
             int                                 acceptConnection(int fd);
