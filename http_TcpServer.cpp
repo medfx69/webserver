@@ -224,7 +224,6 @@ void http::TcpServer::startListen(Parsed *data){
                         size_t cl2 = 0;
                         for (; cl2 < clients.size(); cl2++){
                             if (clients[cl2].client_fd == i){
-                                save(i, cl2);
                                 clients[cl2].read_status = status;
                                 clients[cl2].write_sened += send;
                             }
