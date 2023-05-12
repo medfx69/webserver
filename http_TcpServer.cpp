@@ -122,12 +122,21 @@ void http::TcpServer::save(int fd, int client){
     std::ostringstream  ss1;
 
     ss1 << "/tmp/request_" << fd;
-    std::ofstream reFile(ss1.str());
-    std::ifstream s;
-    reFile << buffer;
-    std::cout << buffer << std::endl;
-    reFile.close();
-    clients[client].req = pars_request(clients[client].client_fd, (int *) &this->clients[client].read_status);
+    // if (clients[client].read_status == 0){
+        // std::ofstream reFile1;
+        // reFile1.open(ss1.str(), std::ios::app);
+        // reFile1 << buffer;
+        // reFile1.close();
+        // clients[client].req = pars_request(clients[client].client_fd, (int *) &this->clients[client].read_status);
+    // }
+    // else{
+        std::ofstream reFile(ss1.str());
+        std::ifstream s;
+        reFile << buffer;
+        std::cout << buffer << std::endl;
+        reFile.close();
+        clients[client].req = pars_request(clients[client].client_fd, (int *) &this->clients[client].read_status,  &this->clients[client].readed,  &this->clients[client].read_len);
+    // }
 }
 
 bool http::TcpServer::isMaster(int fd){
@@ -166,6 +175,7 @@ void http::TcpServer::startListen(Parsed *data){
                 if (isMaster(i)){
                     int index = findIndex(i);
                     max_fd_check = acceptConnection(i);
+                    std::cout << "hello 2\n";
                     FD_SET(max_fd_check, &read_tmp);
                     if (max_fd_check > max_fd_tmp)
                         max_fd_tmp = max_fd_check;
@@ -250,6 +260,11 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     for (cl2 = 0; cl2 < clients.size(); cl2++)
         if (clients[cl2].client_fd == cl)
             req = clients[cl2].req;
+    // response res(*req, data->getDate()[clients[cl2].serverIndex]);
+    // if(req->method == "GET") {
+    //     m_serverMessage = res.get_response(req, data->getDate()[clients[cl2].serverIndex]);
+    //     return ;
+    // }
     // response res(*req, data->getDate()[clients[cl2].serverIndex]);
     // if(req->method == "GET") {
     //     m_serverMessage = res.get_response(req, data->getDate()[clients[cl2].serverIndex]);
