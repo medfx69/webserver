@@ -111,6 +111,7 @@ request *pars_request(int fd, int *status, int *readed, int *read_len)
    
 	request *req;
 
+	(void) readed;
 	// if (*readed == *read_len && *status == 0)
 		req = new request(fd, status, read_len);
 	// else
