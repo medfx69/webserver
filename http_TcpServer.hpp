@@ -26,9 +26,9 @@ struct client
     std::string client_res_message;
     request     *req;
     size_t      read_status;
+    int         readed;
+    int         read_len;
     size_t      write_sened;
-    size_t      readed;
-    size_t      read_len;
     int         fd_enabeld;
     int         client_fd;
     int         serverIndex;

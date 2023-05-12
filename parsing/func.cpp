@@ -106,13 +106,15 @@ std::vector<std::string> parser_helper(std::string s)
 	return ret;
 }
 
-request *pars_request(int fd, int *status)
+request *pars_request(int fd, int *status, int *readed, int *read_len)
 {
-    std::ostringstream  ss1;
+   
 	request *req;
 
-	ss1 << "/tmp/request_" << fd;
-	req = new request(ss1.str(), status);
+	// if (*readed == *read_len && *status == 0)
+		req = new request(fd, status, read_len);
+	// else
+		// append in body ;
 	return req;
 }
 
