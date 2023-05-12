@@ -122,28 +122,25 @@ void http::TcpServer::save(int fd, int client){
     std::ostringstream  ss1;
 
     ss1 << "/tmp/request_" << fd;
-    // if (clients[client].read_status == 0){
-        // std::ofstream reFile1;
-        // reFile1.open(ss1.str(), std::ios::app);
-        // reFile1 << buffer;
-        // reFile1.close();
-        // clients[client].req = pars_request(clients[client].client_fd, (int *) &this->clients[client].read_status);
-    // }
-    // else{
-        std::ofstream reFile(ss1.str());
-        std::ifstream s;
-        reFile << buffer;
-        std::cout << buffer << std::endl;
-        reFile.close();
-        clients[client].req = pars_request(clients[client].client_fd, (int *) &this->clients[client].read_status);
-    // }
+    std::ofstream reFile(ss1.str());
+    std::ifstream s;
+    reFile << buffer;
+    std::cout << buffer << std::endl;
+    reFile.close();
+    clients[client].req = pars_request(clients[client].client_fd, (int *) &this->clients[client].read_status);
 }
 
-int http::TcpServer::isMaster(int fd){
+bool http::TcpServer::isMaster(int fd){
+    for (size_t i = 0; i < m_socket.size(); i++)
+        if(fd == m_socket[i])
+            return true;
+    return (false);
+}
+int http::TcpServer::findIndex(int fd){
     for (size_t i = 0; i < m_socket.size(); i++)
         if(fd == m_socket[i])
             return i;
-    return (0);
+    return (-1);
 }
 
 void http::TcpServer::startListen(Parsed *data){
@@ -166,8 +163,8 @@ void http::TcpServer::startListen(Parsed *data){
         for (int i = 0; i < max_fd + 1 && act >= 0 ; i++){
             if (FD_ISSET(i, &readst))
             {
-                int index = isMaster(i);
                 if (isMaster(i)){
+                    int index = findIndex(i);
                     max_fd_check = acceptConnection(i);
                     FD_SET(max_fd_check, &read_tmp);
                     if (max_fd_check > max_fd_tmp)
@@ -253,11 +250,11 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     for (cl2 = 0; cl2 < clients.size(); cl2++)
         if (clients[cl2].client_fd == cl)
             req = clients[cl2].req;
-    response res(*req, data->getDate()[clients[cl2].serverIndex]);
-    if(req->method == "GET") {
-        m_serverMessage = resp->get_response(req, _data->getDate()[i]);
-        return ;
-    }
+    // response res(*req, data->getDate()[clients[cl2].serverIndex]);
+    // if(req->method == "GET") {
+    //     m_serverMessage = res.get_response(req, data->getDate()[clients[cl2].serverIndex]);
+    //     return ;
+    // }
     // i++;
     // else if(data->req->method == "DELETE")
     //     ;
