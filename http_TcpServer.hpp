@@ -27,6 +27,8 @@ struct client
     request     *req;
     size_t      read_status;
     size_t      write_sened;
+    size_t      readed;
+    size_t      read_len;
     int         fd_enabeld;
     int         client_fd;
     int         serverIndex;
@@ -35,18 +37,7 @@ struct client
         fd_enabeld(en), serverIndex(index), client_fd(fd){}
 };
 
-struct server_fd
-{
-    int socket_fd;
-    int max_fd;
-    fd_set writeset, readset;
-    server_fd(int fd){
-        socket_fd = fd;
-        max_fd = fd;
-        FD_SET(fd, &readset);
-        FD_ZERO(&writeset);
-    }
-}; 
+
 
 class response;
 
@@ -56,11 +47,9 @@ namespace http
     {
         private:
             Parsed                              *_data;
-            response                            *resp;
             std::vector<std::string>            m_ip_address;
             std::vector<int>                    m_port;
             std::vector<int>                    m_socket;
-            std::vector<server_fd>              serverFd;
             std::vector<int>                    m_new_socket;
             std::vector<client>                 clients;
             int                                 status;
@@ -69,7 +58,6 @@ namespace http
             std::string                         m_serverMessage;
             char                                buffer[BUFFER_SIZE];
             fd_set                              readst, writest;
-            // long                                m_incomingMessage;
             std::vector<struct sockaddr_in>     class_m_socketAress;
             timeval                             timer;
             std::vector <unsigned int>          class_m_socketAddress_len;
@@ -79,14 +67,15 @@ namespace http
             TcpServer(Parsed *data);
             ~TcpServer();
             int                                 listening();
-            int                                 isMaster(int fd);
+            int                                 findIndex(int fd);
+            bool                                isMaster(int fd);
             void                                save(int fd, int client);
             void                                startListen(Parsed *data);
             int                                 acceptConnection(int fd);
             void                                buildResponse(Parsed *data, int cl);
             int                                 sendResponse(int fd);
     };
-} // namespace http`
+}
 void exitWithError(const std::string& message);
 
 
