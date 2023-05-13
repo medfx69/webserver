@@ -89,12 +89,11 @@ request::request(client *cl)
 		else{
 			if (cl->chunked == 0)
 			{
-				// myfile1 << tmp;
-				// myfile1 << "\n";
-				std::cout << tmp;
-				std::cout << "\n";
+				myfile1 << tmp;
+				myfile1 << "\n";
+				// std::cout << tmp;
+				// std::cout << "\n";
 				cl->readed += tmp.size() + 1;
-				
 			}
 		}
 		i++;

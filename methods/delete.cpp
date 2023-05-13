@@ -6,8 +6,9 @@
 #include <iostream>
 #include <cstring>
 #include <dirent.h>
+#include "http_response.hpp"
 
-void  f_remove(std::string path)
+void  response::f_remove(std::string path)
 {
   if(remove(path.c_str()))
     std::cout << "204 No Content status code. " << path << std::endl;
@@ -15,12 +16,12 @@ void  f_remove(std::string path)
     std::cout << path << " deleted" << std::endl;
 }
 
-std::string path_creat(std::string path, std::string join_path)
+std::string response::path_creat(std::string path, std::string join_path)
 {
   return path += "/" + join_path;
 }
 
-bool folder_exists(std::string folder_path)
+bool response::folder_exists(std::string folder_path)
 {
   DIR* dir = opendir(folder_path.c_str());
   del jj;
@@ -57,12 +58,12 @@ bool folder_exists(std::string folder_path)
   return 0;
 }
 
-int main()
-{
-  std::string fd = "folder";
-  if(folder_exists(fd))
-    f_remove(fd);
-}
+// int main()
+// {
+//   std::string fd = "folder";
+//   if(folder_exists(fd))
+//     f_remove(fd);
+// }
 
 
 

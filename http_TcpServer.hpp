@@ -9,6 +9,8 @@
 #include <sstream>
 #include <string>
 #include <iterator>
+#include <iostream>
+#include <cstdio>
 #include <unistd.h>
 #include <fcntl.h>
 #include <netinet/in.h>
