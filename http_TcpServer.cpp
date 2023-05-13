@@ -133,9 +133,9 @@ void http::TcpServer::save(int fd, int client){
         std::ofstream reFile(ss1.str());
         std::ifstream s;
         reFile << buffer;
-        std::cout << buffer << std::endl;
+        // std::cout << buffer << std::endl;
         reFile.close();
-        clients[client].req = pars_request(clients[client].client_fd, (int *) &this->clients[client].read_status,  &this->clients[client].readed,  &this->clients[client].read_len);
+        clients[client].req = pars_request(&clients[client]);
     // }
 }
 
@@ -190,7 +190,7 @@ void http::TcpServer::startListen(Parsed *data){
                     if (cl == clients.size()){
                         std::ostringstream  ss1;
                         ss1 << "/tmp/request_" << max_fd_check;
-                        clients.push_back(client(ss1.str(), 1, 0, 0, index, max_fd_check));
+                        clients.push_back(client(ss1.str(), 0, 0, 0, index, max_fd_check));
                     }
                 }
                 else{
@@ -201,12 +201,14 @@ void http::TcpServer::startListen(Parsed *data){
                         for (; cl1 < clients.size(); cl1++){
                             if (clients[cl1].client_fd == i){
                                 save(i, cl1);
-                                clients[cl1].read_status = status;
                                 clients[cl1].write_sened = 0;
+                                break ;
                             }
                         }
-                        FD_SET(i, &write_tmp);
-                        FD_CLR(i, &read_tmp);
+                        if (clients[cl1].read_status == 1){
+                            FD_SET(i, &write_tmp);
+                            FD_CLR(i, &read_tmp);
+                        }
                     }
                     if (bytesReceived < 0)
                     {
@@ -224,16 +226,16 @@ void http::TcpServer::startListen(Parsed *data){
                         size_t cl2 = 0;
                         for (; cl2 < clients.size(); cl2++){
                             if (clients[cl2].client_fd == i){
-                                save(i, cl2);
                                 clients[cl2].read_status = status;
                                 clients[cl2].write_sened += send;
+                                break ;
                             }
                         }
-                        if (send < 0 && clients[cl2].write_sened == clients[cl2].client_res_message.size()){
+                        // if (send < 0 || clients[cl2].write_sened >= clients[cl2].client_res_message.size()){
                             FD_CLR(i, &write_tmp);
                             close(i);
                             clients[cl2].fd_enabeld = 0;
-                        }
+                        // }
                     }
                 }
             }
