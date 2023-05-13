@@ -1,24 +1,10 @@
 #include "http_response.hpp"
 
-// response::response(request _req, server _config)
-// {
-// 	this->req = _req;
-// 	this->config = _config
-// 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
-//     mimeTypeMap.insert(std::make_pair("htm", "text/html"));
-//     mimeTypeMap.insert(std::make_pair("css", "text/css"));
-//     mimeTypeMap.insert(std::make_pair("js", "application/javascript"));
-//     mimeTypeMap.insert(std::make_pair("jpg", "image/jpeg"));
-//     mimeTypeMap.insert(std::make_pair("jpeg", "image/jpeg"));
-//     mimeTypeMap.insert(std::make_pair("png", "image/png"));
-//     mimeTypeMap.insert(std::make_pair("gif", "image/gif"));
-//     mimeTypeMap.insert(std::make_pair("pdf", "application/pdf"));
-// }
-
-response::response(const request& data, server config)
+response::response(request* _req, server _config)
 {
-	(void)data;
-	(void)config;
+	this->req = _req;
+	this->config = _config;
+	std::cout << config.root << std::endl;
 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
     mimeTypeMap.insert(std::make_pair("htm", "text/html"));
     mimeTypeMap.insert(std::make_pair("css", "text/css"));
@@ -31,7 +17,7 @@ response::response(const request& data, server config)
 }
 
 
-std::string    response::checkPathType(request* req)
+std::string    response::checkPathType()
 {
 	struct stat st;
 	if(stat(req->absoluteURI.c_str(), &st) != 0)
@@ -42,9 +28,9 @@ std::string    response::checkPathType(request* req)
 		return "FILE";
 }
 
-std::string response::createIndexHtml(std::string pathdir)
+std::string response::createIndexHtml()
 {
-	DIR* dir = opendir(pathdir.c_str());
+	DIR* dir = opendir(req->absoluteURI.c_str());
 	if(dir != NULL)
 	{
 		// std::ofstream htmlfile("index.html");
@@ -66,44 +52,47 @@ std::string response::createIndexHtml(std::string pathdir)
 	return status_code(404);
 }
 
-std::string response::getfile(std::string pathfile)
+std::string response::getfile()
 {
-	std::ifstream file(pathfile);
+	std::ifstream file(req->absoluteURI);
 	if (!file.is_open()) {
-		std::cerr << "Failed to open file: " << pathfile << '\n';
+		std::cerr << "Failed to open file: " << req->absoluteURI << '\n';
 		return status_code(404);
 	}
 	std::ostringstream file_content;
 	file_content << file.rdbuf();
 	file.close();
 	this->content_lenght = file_content.str().size();
-	return generateResponseHeader(pathfile) + file_content.str();
+	return generateResponseHeader() + file_content.str();
 }
 
-std::string response::getfolder(request* req, server config)
+std::string response::getfolder()
 {
 	if(req->absoluteURI.back() != '/')
 		return status_code(301);
 	if (!config.index.empty())
-		return getfile(req->absoluteURI + "/" + config.index[0]);
+	{
+		req->absoluteURI += "/" + config.index[0];
+		return getfile();
+	}
 	else if(config.autoindex == "OFF")
 		return status_code(301);
 	else if(config.autoindex == "ON")
-		return createIndexHtml(req->absoluteURI);
+		return createIndexHtml();
 	return NULL;
 }
 
-std::string response::getFileExtension(const std::string& filePath)
+std::string response::getFileExtension()
 {
-	size_t dotPos = filePath.find_last_of('.');
+	size_t dotPos = req->absoluteURI.find_last_of('.');
 	if (dotPos == std::string::npos)
 		return "";
-	return filePath.substr(dotPos + 1);
+	return req->absoluteURI.substr(dotPos + 1);
 }
 
-std::string response::contentType(const std::string& filePath)
+std::string response::contentType()
 {
-	std::string extension = getFileExtension(filePath);
+	std::string extension = getFileExtension();
 	if(mimeTypeMap.count(extension) > 0)
 		return mimeTypeMap.at(extension);
 	else
@@ -120,19 +109,19 @@ std::string	response::get_date()
 	return date_str;
 }
 
-std::string response::generateResponseHeader(const std::string& filePath)
+std::string response::generateResponseHeader()
 {
-	std::string header = "HTTP/1.1 200 OK\r\n\r\n";
-	header += "Content-Type: " + contentType(filePath) + "\r\n";
-	header += "Content-Lenght: " + std::to_string(this->content_lenght) + "\r\n";
-	header += "Server: nginxa\r\n";
-	header += "Cache-Control: max-age=3600\r\n";
-	header += "Date: " + get_date();
-	header += "Connection: close\r\n\r\n";
+	std::string header = "HTTP/1.1 200 OK\r\n";
+	header += "content-lype: " + contentType() + "\r\n";
+	header += "content-lenght: " + std::to_string(this->content_lenght) + "\r\n";
+	header += "server: nginxa\r\n";
+	header += "cache-control: max-age=3600\r\n";
+	header += "date: " + get_date() + "\r\n\r\n";
+	// header += "connection: close\r\n\r\n";
 	return header;
 }
 
-std::string	response::matchLocation(request* req, server config)
+std::string	response::matchLocation()
 {
 	int index = -1;
 	std::string location;
@@ -155,25 +144,30 @@ std::string	response::matchLocation(request* req, server config)
 
 }
 
-std::string   response::get_response(request* req, server config)
+std::string   response::get_response()
 {
-	// std::cout << "data+++++++++ " << req->absoluteURI << std::endl;
+	std::cout << "root------ " << this->config.root << std::endl;
+	std::cout << "URI1------- " << req->absoluteURI << std::endl;
+	// exit(0);
 	// matchLocation(req, config);
 	// std::cout << "config+++++++++ " << req->absoluteURI << std::endl;
-	if(!config.chunked_transfer_encoding.empty() && config.chunked_transfer_encoding != "chunked")
-		return status_code(501);
-	else if(req->absoluteURI.find_first_of(":?#[]@!$&'()*+,;=") != std::string::npos)
+	// if(!config.chunked_transfer_encoding.empty() && config.chunked_transfer_encoding != "chunked")
+	// 	return status_code(501);
+	if(req->absoluteURI.find_first_of(":?#[]@!$&'()*+,;=") != std::string::npos)
 		return status_code(400);
 	else if(req->absoluteURI.size() > 2048)
 		return status_code(414);
-	req->absoluteURI = matchLocation(req, config);
-	if(!req->absoluteURI.empty())
+	// req->absoluteURI = config.root + req->absoluteURI;
+	req->absoluteURI = "/Users/mait-aad/Desktop" + req->absoluteURI;
+	// req->absoluteURI = matchLocation();
+	std::cout << "URI2------- " << req->absoluteURI << std::endl;
+	if(req->absoluteURI.empty())
 		return status_code(404);
-	std::string pathtype = checkPathType(req);
+	std::string pathtype = checkPathType();
 	if(pathtype == "FILE")
-		return getfile(req->absoluteURI);
+		return getfile();
 	else if(pathtype == "FOLDER")
-		return getfolder(req, config);
+		return getfolder();
 	return status_code(404);
 }
 
