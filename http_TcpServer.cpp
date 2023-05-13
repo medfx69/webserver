@@ -128,6 +128,7 @@ void http::TcpServer::save(int fd, int client){
     std::ofstream reFile(ss1.str());
     std::ifstream s;
     reFile << buffer;
+    clients[client].client_reqFile = ss1.str();
     if (clients[client].flag == 0 && clients[client].read_status == 0){
         reFile.close();
         clients[client].req = pars_request(&clients[client]);
@@ -172,8 +173,8 @@ void http::TcpServer::startListen(Parsed *data){
             {
                 if (isMaster(i)){
                     int index = findIndex(i);
-                    max_fd_check = acceptConnection(i);
                     std::cout << "hello 2\n";
+                    max_fd_check = acceptConnection(i);
                     FD_SET(max_fd_check, &read_tmp);
                     if (max_fd_check > max_fd_tmp)
                         max_fd_tmp = max_fd_check;
@@ -208,6 +209,9 @@ void http::TcpServer::startListen(Parsed *data){
                         if (clients[cl1].read_status == 1){
                             FD_SET(i, &write_tmp);
                             FD_CLR(i, &read_tmp);
+                            clients[cl1].read_status = 0;
+                            clients[cl1].flag = 0;
+                            clients[cl1].readed = 0;
                         }
                     }
                     if (bytesReceived < 0)
@@ -219,6 +223,7 @@ void http::TcpServer::startListen(Parsed *data){
             }
             if (FD_ISSET(i, &writest))
             {
+                std::cout << "write fd: "<< i << std::endl;
                 buildResponse(data, i);
                 if (FD_ISSET(i, &writest)){
                     int send = sendResponse(i);
@@ -231,11 +236,14 @@ void http::TcpServer::startListen(Parsed *data){
                                 break ;
                             }
                         }
-                        // if (send < 0 || clients[cl2].write_sened >= clients[cl2].client_res_message.size()){
+                        if (clients[cl2].write_sened >= clients[cl2].client_res_message.size()){
                             FD_CLR(i, &write_tmp);
                             close(i);
                             clients[cl2].fd_enabeld = 0;
-                        // }
+                            clients[cl2].write_sened = 0;
+                            delete clients[cl2].req;
+                            // remove(clients[cl2].client_reqFile);
+                        }
                     }
                 }
             }
