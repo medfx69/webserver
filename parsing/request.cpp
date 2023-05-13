@@ -111,6 +111,32 @@ request::request(client *cl)
 					cl->read_status = 1;
 				}
 			}
+			else
+			{
+				if (cl->read_len == 0)
+				{
+					cl->read_len = std::stoi("d2", 0, 16);
+					if (cl->read_len == 0)
+					{
+						cl->flag = 2;
+						cl->read_status = 1;
+						break;
+					}
+				}
+				else if (tmp.size() + cl->readed < cl->read_len)
+				{
+					myfile1 << tmp;
+					myfile1 << "\n";
+					cl->readed += tmp.size() + 1;
+				}
+				else if (tmp.size() + cl->readed == cl->read_len)
+				{
+					myfile1 << tmp;
+					cl->readed += tmp.size();
+					cl->read_len = 0;
+					cl->readed = 0;
+				}
+			}
 		}
 		i++;
 	}
