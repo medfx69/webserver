@@ -106,14 +106,13 @@ std::vector<std::string> parser_helper(std::string s)
 	return ret;
 }
 
-request *pars_request(int fd, int *status, int *readed, int *read_len)
+request *pars_request(client *cl)
 {
    
 	request *req;
 
-	(void) readed;
 	// if (*readed == *read_len && *status == 0)
-		req = new request(fd, status, read_len);
+		req = new request(cl);
 	// else
 		// append in body ;
 	return req;
