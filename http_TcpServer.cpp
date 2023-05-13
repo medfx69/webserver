@@ -232,9 +232,6 @@ void http::TcpServer::startListen(Parsed *data){
                                 break ;
                             }
                         }
-                        std::cout << clients[cl2].client_res_message.size() << std::endl;
-                        std::cout << send << std::endl;
-                        std::cout << clients[cl2].write_sened << std::endl;
                         if (clients[cl2].client_res_message.size() <= (size_t)send){
                             FD_CLR(i, &write_tmp);
                             close(i);
@@ -254,15 +251,13 @@ int http::TcpServer::closeServer()
 {
     for (std::vector<int>::iterator ite = m_socket.begin(); ite < m_socket.end(); ite++)
         close(*ite);
-    // close(*(m_new_socket.end() - 1));
     exit(0);
 }
 
 void http::TcpServer::buildResponse(Parsed *data, int cl)
 {
     request *req;
-    // server conf;
-    // (void) data;
+
     size_t cl2;
     req = NULL;
     for (cl2 = 0; cl2 < clients.size(); cl2++)
@@ -277,7 +272,7 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
         m_serverMessage = res.get_response();
         std::cout << m_serverMessage << std::endl;
         clients[cl2].client_res_message = this->m_serverMessage;
-        // exit(0);
+
         return ;
     }
     // i++;
@@ -290,20 +285,8 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     //     this->m_serverMessage = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
     //     return ;
     // }
-    // (void) data;
-    // (void) resp;
-    std::string htmlFile = "<!DOCTYPE html><html lang=\"en\"><body><h1> HOME </h1><p> Hello from your Server :)</body></html>";
-    std::ostringstream ss;
-    ss << "HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: " << htmlFile.size() << "\n\n" << htmlFile;
-    this->m_serverMessage = ss.str();
-    clients[cl2].client_res_message = this->m_serverMessage;
 }
 
-int http::TcpServer::sendResponse(int fd)
-{
+int http::TcpServer::sendResponse(int fd){
     return (write(fd, m_serverMessage.c_str(), m_serverMessage.size()));
-    // if (bytesSent == m_serverMessage.size())
-    //     log("------ Server Response sent to client ------\n\n");
-    // else
-    //     log("Error sending response to client");
 }
