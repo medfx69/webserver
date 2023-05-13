@@ -258,6 +258,7 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
 {
     request *req;
     // server conf;
+    (void)data;
     size_t cl2;
     for (cl2 = 0; cl2 < clients.size(); cl2++)
         if (clients[cl2].client_fd == cl)
