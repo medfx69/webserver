@@ -24,11 +24,17 @@ void	request::handle_body(client *cl)
 {
 	std::ostringstream  ss1;
 	std::ifstream myfile;
+	std::ostringstream  ss2;
+	std::ifstream myfile1;
+	std::string tmp;
 
 	ss1 << "/tmp/request_" << cl->client_fd;
+	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile.open(ss1.str());
 	if (myfile.fail())
 		exit(0);
+	// myfile1.open(ss2.str(), std::ifstream::app);
+
 }
 
 request::request(client *cl)
@@ -42,14 +48,13 @@ request::request(client *cl)
 	ss1 << "/tmp/request_" << cl->client_fd;
 	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile.open(ss1.str());
-	if (cl->flag == 0)
-		myfile1.open(ss2.str());
+	myfile1.open(ss2.str());
 	if (myfile.fail())
 		exit(0);
 	while (getline(myfile, tmp))
 	{
 		std::istringstream iss(tmp);
-		if (tmp == "\r") // if it is the end of body read status is 1 else if it's the end of request 2
+		if (tmp == "\r")
 		{
 			if (cl->flag == 0)
 			{
@@ -79,30 +84,22 @@ request::request(client *cl)
 			pr.first = tmp2;
 			pr.second = tmp3;
 			data.insert(pr);
-			// std::cout << ">>> map insertion. <<<" << std::endl;
-			// if (tmp2 == "Content-length")
-			// {
-			// 	try {
-			// 		cl->read_len = stoi(tmp3);
-			// 	} catch (std::exception &x){
-			// 		std::cout << x.what() << std::endl;
-			// 	}
-			// }
-			// else if (tmp2 == "Transfer-Encoding")
-			// {
-			// 	if (tmp3 == "chunked")
-			// 		;/////////////////////// need variable;
-			// }
-
+			std::cout << tmp << std::endl;
 		}
 		else{
-			std::cout << tmp;
-			std::cout << "\n";
-			cl->readed += tmp.size() + 1;
+			if (cl->chunked == 0)
+			{
+				// myfile1 << tmp;
+				// myfile1 << "\n";
+				std::cout << tmp;
+				std::cout << "\n";
+				cl->readed += tmp.size() + 1;
+				
+			}
 		}
 		i++;
 	}
-// 	--(cl->readed);
-// 	std::cout << "[" << cl->readed << "] <----->  this is cl->readed" << std::endl;
+	--(cl->readed);
+	std::cout << "[" << cl->readed << "] <----->  this is cl->readed" << std::endl;
 }
 request::request(){}
