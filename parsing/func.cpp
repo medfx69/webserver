@@ -109,12 +109,12 @@ std::vector<std::string> parser_helper(std::string s)
 request *pars_request(client *cl)
 {
    
-	request *req;
+	request *req = NULL;
 
-	// if (*readed == *read_len && *status == 0)
+	if (cl->flag == 0 && cl->read_status == 0)
 		req = new request(cl);
-	// else
-		// append in body ;
+	else
+		req->handle_body(cl);// append in body ;
 	return req;
 }
 

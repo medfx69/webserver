@@ -5,11 +5,9 @@ void	end_of_headers(request *req, client *cl)
 	if (req->data.find("Transfer-Encoding:") != req->data.end())
 	{
 		if (req->data.find("Transfer-Encoding:")->second == "chunked")
-		{
-			;//flag it like a  chunked request
-		}
+			cl->chunked = 1;
 	}
-	if (req->data.find("Content-Length:") != req->data.end())
+	if (req->data.find("Content-Length:") != req->data.end() && cl->chunked == 0)
 	{
 		try {
 			cl->read_len = stoi(req->data.find("Content-Length:")->second);
@@ -17,21 +15,20 @@ void	end_of_headers(request *req, client *cl)
 			std::cout << x.what() << std::endl;
 		}
 	}
+	if (cl->read_len == 0 && cl->chunked == 0)
+		cl->read_status = 1;
+}
 
 
-	// if (tmp2 == "Content-length")
-	// {
-	// 	try {
-	// 		cl->read_len = stoi(tmp3);
-	// 	} catch (std::exception &x){
-	// 		std::cout << x.what() << std::endl;
-	// 	}
-	// }
-	// else if (tmp2 == "Transfer-Encoding")
-	// {
-	// 	if (tmp3 == "chunked")
-	// 		;/////////////////////// need variable;
-	// }
+void	request::handle_body(client *cl)
+{
+	std::ostringstream  ss1;
+	std::ifstream myfile;
+
+	ss1 << "/tmp/request_" << cl->client_fd;
+	myfile.open(ss1.str());
+	if (myfile.fail())
+		exit(0);
 }
 
 request::request(client *cl)
@@ -45,7 +42,7 @@ request::request(client *cl)
 	ss1 << "/tmp/request_" << cl->client_fd;
 	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile.open(ss1.str());
-	if (cl->readed == 0)
+	if (cl->flag == 0)
 		myfile1.open(ss2.str());
 	if (myfile.fail())
 		exit(0);
@@ -64,8 +61,7 @@ request::request(client *cl)
 				cl->flag = 2;
 				cl->read_status = 1;
 			}
-
-			std::cout << ">>>.<<<" << cl->flag << std::endl;
+			std::cout << ">>>.<<<" << cl->flag << "   status  ->>"<< cl->read_status << std::endl;
 		}
 		else if (i == 0 && cl->flag == 0)
 		{
@@ -83,8 +79,8 @@ request::request(client *cl)
 			pr.first = tmp2;
 			pr.second = tmp3;
 			data.insert(pr);
+			// std::cout << ">>> map insertion. <<<" << std::endl;
 			// if (tmp2 == "Content-length")
-			std::cout << ">>> map insertion. <<<" << std::endl;
 			// {
 			// 	try {
 			// 		cl->read_len = stoi(tmp3);
