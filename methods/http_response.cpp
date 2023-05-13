@@ -17,6 +17,8 @@
 
 response::response(const request& data, server config)
 {
+	(void)data;
+	(void)config;
 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
     mimeTypeMap.insert(std::make_pair("htm", "text/html"));
     mimeTypeMap.insert(std::make_pair("css", "text/css"));
