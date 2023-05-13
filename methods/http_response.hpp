@@ -11,22 +11,26 @@ class response
 	private:
 		int content_lenght;
 		std::map<std::string, std::string> mimeTypeMap;
-		request req;
+		request *req;
 		server config;
 	public:
-		// response (request , config);
-		response (const request& data, server config);
-		std::string	get_response(request* data, server config);
-		std::string	getfolder(request* data, server config);
-		std::string	getfile(std::string pathfile);
-		std::string	checkPathType(request* data);
-		std::string createIndexHtml(std::string pathdir);
-		std::string getFileExtension(const std::string& filePath);
-		std::string generateResponseHeader(const std::string& filePath);
-		std::string contentType(const std::string& filePath);
-		std::string	matchLocation(request* req, server config);
+		//get
+		response (request* _req,server _config);
+		std::string	get_response();
+		std::string	getfolder();
+		std::string	getfile();
+		std::string	checkPathType();
+		std::string createIndexHtml();
+		std::string getFileExtension();
+		std::string generateResponseHeader();
+		std::string contentType();
+		std::string	matchLocation();
 		std::string	status_code(int );
 		std::string	get_date();
+		//delete
+		bool folder_exists(std::string folder_path);
+		std::string path_creat(std::string folder_path, std::string join_path);
+		void  f_remove(std::string path);
 };
 
 #endif
