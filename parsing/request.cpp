@@ -1,6 +1,40 @@
 #include "request.hpp"
 
-request::request(int fd, int *status, int *read_len)
+void	end_of_headers(request *req, client *cl)
+{
+	if (req->data.find("Transfer-Encoding:") != req->data.end())
+	{
+		if (req->data.find("Transfer-Encoding:")->second == "chunked")
+		{
+			;//flag it like a  chunked request
+		}
+	}
+	if (req->data.find("Content-Length:") != req->data.end())
+	{
+		try {
+			cl->read_len = stoi(req->data.find("Content-Length:")->second);
+		} catch (std::exception &x){
+			std::cout << x.what() << std::endl;
+		}
+	}
+
+
+	// if (tmp2 == "Content-length")
+	// {
+	// 	try {
+	// 		cl->read_len = stoi(tmp3);
+	// 	} catch (std::exception &x){
+	// 		std::cout << x.what() << std::endl;
+	// 	}
+	// }
+	// else if (tmp2 == "Transfer-Encoding")
+	// {
+	// 	if (tmp3 == "chunked")
+	// 		;/////////////////////// need variable;
+	// }
+}
+
+request::request(client *cl)
 {
 	std::ifstream myfile;
 	std::ofstream myfile1;
@@ -8,26 +42,38 @@ request::request(int fd, int *status, int *read_len)
 	std::ostringstream  ss2;
 	std::string tmp;
 	int i = 0;
-	ss1 << "/tmp/request_" << fd;
-	ss2 << "/tmp/response_" << fd;
+	ss1 << "/tmp/request_" << cl->client_fd;
+	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile.open(ss1.str());
+	if (cl->readed == 0)
+		myfile1.open(ss2.str());
 	if (myfile.fail())
 		exit(0);
 	while (getline(myfile, tmp))
 	{
 		std::istringstream iss(tmp);
-		if (tmp == "\r") // this is the end of request
+		if (tmp == "\r") // if it is the end of body read status is 1 else if it's the end of request 2
 		{
-			*status = 1;
-			// std::cout << ">>>.<<<" << std::endl;
+			if (cl->flag == 0)
+			{
+				cl->flag = 1;
+				end_of_headers(this ,cl);
+			}
+			else
+			{
+				cl->flag = 2;
+				cl->read_status = 1;
+			}
+
+			std::cout << ">>>.<<<" << cl->flag << std::endl;
 		}
-		else if (i == 0)
+		else if (i == 0 && cl->flag == 0)
 		{
 			iss >> method;
 			iss >> absoluteURI;
 			iss >> http_version;
 		}
-		else if (tmp.find(":") != std::string::npos)// && tmp.find("<") == std::string::npos)
+		else if (tmp.find(":") != std::string::npos && cl->flag == 0)
 		{
 			std::string tmp2;
 			std::string tmp3;
@@ -37,19 +83,30 @@ request::request(int fd, int *status, int *read_len)
 			pr.first = tmp2;
 			pr.second = tmp3;
 			data.insert(pr);
-			if (tmp2 == "Content-length")
-				*read_len = stoi(tmp3);
+			// if (tmp2 == "Content-length")
+			std::cout << ">>> map insertion. <<<" << std::endl;
+			// {
+			// 	try {
+			// 		cl->read_len = stoi(tmp3);
+			// 	} catch (std::exception &x){
+			// 		std::cout << x.what() << std::endl;
+			// 	}
+			// }
+			// else if (tmp2 == "Transfer-Encoding")
+			// {
+			// 	if (tmp3 == "chunked")
+			// 		;/////////////////////// need variable;
+			// }
 
 		}
 		else{
-			myfile.open(ss1.str());
-			// if (myfile.fail())
-			// 	exit(0);
-			myfile1 << tmp;
-		// 	// std::cout << tmp << std::endl;
+			std::cout << tmp;
+			std::cout << "\n";
+			cl->readed += tmp.size() + 1;
 		}
 		i++;
 	}
-	// std::cout << ">>>>>>>>>>> start of bady" << body << "   end of body<<<<<<<<<<" << std::endl;
+// 	--(cl->readed);
+// 	std::cout << "[" << cl->readed << "] <----->  this is cl->readed" << std::endl;
 }
 request::request(){}
