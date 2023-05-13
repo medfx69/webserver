@@ -2,8 +2,6 @@
 #define HTTP_TCP_SERVER_HPP
 #include <sys/socket.h>
 #include <unistd.h>
-#include <iostream>
-#include <fstream>
 #include "parsing/includes.hpp"
 #include <sys/select.h>
 #include <sys/socket.h>
@@ -18,24 +16,6 @@
 #include <vector>
 #include "methods/http_response.hpp"
 #define BUFFER_SIZE 4000000
-
- 
-struct client
-{
-    std::string client_reqFile;
-    std::string client_res_message;
-    request     *req;
-    size_t      read_status;
-    int         readed;
-    int         read_len;
-    size_t      write_sened;
-    int         fd_enabeld;
-    int         serverIndex;
-    int         client_fd;
-    client(std::string file, int r_status, int w_status, int en, int index,int fd):client_reqFile(file),
-        read_status(r_status), write_sened(w_status),
-        fd_enabeld(en), serverIndex(index), client_fd(fd){}
-};
 
 
 
