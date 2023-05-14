@@ -3,8 +3,10 @@
 response::response(request* _req, server _config)
 {
 	this->req = _req;
-	this->config = _config;
-	// std::cout << config.root << std::endl;
+	this->config = new server(_config);
+    std::cout << "----+------" << config->location[1].location_name << std::endl;
+
+	// std::cout << config->root << std::endl;
 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
     mimeTypeMap.insert(std::make_pair("htm", "text/html"));
     mimeTypeMap.insert(std::make_pair("css", "text/css"));
@@ -87,14 +89,14 @@ std::string response::getfolder()
 		content_lenght = status.size();
 		return generateResponseHeader() + status;
 	}
-	if (!config.index.empty())
+	if (!config->index.empty())
 	{
-		req->absoluteURI +=  config.index[0]; 
+		req->absoluteURI +=  config->index[0]; 
 		return getfile();
 	}
-	else if(config.autoindex == "ON")
+	else if(config->autoindex == "ON")
 		return createIndexHtml();
-	else if(config.autoindex == "OFF" )
+	else if(config->autoindex == "OFF" )
 	{
 		status = status_code(301);
 		content_type = "text/html";
@@ -148,41 +150,46 @@ std::string	response::matchLocation()
 {
 	int index = -1;
 	std::string location;
-	for(size_t i = 0; i < config.location.size(); i++)
+	std::cout << "absolutURI " + req->absoluteURI << std::endl; 
+	for(size_t i = 0; i < config->location.size(); i++)
 	{
-		if(req->absoluteURI.find(config.location[i].location_name) == 0)
+		std::cout << "config_location" + std::to_string(i) + " " + config->location[i].location_name << std::endl;
+		if(req->absoluteURI.find(config->location[i].location_name) == 0)
 		{
-			if(config.location[i].location_name.size() > location.size())
+			std::cout << "find\n";
+			if(config->location[i].location_name.size() > location.size())
 			{
-				location = config.location[i].location_name;
+				std::cout << "locationNow: " << location << std::endl;
+				location = config->location[i].location_name;
 				index = i;
 			}
 		}
 	}
+	std::cout << "location:::::: " << location << std::endl;
 	if(!location.empty())
-		return config.location[index].root + req->absoluteURI;
-	else if(!config.root.empty())
-		return config.root + req->absoluteURI;
+		return config->location[index].root + req->absoluteURI;
+	else if(!config->root.empty())
+		return config->root + req->absoluteURI;
 	return "";
 
 }
 
 std::string   response::get_response()
 {
-	std::cout << "root------ " << this->config.root << std::endl;
+	// std::cout << "----++------" << config->location[1].location_name << std::endl;
+	std::cout << "root------ " << this->config->root << std::endl;
 	std::cout << "URI1------- " << req->absoluteURI << std::endl;
 	//!generate header
-	if(!config.chunked_transfer_encoding.empty() && config.chunked_transfer_encoding != "chunked")
+	if(!config->chunked_transfer_encoding.empty() && config->chunked_transfer_encoding != "chunked")
 		return status_code(501);
 	if(req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
 		return status_code(400);
 	else if(req->absoluteURI.size() > 2048)
 		return status_code(414);
-	// req->absoluteURI = config.root + req->absoluteURI;
-	req->absoluteURI = "/Users/mait-aad/Desktop" + req->absoluteURI;
-	// req->absoluteURI = matchLocation();
-	std::cout << "URI2------- " << req->absoluteURI << std::endl;
-	// req->absoluteURI = matchLocation();
+	// req->absoluteURI = config->root + req->absoluteURI;
+	// req->absoluteURI = "/Users/omar/Desktop" + req->absoluteURI;
+	// std::cout << "URI2------- " << req->absoluteURI << std::endl;
+	req->absoluteURI = matchLocation();
 	if(req->absoluteURI.empty())
 		return status_code(404);
 	std::string pathtype = checkPathType();
