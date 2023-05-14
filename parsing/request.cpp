@@ -24,18 +24,79 @@ void end_of_headers(request *req, client *cl)
 
 void request::handle_body(client *cl)
 {
+	std::cout << "This is handle body <-----> ..............." << std::endl;
+
 	std::ostringstream ss1;
 	std::ifstream myfile;
 	std::ostringstream ss2;
-	std::ifstream myfile1;
+	std::ofstream myfile1;
 	std::string tmp;
 
 	ss1 << "/tmp/request_" << cl->client_fd;
 	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile.open(ss1.str());
-	if (myfile.fail())
-		exit(0);
-	// myfile1.open(ss2.str(), std::ifstream::app);
+	myfile1.open(ss2.str());
+	while (getline(myfile, tmp))
+	{
+		if (cl->chunked == 0)
+		{
+			if (tmp.size() + cl->readed < cl->read_len)
+			{
+				myfile1 << tmp;
+				myfile1 << "\n";
+				cl->readed += tmp.size() + 1;
+			}
+			else if (tmp.size() + cl->readed == cl->read_len)
+			{
+				myfile1 << tmp;
+				cl->readed += tmp.size();
+				cl->flag = 2;
+				cl->read_status = 1;
+			}
+			else
+			{
+				myfile1.write(tmp.c_str(), cl->read_len - cl->readed);
+				cl->readed += cl->read_len - cl->readed;
+				cl->flag = 2;
+				cl->read_status = 1;
+			}
+		}
+		else
+		{
+			if (cl->read_len == 0)
+			{
+				cl->read_len = std::stoi(tmp, 0, 16);
+				if (cl->read_len == 0)
+				{
+					cl->flag = 2;
+					cl->read_status = 1;
+					break;
+				}
+			}
+			else if (tmp.size() + cl->readed < cl->read_len)
+			{
+				myfile1 << tmp;
+				myfile1 << "\n";
+				cl->readed += tmp.size() + 1;
+			}
+			else if (tmp.size() + cl->readed >= cl->read_len)
+			{
+				tmp = tmp + "\n";
+				myfile1 << tmp;
+				cl->readed += tmp.size() - 1;
+			}
+			else
+			{
+				myfile1 << tmp;
+				cl->readed += tmp.size();
+			}
+			if (cl->readed >= cl->read_len)
+			{
+				cl->read_len = 0;
+				cl->readed = 0;
+			}
+		}
+	}
 }
 
 request::request(client *cl)
@@ -84,7 +145,6 @@ request::request(client *cl)
 			pr.first = tmp2;
 			pr.second = tmp3;
 			data.insert(pr);
-			// std::cout << tmp << std::endl;
 		}
 		else
 		{
@@ -113,7 +173,6 @@ request::request(client *cl)
 			}
 			else
 			{
-				// std::cout << tmp.c_str() <<": "<< cl->readed <<" >>>>>>>>>>>>"<< cl->read_len << std::endl;
 				if (cl->read_len == 0)
 				{
 					cl->read_len = std::stoi(tmp, 0, 16);
@@ -123,27 +182,21 @@ request::request(client *cl)
 						cl->read_status = 1;
 						break;
 					}
-					std::cout << tmp  << "1------ " << cl->readed <<"   "<< cl->read_len << std::endl;
 				}
 				else if (tmp.size() + cl->readed < cl->read_len)
 				{
 					myfile1 << tmp;
 					myfile1 << "\n";
 					cl->readed += tmp.size() + 1;
-					std::cout << tmp  << " 2------ " << cl->readed << std::endl;
 				}
 				else if (tmp.size() + cl->readed >= cl->read_len)
 				{
 					tmp = tmp + "\n";
-					myfile1 << tmp;////////////////////);
+					myfile1 << tmp;
 					cl->readed += tmp.size() - 1;
-					std::cout << cl->readed  << " 3------ " << tmp << std::endl;
-					// cl->read_len = 0;
-					// cl->readed = 0;
 				}
 				else
 				{
-					std::cout <<">>---------->>>>>>>>>>>>hhh." << tmp << "             " << tmp.size() << std::endl;
 					myfile1 << tmp;
 					cl->readed += tmp.size();
 				}
@@ -162,6 +215,6 @@ request::request(client *cl)
 		--cl->readed;
 	}
 	std::cout << "[" << cl->readed << "] <----->  this is cl->readed" << std::endl;
-	std::cout << ">>>.<<<" << cl->flag << "   status  ->>" << cl->read_status << std::endl;
+	// std::cout << ">>>.<<<" << cl->flag << "   status  ->>" << cl->read_status << std::endl;
 }
 request::request() {}
