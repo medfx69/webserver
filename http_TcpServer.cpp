@@ -134,7 +134,7 @@ void http::TcpServer::save(int fd, int client){
         clients[client].req = pars_request(&clients[client]);
     }
     else{
-        // client[client].req->handle_body(&clients[client]);
+        clients[client].req->handle_body(&clients[client]);
     }
 }
 
