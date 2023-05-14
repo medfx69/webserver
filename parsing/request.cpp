@@ -84,7 +84,7 @@ request::request(client *cl)
 			pr.first = tmp2;
 			pr.second = tmp3;
 			data.insert(pr);
-			std::cout << tmp << std::endl;
+			// std::cout << tmp << std::endl;
 		}
 		else
 		{
@@ -113,26 +113,42 @@ request::request(client *cl)
 			}
 			else
 			{
+				// std::cout << tmp.c_str() <<": "<< cl->readed <<" >>>>>>>>>>>>"<< cl->read_len << std::endl;
 				if (cl->read_len == 0)
 				{
-					cl->read_len = std::stoi("d2", 0, 16);
+					cl->read_len = std::stoi(tmp, 0, 16);
 					if (cl->read_len == 0)
 					{
 						cl->flag = 2;
 						cl->read_status = 1;
 						break;
 					}
+					std::cout << tmp  << "1------ " << cl->readed <<"   "<< cl->read_len << std::endl;
 				}
 				else if (tmp.size() + cl->readed < cl->read_len)
 				{
 					myfile1 << tmp;
 					myfile1 << "\n";
 					cl->readed += tmp.size() + 1;
+					std::cout << tmp  << " 2------ " << cl->readed << std::endl;
 				}
-				else if (tmp.size() + cl->readed == cl->read_len)
+				else if (tmp.size() + cl->readed >= cl->read_len)
 				{
+					tmp = tmp + "\n";
+					myfile1 << tmp;////////////////////);
+					cl->readed += tmp.size() - 1;
+					std::cout << cl->readed  << " 3------ " << tmp << std::endl;
+					// cl->read_len = 0;
+					// cl->readed = 0;
+				}
+				else
+				{
+					std::cout <<">>---------->>>>>>>>>>>>hhh." << tmp << "             " << tmp.size() << std::endl;
 					myfile1 << tmp;
 					cl->readed += tmp.size();
+				}
+				if (cl->readed >= cl->read_len)
+				{
 					cl->read_len = 0;
 					cl->readed = 0;
 				}
