@@ -211,6 +211,8 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 				x.client_max_body_size = tmp2;
 			else if (tmp.compare("autoindex") == 0)
 				x.autoindex = tmp2;
+			else if(tmp.compare("index") == 0)
+				x.index.push_back(tmp2);
 			else if (tmp.compare("chunked_transfer_encoding") == 0)
 				x.chunked_transfer_encoding = tmp2;
 			else if (tmp.compare("methods") == 0)

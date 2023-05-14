@@ -40,6 +40,8 @@ server {
     server_name localhost;
 
     root /Users/mait-aad/Desktop;
+    root /Users/omar/Desktop;
+    autoindex ON;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
 
@@ -68,4 +70,3 @@ server {
     }
     client_max_body_size 10m;
 }
-
