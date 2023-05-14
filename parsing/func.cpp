@@ -142,7 +142,6 @@ std::vector<Location> pars_locations(data_reader data)
 			iss2 >> tmp2;
 			if (tmp2.find(';') != std::string::npos)
 				tmp2.erase(tmp2.find(';'), 1);
-
 			if (tmp.compare("try_files") == 0)
 				x.try_files.push_back(parser_helper(*iite2));
 			else if (tmp.compare("client_max_body_size") == 0)
@@ -183,9 +182,7 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 	for(std::vector<data_reader>::iterator it0 = s.begin(); it0 < s.end(); it0++)
 	{
 		std::vector<std::string>::iterator it = (*it0).dir.begin();
-
 		server x;
-
 		while (it < (*it0).dir.end())
 		{
 			std::istringstream iss(*it);
@@ -201,9 +198,12 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 				x.server_name = tmp2;
 			else if (tmp.compare("listen") == 0)
 			{
+				std::pair<std::string, std::string> x1;
 				tmp = tmp2;
-				x.listen.first = tmp.substr(0, tmp.find(':'));
-				x.listen.second = tmp.substr(tmp.find(':') + 1, tmp.find(';') - tmp.find(':') - 1);
+				
+				x1.first = tmp.substr(0, tmp.find(':'));
+				x1.second = tmp.substr(tmp.find(':') + 1, tmp.find(';') - tmp.find(':') - 1);
+				x.listen.push_back(x1);
 			}
 			else if (tmp.compare("root") == 0)
 				x.root = tmp2;
