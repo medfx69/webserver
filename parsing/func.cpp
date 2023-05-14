@@ -111,10 +111,7 @@ request *pars_request(client *cl)
    
 	request *req = NULL;
 
-	if (cl->flag == 0 && cl->read_status == 0)
-		req = new request(cl);
-	else
-		req->handle_body(cl);// append in body ;
+	req = new request(cl);
 	return req;
 }
 
