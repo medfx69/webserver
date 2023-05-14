@@ -177,7 +177,6 @@ void http::TcpServer::startListen(Parsed *data){
             {
                 if (isMaster(i)){
                     int index = findIndex(i);
-                    std::cout << "hello 2\n";
                     max_fd_check = acceptConnection(i);
                     FD_SET(max_fd_check, &read_tmp);
                     if (max_fd_check > max_fd_tmp)
@@ -231,7 +230,7 @@ void http::TcpServer::startListen(Parsed *data){
                 buildResponse(data, i);
                 if (FD_ISSET(i, &writest)){
                     int send = sendResponse(i);
-                    if(send > 0){
+                    if(send >= 0){
                         size_t cl2 = 0;
                         for (; cl2 < clients.size(); cl2++){
                             if (clients[cl2].client_fd == i){
@@ -248,6 +247,10 @@ void http::TcpServer::startListen(Parsed *data){
                             delete clients[cl2].req;
                             remove(clients[cl2].client_reqFile.c_str());
                         }
+                    }
+                    else{
+                            FD_CLR(i, &write_tmp);
+                            close(i);
                     }
                 }
             }
