@@ -12,7 +12,7 @@ struct client
     request     *req;
     int         read_status;
     size_t      write_sened;
-    int         readed;
+    size_t         readed;
     int         flag;
     size_t      read_len;
     int         fd_enabeld;
