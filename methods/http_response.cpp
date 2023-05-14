@@ -1,22 +1,10 @@
 #include "http_response.hpp"
 
-// response::response(request _req, server _config)
-// {
-// 	this->req = _req;
-// 	this->config = _config
-// 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
-//     mimeTypeMap.insert(std::make_pair("htm", "text/html"));
-//     mimeTypeMap.insert(std::make_pair("css", "text/css"));
-//     mimeTypeMap.insert(std::make_pair("js", "application/javascript"));
-//     mimeTypeMap.insert(std::make_pair("jpg", "image/jpeg"));
-//     mimeTypeMap.insert(std::make_pair("jpeg", "image/jpeg"));
-//     mimeTypeMap.insert(std::make_pair("png", "image/png"));
-//     mimeTypeMap.insert(std::make_pair("gif", "image/gif"));
-//     mimeTypeMap.insert(std::make_pair("pdf", "application/pdf"));
-// }
-
-response::response()
+response::response(request* _req, server _config)
 {
+	this->req = _req;
+	this->config = _config;
+	// std::cout << config.root << std::endl;
 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
     mimeTypeMap.insert(std::make_pair("htm", "text/html"));
     mimeTypeMap.insert(std::make_pair("css", "text/css"));
@@ -29,7 +17,7 @@ response::response()
 }
 
 
-std::string    response::checkPathType(request* req)
+std::string    response::checkPathType()
 {
 	struct stat st;
 	if(stat(req->absoluteURI.c_str(), &st) != 0)
@@ -40,9 +28,10 @@ std::string    response::checkPathType(request* req)
 		return "FILE";
 }
 
-std::string response::createIndexHtml(std::string pathdir)
+std::string response::createIndexHtml()
 {
-	DIR* dir = opendir(pathdir.c_str());
+	std::cout << "Generateindex.html\n";
+	DIR* dir = opendir(req->absoluteURI.c_str());
 	if(dir != NULL)
 	{
 		// std::ofstream htmlfile("index.html");
@@ -59,53 +48,78 @@ std::string response::createIndexHtml(std::string pathdir)
 		}
 		closedir(dir);
 		htmlfile << "\t\t</body>\n</html>";
-		return htmlfile.str();
+		content_lenght = htmlfile.str().size();
+		status = status_code(200);
+		content_type = "text/html";
+		return generateResponseHeader() + htmlfile.str();
 	}
+	//!generate header
 	return status_code(404);
 }
 
-std::string response::getfile(std::string pathfile)
+std::string response::getfile()
 {
-	std::ifstream file(pathfile);
+	std::cout << "file: " << req->absoluteURI << std::endl;
+	std::ifstream file(req->absoluteURI);
 	if (!file.is_open()) {
-		std::cerr << "Failed to open file: " << pathfile << '\n';
-		return status_code(404);
+		std::cout <<"here\n";
+		std::cerr << "Failed to open file: " << req->absoluteURI << '\n';
+		status = status_code(404);
+		content_type = "text/html";
+		content_lenght = status.size();
+		return generateResponseHeader() + status;
 	}
 	std::ostringstream file_content;
 	file_content << file.rdbuf();
 	file.close();
-	this->content_lenght = file_content.str().size();
-	return generateResponseHeader(pathfile) + file_content.str();
+	status = status_code(200);
+	content_lenght = file_content.str().size();
+	content_type = contentType();
+	return generateResponseHeader() + file_content.str();
 }
 
-std::string response::getfolder(request* req, server config)
+std::string response::getfolder()
 {
 	if(req->absoluteURI.back() != '/')
-		return status_code(301);
+	{
+		content_type = "text/html";
+		status = status_code(301);
+		content_lenght = status.size();
+		return generateResponseHeader() + status;
+	}
 	if (!config.index.empty())
-		return getfile(req->absoluteURI + "/" + config.index[0]);
-	else if(config.autoindex == "OFF")
-		return status_code(301);
+	{
+		req->absoluteURI +=  config.index[0]; 
+		return getfile();
+	}
 	else if(config.autoindex == "ON")
-		return createIndexHtml(req->absoluteURI);
+		return createIndexHtml();
+	else if(config.autoindex == "OFF" )
+	{
+		status = status_code(301);
+		content_type = "text/html";
+		content_lenght = status.size();
+		return generateResponseHeader() + status;
+	}
+	//!generate response
 	return NULL;
 }
 
-std::string response::getFileExtension(const std::string& filePath)
+std::string response::getFileExtension()
 {
-	size_t dotPos = filePath.find_last_of('.');
+	size_t dotPos = req->absoluteURI.find_last_of('.');
 	if (dotPos == std::string::npos)
 		return "";
-	return filePath.substr(dotPos + 1);
+	return req->absoluteURI.substr(dotPos + 1);
 }
 
-std::string response::contentType(const std::string& filePath)
+std::string response::contentType()
 {
-	std::string extension = getFileExtension(filePath);
+	std::string extension = getFileExtension();
 	if(mimeTypeMap.count(extension) > 0)
 		return mimeTypeMap.at(extension);
 	else
-		return "application/octet-stream";
+		return "text/html";
 }
 
 std::string	response::get_date()
@@ -118,19 +132,18 @@ std::string	response::get_date()
 	return date_str;
 }
 
-std::string response::generateResponseHeader(const std::string& filePath)
+std::string response::generateResponseHeader()
 {
-	std::string header = "HTTP/1.1 200 OK\r\n\r\n";
-	header += "Content-Type: " + contentType(filePath) + "\r\n";
-	header += "Content-Lenght: " + std::to_string(this->content_lenght) + "\r\n";
-	header += "Server: nginxa\r\n";
-	header += "Cache-Control: max-age=3600\r\n";
-	header += "Date: " + get_date();
-	header += "Connection: close\r\n\r\n";
+	std::string header = status;
+	header += "content-type: " + content_type + "\r\n";
+	header += "content-lenght: " +  std::to_string(content_lenght) + "\r\n";
+	header += "server: nginxa\r\n";
+	header += "cache-control: max-age=3600\r\n";
+	header += "date: " + get_date() + "\r\n\r\n";
 	return header;
 }
 
-std::string	response::matchLocation(request* req, server config)
+std::string	response::matchLocation()
 {
 	int index = -1;
 	std::string location;
@@ -153,42 +166,52 @@ std::string	response::matchLocation(request* req, server config)
 
 }
 
-std::string   response::get_response(request* req, server config)
+std::string   response::get_response()
 {
-	// std::cout << "data+++++++++ " << req->absoluteURI << std::endl;
-	// matchLocation(req, config);
-	// std::cout << "config+++++++++ " << req->absoluteURI << std::endl;
+	std::cout << "root------ " << this->config.root << std::endl;
+	std::cout << "URI1------- " << req->absoluteURI << std::endl;
+	//!generate header
 	if(!config.chunked_transfer_encoding.empty() && config.chunked_transfer_encoding != "chunked")
 		return status_code(501);
-	else if(req->absoluteURI.find_first_of(":?#[]@!$&'()*+,;=") != std::string::npos)
+	if(req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
 		return status_code(400);
 	else if(req->absoluteURI.size() > 2048)
 		return status_code(414);
-	req->absoluteURI = matchLocation(req, config);
-	if(!req->absoluteURI.empty())
+	// req->absoluteURI = config.root + req->absoluteURI;
+	req->absoluteURI = "/Users/omar/Desktop" + req->absoluteURI;
+	std::cout << "URI2------- " << req->absoluteURI << std::endl;
+	// req->absoluteURI = matchLocation();
+	if(req->absoluteURI.empty())
 		return status_code(404);
-	std::string pathtype = checkPathType(req);
+	std::string pathtype = checkPathType();
 	if(pathtype == "FILE")
-		return getfile(req->absoluteURI);
+		return getfile();
 	else if(pathtype == "FOLDER")
-		return getfolder(req, config);
-	return status_code(404);
+		return getfolder();
+	std::cout << "here\n";
+	content_type = "text/html";
+	status = status_code(404);
+	content_lenght = status.size();
+	return generateResponseHeader() + status;
 }
 
 std::string	response::status_code(int status_code)
 {
+	if(status_code == 200)
+		return "HTTP/1.1 200 Ok\r\n";
 	if(status_code == 301)
-		return "HTTP/1.1 301 Moved Permanently\r\n\r\n";
+		return "HTTP/1.1 301 Moved Permanently\r\n";
 	else if(status_code == 400)
-		return "HTTP/1.1 400 Bad Request\r\n\r\n";
+		return "HTTP/1.1 400 Bad Request\r\n";
 	else if(status_code == 404)
-		return "HTTP/1.1 404 Not Found\r\n\r\n";
+		return "HTTP/1.1 404 Not Found\r\n";
 	else if(status_code == 501)
-		return "HTTP/1.1 501 Not Implemented\r\n\r\n";
+		return "HTTP/1.1 501 Not Implemented\r\n";
 	else if(status_code == 413)
-		return "HTTP/1.1 413 Request Entity Too Large\r\n\r\n";
+		return "HTTP/1.1 413 Request Entity Too Large\r\n";
 	else if(status_code == 414)
-		return "HTTP/1.1 414 Request-URI Too Long\r\n\r\n";
+		return "HTTP/1.1 414 Request-URI Too Long\r\n";
+	return NULL;
 }
 
 // int main()

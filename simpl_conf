@@ -1,45 +1,34 @@
-dfgfgfd
 
 server {
     listen 127.0.0.1:8081;
-    server_name examplenumber1.com;
-
-    index index.html index.php
-    root /var/www/example.com;
+    server_name localhost;
+    root /Users/omar/Desktop;
+    autoindex ON;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
 
-    location /
-    {
-
-    }
-    location /dsfdsf/dsfdsf/dsf/ {
-        root /var/html/www/
+    location / {
         try_files $uri $uri/ /index.html>>>;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>
+        try_files $uri $uri/ /index.html2>>;
     }
-<<<<<<< HEAD
-    location /dsfdsf/dsfdsf/dsf//ihbjijhbkhjj/tex {
-        root /var/html/zzz/
+    location /Users/mait-aad/Desktop/webserver/ {
         try_files $uri $uri/ /index.html>>>;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>
+        try_files $uri $uri/ /index.html2>>;
     }
-=======
->>>>>>> origin/medBranch
-    location2 /ali/mohamed {
+    location /dsfdsf/dsfdsf/dsf {
+        try_files $uri $uri/ /index.html>>>;
+        error_page 500 502 503 504 /50x.html;
+        try_files $uri $uri/ /index.html1>>>;
+        try_files $uri $uri/ /index.html2>>;
+    }
+    location /ali/mohamed {
         try_files $uri $uri2/ /index.html;
         try_files $uri $uri2/ /index.html1;
         try_files $uri $uri2/ /index.html2;
     }
     client_max_body_size 10m;
 }
-<<<<<<< HEAD
-/dsfdsf/dsfdsf/dsf/jj/hy
-=======
-
->>>>>>> origin/medBranch
-
