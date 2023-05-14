@@ -1,4 +1,3 @@
-
 #ifndef FUNC_HPP
 #define FUNC_HPP
 #include "includes.hpp"
@@ -19,7 +18,7 @@ public:
 data_reader read_block(std::ifstream &myFile, std::string block_start);
 std::vector<data_reader> parec(char *s);
 std::vector<std::string> parser_helper(std::string s);
-request *pars_request(Parsed data, int fd, int *status);
+request *pars_request(int fd, int *status, int *readed, int *read_len);
 std::vector<Location> pars_locations(data_reader data);
 std::vector<server> data_handler(std::vector<data_reader> s);
 
