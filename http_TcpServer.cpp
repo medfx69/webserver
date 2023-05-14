@@ -82,7 +82,7 @@ int http::TcpServer::acceptConnection(int fd)
         if (m_socket[c] == fd)
             break;
     }
-    std::cout << m_socket[c] << std::endl;
+    std::cout << "socket: " <<m_socket[c] << std::endl;
     m_socketAress = class_m_socketAress[c];
     m_socketAddress_len = class_m_socketAddress_len[c];
     std::cout << inet_ntoa(m_socketAress.sin_addr) << std::endl;
@@ -178,6 +178,7 @@ void http::TcpServer::startListen(Parsed *data){
                 if (isMaster(i)){
                     int index = findIndex(i);
                     max_fd_check = acceptConnection(i);
+                    std::cout << "hello 2\n";
                     FD_SET(max_fd_check, &read_tmp);
                     if (max_fd_check > max_fd_tmp)
                         max_fd_tmp = max_fd_check;
