@@ -1,11 +1,16 @@
 #include "request.hpp"
 
-request::request(std::string x, int *status)
+request::request(int fd, int *status, int *read_len)
 {
 	std::ifstream myfile;
+	std::ofstream myfile1;
+	std::ostringstream  ss1;
+	std::ostringstream  ss2;
 	std::string tmp;
 	int i = 0;
-	myfile.open(x);
+	ss1 << "/tmp/request_" << fd;
+	ss2 << "/tmp/response_" << fd;
+	myfile.open(ss1.str());
 	if (myfile.fail())
 		exit(0);
 	while (getline(myfile, tmp))
@@ -22,7 +27,7 @@ request::request(std::string x, int *status)
 			iss >> absoluteURI;
 			iss >> http_version;
 		}
-		else if (tmp.find(":") != std::string::npos)
+		else if (tmp.find(":") != std::string::npos)// && tmp.find("<") == std::string::npos)
 		{
 			std::string tmp2;
 			std::string tmp3;
@@ -32,12 +37,19 @@ request::request(std::string x, int *status)
 			pr.first = tmp2;
 			pr.second = tmp3;
 			data.insert(pr);
+			if (tmp2 == "Content-length")
+				*read_len = stoi(tmp3);
+
 		}
 		else{
-			body << tmp;
-			// std::cout << tmp << std::endl;
+			myfile.open(ss1.str());
+			// if (myfile.fail())
+			// 	exit(0);
+			myfile1 << tmp;
+		// 	// std::cout << tmp << std::endl;
 		}
 		i++;
 	}
-	std::cout << ">>>>>>>>>>> start of bady" << body.str() << "   end of body<<<<<<<<<<" << std::endl;
+	// std::cout << ">>>>>>>>>>> start of bady" << body << "   end of body<<<<<<<<<<" << std::endl;
 }
+request::request(){}

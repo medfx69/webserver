@@ -3,6 +3,5 @@
 
 int main()
 {
-    std::string test;
-    std::cout << test.size();
+
 }

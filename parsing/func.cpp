@@ -14,6 +14,16 @@ data_reader &data_reader::operator=(data_reader& data)
 	return *this;
 }
 
+int is_spaces(std::string s)
+{
+	for (size_t i = 0; i < s.length(); i++)
+	{
+		if (!isspace(s[i]))
+			return 0;
+	}
+	return 1;
+}
+
 data_reader read_block(std::ifstream &myFile, std::string block_start)
 {
 	data_reader s;
@@ -26,8 +36,11 @@ data_reader read_block(std::ifstream &myFile, std::string block_start)
 			return s;
 		else if (readed.find(';') != std::string::npos)
 			s.dir.push_back(readed);
-		else
-			;
+		else if (!readed.empty() && !is_spaces(readed))
+		{
+			std::cerr << "Error: Bad config file.\n";
+			exit(1);
+		}
 	}
 	return s;
 }
@@ -46,8 +59,11 @@ data_reader read_server_block(std::ifstream &myFile, std::string block_start)
 			return s;
 		else if (readed.find(';') != std::string::npos)
 			s.dir.push_back(readed);
-		else
-			;
+		else if (!readed.empty())
+		{
+			std::cerr << "Error: Bad config file.\n";
+			exit(1);
+		}
 	}
 	return s;
 }
@@ -65,6 +81,11 @@ std::vector<data_reader> parec(char *s)
 	{
 		if (readed.find("server {") != std::string::npos)
 			ser.push_back(read_server_block(myFile, readed));
+		else if (!readed.empty())
+		{
+			std::cerr << "Error: Bad config file.\n";
+			exit(1);
+		}
 	}
 	return ser;
 }
@@ -77,17 +98,25 @@ std::vector<std::string> parser_helper(std::string s)
 
 	iss >> tmp;
 	while (iss >> tmp)
+	{
+		if (tmp.find(';') != std::string::npos)
+				tmp.erase(tmp.find(';'), 1);
 		ret.push_back(tmp);
+	}
 	return ret;
 }
 
-request *pars_request(Parsed data, int fd, int *status)
+request *pars_request(int fd, int *status, int *readed, int *read_len)
 {
-    std::ostringstream  ss1;
+   
+	request *req;
 
-	ss1 << "/tmp/request_" << fd;
-	data.req = new request(ss1.str(), status);
-	return data.req;
+	(void) readed;
+	// if (*readed == *read_len && *status == 0)
+		req = new request(fd, status, read_len);
+	// else
+		// append in body ;
+	return req;
 }
 
 std::vector<Location> pars_locations(data_reader data)
@@ -119,6 +148,8 @@ std::vector<Location> pars_locations(data_reader data)
 				x.try_files.push_back(parser_helper(*iite2));
 			else if (tmp.compare("client_max_body_size") == 0)
 				x.client_max_body_size = tmp2;
+			else if (tmp.compare("root") == 0)
+				x.root = tmp2;
 			else if (tmp.compare("autoindex") == 0)
 				x.autoindex = tmp2;
 			else if (tmp.compare("chunked_transfer_encoding") == 0)
@@ -133,6 +164,11 @@ std::vector<Location> pars_locations(data_reader data)
 					tmp2.erase(tmp2.find(';'), 1);
 				adder.second = tmp2;
 				x.error_page.push_back(adder);
+			}
+			else if (!tmp.empty())
+			{
+				std::cerr << "Error: Bad config file.\n";
+				exit(1);
 			}
 			iite2++;
 		}
@@ -176,8 +212,28 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 				x.client_max_body_size = tmp2;
 			else if (tmp.compare("autoindex") == 0)
 				x.autoindex = tmp2;
+			else if(tmp.compare("index") == 0)
+				x.index.push_back(tmp2);
 			else if (tmp.compare("chunked_transfer_encoding") == 0)
 				x.chunked_transfer_encoding = tmp2;
+			else if (tmp.compare("methods") == 0)
+				x.methods = parser_helper(*it);
+			else if (tmp.compare("error_page") == 0)
+			{
+				std::pair<std::vector<std::string>, std::string> adder;
+				adder.first = parser_helper(*it);
+				while (iss >> tmp2)
+					;
+				if (tmp2.find(';') != std::string::npos)
+					tmp2.erase(tmp2.find(';'), 1);
+				adder.second = tmp2;
+				x.error_page.push_back(adder);
+			}
+			else if (!tmp.empty())
+			{
+				std::cerr << "Error: Bad config file.\n";
+				exit(1);
+			}
 			it++;
 		}
 		x.location = pars_locations(*it0);
