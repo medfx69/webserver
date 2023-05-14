@@ -9,10 +9,12 @@
 class response
 {
 	private:
-		int content_lenght;
 		std::map<std::string, std::string> mimeTypeMap;
 		request *req;
-		server config;
+		server *config;
+		std::string content_type;
+		int content_lenght;
+		std::string	status;
 	public:
 		//get
 		response (request* _req,server _config);
