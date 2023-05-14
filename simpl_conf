@@ -51,7 +51,7 @@ server {
         try_files $uri $uri/ /index.html1>>>;
         try_files $uri $uri/ /index.html2>>;
     }
-    location /Users/mait-aad/Desktop/webserver/ {
+    location /Users/omar/Desktop/webserver/ {
         try_files $uri $uri/ /index.html>>>;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html1>>>;
