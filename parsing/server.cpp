@@ -16,9 +16,10 @@ server &server::operator=(server &x)
 	server_name = x.server_name;
 	client_max_body_size = x.client_max_body_size;
 	root = x.root;
-	
-	listen.first = x.listen.first;
-	listen.second = x.listen.second;
+
+	for (size_t i = 0; i < x.listen.size(); i++){
+		listen.push_back(x.listen[i]);
+	}
 	index = copyy(x.index);
 	allow = copyy(x.allow);
 	deny = copyy(x.deny);
