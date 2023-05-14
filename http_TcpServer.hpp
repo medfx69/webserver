@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sstream>
 #include <string>
+#include<stdio.h>
 #include <iterator>
 #include <iostream>
 #include <fstream>
@@ -41,6 +42,8 @@ namespace http
             fd_set                              readst, writest;
             std::vector<struct sockaddr_in>     class_m_socketAress;
             timeval                             timer;
+            std::vector< std::vector <int> >      indexing;
+            std::vector<int>                    findexing;
             std::vector <unsigned int>          class_m_socketAddress_len;
             int                                 startServer();
             int                                 closeServer();

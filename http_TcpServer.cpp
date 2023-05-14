@@ -14,28 +14,33 @@ void exitWithError(const std::string &message)
 http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket()
 {
     for (size_t i = 0; i < _data->getDate().size(); i++){
-        if ((_data->getDate()[i]).listen.first.find('.') != std::string::npos){
-            m_ip_address.push_back((_data->getDate()[i]).listen.first);
-            m_port.push_back(std::stoi((_data->getDate()[i]).listen.second));
+        for (size_t j = 0; j  < _data->getDate()[i].listen.size() ; j++) {
+            if ((_data->getDate()[i]).listen[j].first.find('.') != std::string::npos){
+                m_ip_address.push_back((_data->getDate()[i]).listen[j].first);
+                m_port.push_back(std::stoi((_data->getDate()[i]).listen[j].second));
+            }
+            else{
+                m_port.push_back(std::stoi((_data->getDate()[i]).listen[j].first));
+                m_ip_address.push_back((_data->getDate()[i]).server_name);
+            }
+            m_socketAress.sin_family = AF_INET;
+            std::cout << "port :" << m_port[j] << std::endl;
+            m_socketAress.sin_port = htons(m_port[j]);
+            std::cout << "addres :" << m_ip_address[j] << std::endl;
+            m_socketAress.sin_addr.s_addr = inet_addr(m_ip_address[j].c_str());
+            m_socketAddress_len = sizeof(m_socketAress);
+            class_m_socketAddress_len.push_back(m_socketAddress_len);
+            class_m_socketAress.push_back(m_socketAress);
+            if (startServer() != 0)
+            {
+                std::ostringstream ss;
+                ss << "Failed to start with PORT:" << ntohs(m_socketAress.sin_port);
+                log(ss.str());
+            }
         }
-        else{
-            m_port.push_back(std::stoi((_data->getDate()[i]).listen.first));
-            m_ip_address.push_back((_data->getDate()[i]).server_name);
-        }
-        m_socketAress.sin_family = AF_INET;
-        std::cout << "port :" << m_port[i] << std::endl;
-        m_socketAress.sin_port = htons(m_port[i]);
-        std::cout << "addres :" << m_ip_address[i] << std::endl;
-        m_socketAress.sin_addr.s_addr = inet_addr(m_ip_address[i].c_str());
-        m_socketAddress_len = sizeof(m_socketAress);
-        class_m_socketAddress_len.push_back(m_socketAddress_len);
-        class_m_socketAress.push_back(m_socketAress);
-        if (startServer() != 0)
-        {
-            std::ostringstream ss;
-            ss << "Failed to start with PORT:" << ntohs(m_socketAress.sin_port);
-            log(ss.str());
-        }
+        m_port.clear();
+        m_ip_address.clear();
+        indexing.push_back(findexing);
     }
 }
 
@@ -50,16 +55,15 @@ int http::TcpServer::startServer()
     int i = 1;
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
+    findexing.push_back(fd);
     if (fd < 0)
         exitWithError("Cannot create socket");
     if(setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, (char *)&i, sizeof(i)) < 0 )
         exitWithError("----------setsockopt-----------");
     if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char *)&i, sizeof(i)) < 0 )
         exitWithError("----------setsockopt-----------");
-    if (bind(fd, (sockaddr *) &m_socketAress, m_socketAddress_len) < 0){
-        std::cout << errno << std::endl;
+    if (bind(fd, (sockaddr *) &m_socketAress, m_socketAddress_len) < 0)
         exitWithError("Cannot connect socket to address");
-    }
     m_socket.push_back(fd);
     return 0;
 }
@@ -78,18 +82,14 @@ int http::TcpServer::acceptConnection(int fd)
         if (m_socket[c] == fd)
             break;
     }
-    std::cout << m_socket[c] << std::endl;
+    std::cout << "socket: " <<m_socket[c] << std::endl;
     m_socketAress = class_m_socketAress[c];
     m_socketAddress_len = class_m_socketAddress_len[c];
     std::cout << inet_ntoa(m_socketAress.sin_addr) << std::endl;
     std::cout << ntohs(m_socketAress.sin_port) << std::endl;
-    IMHERE
-    std::cout << "ACCEPTED FROM: " << fd << std::endl;
     new_socket = accept(fd, (sockaddr *)&m_socketAress, (socklen_t *) &m_socketAddress_len);
-    IMHERE
     if (new_socket < 0)
     {
-        std::cout << errno << std::endl;
         std::ostringstream ss;
         ss << "Server failed to accept incoming connection from ADDRESS: "
            << inet_ntoa(class_m_socketAress[c].sin_addr) << "; PORT: "
@@ -145,9 +145,13 @@ bool http::TcpServer::isMaster(int fd){
     return (false);
 }
 int http::TcpServer::findIndex(int fd){
-    for (size_t i = 0; i < m_socket.size(); i++)
-        if(fd == m_socket[i])
-            return i;
+    for (size_t i = 0; i < indexing.size(); i++){
+        for (size_t j = 0; j < indexing[i].size(); j++){
+            if(fd == indexing[i][j])
+                return i;
+        
+        }
+    }
     return (0);
 }
 
@@ -174,6 +178,7 @@ void http::TcpServer::startListen(Parsed *data){
                 if (isMaster(i)){
                     int index = findIndex(i);
                     max_fd_check = acceptConnection(i);
+                    std::cout << "hello 2\n";
                     FD_SET(max_fd_check, &read_tmp);
                     if (max_fd_check > max_fd_tmp)
                         max_fd_tmp = max_fd_check;
@@ -241,7 +246,7 @@ void http::TcpServer::startListen(Parsed *data){
                             clients[cl2].fd_enabeld = 0;
                             clients[cl2].write_sened = 0;
                             delete clients[cl2].req;
-                            // remove(clients[cl2].client_reqFile);
+                            remove(clients[cl2].client_reqFile.c_str());
                         }
                     }
                     else{
