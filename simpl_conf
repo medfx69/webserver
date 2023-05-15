@@ -4,18 +4,22 @@ server {
     listen 127.0.0.1:8084;
     listen 127.0.0.1:8085;
     server_name localhost;
-
-    root /Users/mait-aad/Desktop;
+    autoindex ON;
+    root /Users/omar/Desktop;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
 
     location / {
         try_files $uri $uri/ /index.html>>>;
+        root /Users/omar/Desktop/webserver/;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html1>>>;
         try_files $uri $uri/ /index.html2>>;
     }
-    location /Users/mait-aad/Desktop/webserver/ {
+    location /error_page {
+        root /Users/omar/Desktop/webserver/error_pages/;
+    }
+    location /Users/omar/Desktop/webserver/ {
         try_files $uri $uri/ /index.html>>>;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html1>>>;

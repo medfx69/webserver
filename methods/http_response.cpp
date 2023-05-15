@@ -4,9 +4,6 @@ response::response(request* _req, server _config)
 {
 	this->req = _req;
 	this->config = new server(_config);
-    std::cout << "----+------" << config->location[1].location_name << std::endl;
-
-	// std::cout << config->root << std::endl;
 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
     mimeTypeMap.insert(std::make_pair("htm", "text/html"));
     mimeTypeMap.insert(std::make_pair("css", "text/css"));
@@ -52,11 +49,10 @@ std::string response::createIndexHtml()
 		htmlfile << "\t\t</body>\n</html>";
 		content_lenght = htmlfile.str().size();
 		status = status_code(200);
-		content_type = "text/html";
-		return generateResponseHeader() + htmlfile.str();
+		return generateResponseHeader("text/html", std::to_string(status.size()), 200) + htmlfile.str();
 	}
-	//!generate header
-	return status_code(404);
+	std::string body = generateErrorPages(404);
+	return generateResponseHeader("text/html", std::to_string(body.size()), 404) + body;
 }
 
 std::string response::getfile()
@@ -64,30 +60,22 @@ std::string response::getfile()
 	std::cout << "file: " << req->absoluteURI << std::endl;
 	std::ifstream file(req->absoluteURI);
 	if (!file.is_open()) {
-		std::cout <<"here\n";
 		std::cerr << "Failed to open file: " << req->absoluteURI << '\n';
-		status = status_code(404);
-		content_type = "text/html";
-		content_lenght = status.size();
-		return generateResponseHeader() + status;
+		std::string body = generateErrorPages(404);
+		return generateResponseHeader("text/html", std::to_string(body.size()), 404) + body;
 	}
 	std::ostringstream file_content;
 	file_content << file.rdbuf();
 	file.close();
-	status = status_code(200);
-	content_lenght = file_content.str().size();
-	content_type = contentType();
-	return generateResponseHeader() + file_content.str();
+	return generateResponseHeader(contentType(), std::to_string(file_content.str().size()), 200) + file_content.str();
 }
 
 std::string response::getfolder()
 {
 	if(req->absoluteURI.back() != '/')
 	{
-		content_type = "text/html";
 		status = status_code(301);
-		content_lenght = status.size();
-		return generateResponseHeader() + status;
+		return generateResponseHeader("text/html", std::to_string(status.size()), 301) + status;
 	}
 	if (!config->index.empty())
 	{
@@ -99,12 +87,10 @@ std::string response::getfolder()
 	else if(config->autoindex == "OFF" )
 	{
 		status = status_code(301);
-		content_type = "text/html";
-		content_lenght = status.size();
-		return generateResponseHeader() + status;
+		return generateResponseHeader("text/html", std::to_string(status.size()), 301) + status;
 	}
-	//!generate response
-	return NULL;
+	std::string body = generateErrorPages(404);
+	return generateResponseHeader("text/html", std::to_string(body.size()), 404) + body;
 }
 
 std::string response::getFileExtension()
@@ -121,7 +107,7 @@ std::string response::contentType()
 	if(mimeTypeMap.count(extension) > 0)
 		return mimeTypeMap.at(extension);
 	else
-		return "text/html";
+		return "text/plain";
 }
 
 std::string	response::get_date()
@@ -134,11 +120,11 @@ std::string	response::get_date()
 	return date_str;
 }
 
-std::string response::generateResponseHeader()
+std::string response::generateResponseHeader(std::string content_type, std::string content_lenght, int code)
 {
-	std::string header = "HTTP/1.1 200 OK\r\n";
-	header += "content-lype: " + contentType() + "\r\n";
-	header += "content-lenght: " + std::to_string(this->content_lenght) + "\r\n";
+	std::string header = status_code(code);
+	header += "content-type: " + content_type + "\r\n";
+	header += "content-lenght: " + content_lenght + "\r\n";
 	header += "server: nginxa\r\n";
 	header += "cache-control: max-age=3600\r\n";
 	header += "date: " + get_date() + "\r\n\r\n";
@@ -153,30 +139,25 @@ std::string	response::matchLocation()
 	std::cout << "absolutURI " + req->absoluteURI << std::endl; 
 	for(size_t i = 0; i < config->location.size(); i++)
 	{
-		std::cout << "config_location" + std::to_string(i) + " " + config->location[i].location_name << std::endl;
 		if(req->absoluteURI.find(config->location[i].location_name) == 0)
 		{
-			std::cout << "find\n";
 			if(config->location[i].location_name.size() > location.size())
 			{
-				std::cout << "locationNow: " << location << std::endl;
 				location = config->location[i].location_name;
 				index = i;
 			}
 		}
 	}
-	std::cout << "location:::::: " << location << std::endl;
-	if(!location.empty())
-		return config->location[index].root + req->absoluteURI;
-	else if(!config->root.empty())
+	if(location.empty())
 		return config->root + req->absoluteURI;
+	else
+		return config->location[index].root + req->absoluteURI.substr(location.size());
 	return "";
 
 }
 
 std::string   response::get_response()
 {
-	// std::cout << "----++------" << config->location[1].location_name << std::endl;
 	std::cout << "root------ " << this->config->root << std::endl;
 	std::cout << "URI1------- " << req->absoluteURI << std::endl;
 	//!generate header
@@ -186,10 +167,8 @@ std::string   response::get_response()
 		return status_code(400);
 	else if(req->absoluteURI.size() > 2048)
 		return status_code(414);
-	// req->absoluteURI = config->root + req->absoluteURI;
-	// req->absoluteURI = "/Users/omar/Desktop" + req->absoluteURI;
-	// std::cout << "URI2------- " << req->absoluteURI << std::endl;
 	req->absoluteURI = matchLocation();
+	std::cout << "location:::::: " << req->absoluteURI << std::endl;
 	if(req->absoluteURI.empty())
 		return status_code(404);
 	std::string pathtype = checkPathType();
@@ -197,11 +176,8 @@ std::string   response::get_response()
 		return getfile();
 	else if(pathtype == "FOLDER")
 		return getfolder();
-	std::cout << "here\n";
-	content_type = "text/html";
-	status = status_code(404);
-	content_lenght = status.size();
-	return generateResponseHeader() + status;
+	std::string body = generateErrorPages(404);
+	return generateResponseHeader("text/html", std::to_string(body.size()), 404) + body;
 }
 
 std::string	response::status_code(int status_code)
@@ -223,27 +199,12 @@ std::string	response::status_code(int status_code)
 	return NULL;
 }
 
-// int main()
-// {
-// 	std::string pathdir = "/Users/omar/Desktop/leetcode";
-// 	DIR* dir = opendir(pathdir.c_str());
-// 	if(dir != NULL)
-// 	{
-// 		std::ofstream htmlfile("index.html");
-// 		// std::ostringstream htmlfile;
-// 		htmlfile << "<!DOCTYPE html>\n<html lang=\"en\">\n\t\t<body>\n";
-// 		struct dirent* entry;
-// 		while((entry = readdir(dir)) != NULL)
-// 		{
-// 			std::string fd = entry->d_name;
-// 			if(fd == "." || fd == "..")
-// 				;
-// 			else
-// 				htmlfile << "\t\t\t<a href='" << "./" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
-// 		}
-// 		closedir(dir);
-// 		htmlfile << "\t\t</body>\n</html>";
-// 	}
-// 	return 0;
-// 	// return "HTTP/1.1 404 Not Found\r\n\r\n";
-// }
+std::string response::generateErrorPages(int code)
+{
+	(void)code;
+	std::ifstream file;
+	file.open("/Users/omar/Desktop/webserver/error_pages/index.html");
+	std::ostringstream content;
+	content << file.rdbuf();
+	return content.str();
+}
