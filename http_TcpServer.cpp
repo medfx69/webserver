@@ -128,14 +128,19 @@ void http::TcpServer::save(int fd, int client){
     std::ofstream reFile(ss1.str());
     std::ifstream s;
     reFile << buffer;
+    std::cout << buffer << std::endl;
     clients[client].client_reqFile = ss1.str();
     if (clients[client].flag == 0 && clients[client].read_status == 0){
         reFile.close();
         clients[client].req = pars_request(&clients[client]);
     }
-    else{
+    else if (clients[client].flag == 1){
         clients[client].req->handle_body(&clients[client]);
     }
+    else{
+        std::cout << "xi 3jab\n";
+    }
+    remove(clients[client].client_reqFile.c_str());
 }
 
 bool http::TcpServer::isMaster(int fd){
@@ -172,13 +177,12 @@ void http::TcpServer::startListen(Parsed *data){
         act = select(max_fd +1, &readst, &writest, NULL, NULL);
         if (act < 0)
             exitWithError("--------select error-------");
-        for (int i = 0; i < max_fd + 1 && act >= 0 ; i++){
+        for (int i = 0; i < max_fd + 1; i++){
             if (FD_ISSET(i, &readst))
             {
                 if (isMaster(i)){
                     int index = findIndex(i);
                     max_fd_check = acceptConnection(i);
-                    std::cout << "hello 2\n";
                     FD_SET(max_fd_check, &read_tmp);
                     if (max_fd_check > max_fd_tmp)
                         max_fd_tmp = max_fd_check;
@@ -198,9 +202,9 @@ void http::TcpServer::startListen(Parsed *data){
                 }
                 else{
                     bytesReceived = read(i, buffer, BUFFER_SIZE);
+                    size_t cl1 = 0;
                     if (bytesReceived >= 0)
                     {
-                        size_t cl1 = 0;
                         for (; cl1 < clients.size(); cl1++){
                             if (clients[cl1].client_fd == i){
                                 save(i, cl1);
@@ -209,14 +213,13 @@ void http::TcpServer::startListen(Parsed *data){
                                 break ;
                             }
                         }
-                        std::cout << clients[cl1].read_status << std::endl;
-                        if (clients[cl1].read_status == 1){
-                            FD_SET(i, &write_tmp);
-                            FD_CLR(i, &read_tmp);
-                            clients[cl1].read_status = 0;
-                            clients[cl1].flag = 0;
-                            clients[cl1].readed = 0;
-                        }
+                    }
+                    if (clients[cl1].read_status == 1 && clients[cl1].flag == 2){
+                        FD_SET(i, &write_tmp);
+                        FD_CLR(i, &read_tmp);
+                        clients[cl1].read_status = 0;
+                        clients[cl1].flag = 0;
+                        clients[cl1].readed = 0;
                     }
                     if (bytesReceived < 0)
                     {
@@ -246,7 +249,7 @@ void http::TcpServer::startListen(Parsed *data){
                             clients[cl2].fd_enabeld = 0;
                             clients[cl2].write_sened = 0;
                             delete clients[cl2].req;
-                            remove(clients[cl2].client_reqFile.c_str());
+                            // remove(clients[cl2].client_reqFile.c_str());
                         }
                     }
                     else{

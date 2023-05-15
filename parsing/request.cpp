@@ -35,7 +35,7 @@ void request::handle_body(client *cl)
 	ss1 << "/tmp/request_" << cl->client_fd;
 	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile.open(ss1.str());
-	myfile1.open(ss2.str());
+	myfile1.open(ss2.str(), std::ofstream::app);
 	while (getline(myfile, tmp))
 	{
 		if (cl->chunked == 0)
@@ -65,7 +65,11 @@ void request::handle_body(client *cl)
 		{
 			if (cl->read_len == 0)
 			{
-				cl->read_len = std::stoi(tmp, 0, 16);
+				try{
+					cl->read_len = std::stoi(tmp, 0, 16);
+				} catch (std::exception &x) {
+					std::cerr << x.what() << std::endl;
+				}
 				if (cl->read_len == 0)
 				{
 					cl->flag = 2;
@@ -97,6 +101,12 @@ void request::handle_body(client *cl)
 			}
 		}
 	}
+	// if (cl->read_status == 0 && cl->flag == 1)
+	// {
+	// 	cl->read_status = 1;
+	// 	--cl->readed;
+	// }
+	std::cout << "[" << cl->readed << "] <----->  this is cl->readed from c-length ===  " << cl->read_len << std::endl;
 }
 
 request::request(client *cl)
@@ -175,7 +185,11 @@ request::request(client *cl)
 			{
 				if (cl->read_len == 0)
 				{
-					cl->read_len = std::stoi(tmp, 0, 16);
+					try{
+						cl->read_len = std::stoi(tmp, 0, 16);
+					} catch (std::exception &x) {
+						std::cerr << x.what() << std::endl;
+					}
 					if (cl->read_len == 0)
 					{
 						cl->flag = 2;
