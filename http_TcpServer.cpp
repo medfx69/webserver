@@ -15,14 +15,8 @@ http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket
 {
     for (size_t i = 0; i < _data->getDate().size(); i++){
         for (size_t j = 0; j  < _data->getDate()[i].listen.size() ; j++) {
-            if ((_data->getDate()[i]).listen[j].first.find('.') != std::string::npos){
-                m_ip_address.push_back((_data->getDate()[i]).listen[j].first);
-                m_port.push_back(std::stoi((_data->getDate()[i]).listen[j].second));
-            }
-            else{
-                m_port.push_back(std::stoi((_data->getDate()[i]).listen[j].first));
-                m_ip_address.push_back((_data->getDate()[i]).server_name);
-            }
+            m_ip_address.push_back((_data->getDate()[i]).listen[j].first);
+            m_port.push_back(std::stoi((_data->getDate()[i]).listen[j].second));
             m_socketAress.sin_family = AF_INET;
             std::cout << "port :" << m_port[j] << std::endl;
             m_socketAress.sin_port = htons(m_port[j]);
@@ -130,15 +124,12 @@ void http::TcpServer::save(int fd, int client){
     reFile << buffer;
     std::cout << buffer << std::endl;
     clients[client].client_reqFile = ss1.str();
+    reFile.close();
     if (clients[client].flag == 0 && clients[client].read_status == 0){
-        reFile.close();
         clients[client].req = pars_request(&clients[client]);
     }
     else if (clients[client].flag == 1){
         clients[client].req->handle_body(&clients[client]);
-    }
-    else{
-        std::cout << "xi 3jab\n";
     }
     remove(clients[client].client_reqFile.c_str());
 }
@@ -213,13 +204,15 @@ void http::TcpServer::startListen(Parsed *data){
                                 break ;
                             }
                         }
-                    }
-                    if (clients[cl1].read_status == 1 && clients[cl1].flag == 2){
-                        FD_SET(i, &write_tmp);
-                        FD_CLR(i, &read_tmp);
-                        clients[cl1].read_status = 0;
-                        clients[cl1].flag = 0;
-                        clients[cl1].readed = 0;
+                        if ((clients[cl1].read_status == 1 && clients[cl1].flag == 2) || 
+                                (clients[cl1].read_status == 1 && clients[cl1].chunked == 0)){
+                            FD_SET(i, &write_tmp);
+                            FD_CLR(i, &read_tmp);
+                            std::cout << "yes yes \n";
+                            clients[cl1].read_status = 0;
+                            clients[cl1].flag = 0;
+                            clients[cl1].readed = 0;
+                        }
                     }
                     if (bytesReceived < 0)
                     {
