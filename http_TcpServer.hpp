@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <sstream>
 #include <string>
-#include<stdio.h>
+#include <stdio.h>
 #include <iterator>
 #include <iostream>
 #include <fstream>
@@ -27,40 +27,40 @@ namespace http
 {
     class TcpServer
     {
-        private:
-            Parsed                              *_data;
-            std::vector<std::string>            m_ip_address;
-            std::vector<int>                    m_port;
-            std::vector<int>                    m_socket;
-            std::vector<int>                    m_new_socket;
-            std::vector<client>                 clients;
-            int                                 status;
-            struct sockaddr_in                  m_socketAress;
-            int                                 m_socketAddress_len;
-            std::string                         m_serverMessage;
-            char                                buffer[BUFFER_SIZE];
-            fd_set                              readst, writest;
-            std::vector<struct sockaddr_in>     class_m_socketAress;
-            timeval                             timer;
-            std::vector< std::vector <int> >      indexing;
-            std::vector<int>                    findexing;
-            std::vector <unsigned int>          class_m_socketAddress_len;
-            int                                 startServer();
-            int                                 closeServer();
-        public:
-            TcpServer(Parsed *data);
-            ~TcpServer();
-            int                                 listening();
-            int                                 findIndex(int fd);
-            bool                                isMaster(int fd);
-            void                                save(int fd, int client);
-            void                                startListen(Parsed *data);
-            int                                 acceptConnection(int fd);
-            void                                buildResponse(Parsed *data, int cl);
-            int                                 sendResponse(int fd);
+    private:
+        Parsed *_data;
+        std::vector<std::string> m_ip_address;
+        std::vector<int> m_port;
+        std::vector<int> m_socket;
+        std::vector<int> m_new_socket;
+        std::vector<client> clients;
+        int status;
+        struct sockaddr_in m_socketAress;
+        int m_socketAddress_len;
+        std::string m_serverMessage;
+        char buffer[BUFFER_SIZE];
+        fd_set readst, writest;
+        std::vector<struct sockaddr_in> class_m_socketAress;
+        timeval timer;
+        std::vector<std::vector<int> > indexing;
+        std::vector<int> findexing;
+        std::vector<unsigned int> class_m_socketAddress_len;
+        int startServer();
+        int closeServer();
+
+    public:
+        TcpServer(Parsed *data);
+        ~TcpServer();
+        int listening();
+        int findIndex(int fd);
+        bool isMaster(int fd);
+        void save(int fd, int client, int size);
+        void startListen(Parsed *data);
+        int acceptConnection(int fd);
+        void buildResponse(Parsed *data, int cl);
+        int sendResponse(int fd);
     };
 }
-void exitWithError(const std::string& message);
-
+void exitWithError(const std::string &message);
 
 #endif
