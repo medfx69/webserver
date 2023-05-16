@@ -10,7 +10,7 @@ class request;
 struct data_reader
 {
 public:
-	data_reader &operator=(data_reader&);
+	data_reader &operator=(data_reader &);
 	std::string block_name;
 	std::vector<std::string> dir;
 	std::vector<data_reader> block;
@@ -19,7 +19,7 @@ public:
 data_reader read_block(std::ifstream &myFile, std::string block_start);
 std::vector<data_reader> parec(char *s);
 std::vector<std::string> parser_helper(std::string s);
-request *pars_request(client *cl);
+request *pars_request(client *cl, std::string s);
 std::vector<Location> pars_locations(data_reader data);
 std::vector<server> data_handler(std::vector<data_reader> s);
 

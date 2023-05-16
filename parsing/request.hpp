@@ -26,15 +26,14 @@ struct client
 class request
 {
 public:
-	std::string method;
-	std::string absoluteURI;
-	std::string http_version;
-	std::string body;
-	std::map<std::string, std::string> data;	
-	request(client *cl);
-	request();
-    void    handle_body(client *cl);
+    std::string method;
+    std::string absoluteURI;
+    std::string http_version;
+    std::string body;
+    std::map<std::string, std::string> data;
+    request(client *cl, std::string req);
+    request();
+    void handle_body(client *cl, std::string req);
 };
-
 
 #endif

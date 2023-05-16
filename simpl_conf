@@ -9,29 +9,30 @@ server {
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
 
-    location /html {
-        try_files $uri $uri/ /index.html>>>;
+    location / {
+        try_files $uri $uri/ /index.html;
         root /Users/mait-aad/Desktop/static-website-example/;
         error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
     location /Users/mait-aad/Desktop/static-website-example/ {
-        try_files $uri $uri/ /index.html>>>;
+        try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
-    location /dsfdsf/dsfdsf/dsf {
-        try_files $uri $uri/ /index.html>>>;
+    location / {
+        root /Users/mait-aad/Desktop/static-website-example/;
+        try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
     location /ali/mohamed {
         try_files $uri $uri2/ /index.html;
-        try_files $uri $uri2/ /index.html1;
-        try_files $uri $uri2/ /index.html2;
+        try_files $uri $uri2/ /index.html;
+        try_files $uri $uri2/ /index.html;
     }
     client_max_body_size 10m;
 }
@@ -47,27 +48,27 @@ server {
     error_page 500 502 503 504 /50x.html;
 
     location / {
-        try_files $uri $uri/ /index.html>>>;
+        try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
     location /Users/omar/Desktop/webserver/ {
-        try_files $uri $uri/ /index.html>>>;
+        try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
     location /dsfdsf/dsfdsf/dsf {
-        try_files $uri $uri/ /index.html>>>;
+        try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
     location /ali/mohamed {
         try_files $uri $uri2/ /index.html;
-        try_files $uri $uri2/ /index.html1;
-        try_files $uri $uri2/ /index.html2;
+        try_files $uri $uri2/ /index.html;
+        try_files $uri $uri2/ /index.html;
     }
     client_max_body_size 10m;
 }
