@@ -11,7 +11,7 @@ void end_of_headers(request *req, client *cl)
 	{
 		try
 		{
-			std::cout << ">>>>>>>> " << req->data.find("Content-Length:")->second << std::endl;
+			std::cout << ">>>>>>>> this is it" << req->data.find("Content-Length:")->second << std::endl;
 			cl->read_len = stol(req->data.find("Content-Length:")->second);
 		}
 		catch (std::exception &x)
@@ -66,7 +66,7 @@ void request::handle_body(client *cl, std::string s)
 			{
 				std::cerr << x.what() << std::endl;
 			}
-			s.erase(0, st.size() + 2);
+			s.erase(0, s.find("\n") + 1);
 		}
 		if (s.find("\r\n0\r\n\r\n") == std::string::npos)
 		{

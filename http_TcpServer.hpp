@@ -54,7 +54,7 @@ namespace http
         int listening();
         int findIndex(int fd);
         bool isMaster(int fd);
-        void save(int fd, int client);
+        void save(int fd, int client, int size);
         void startListen(Parsed *data);
         int acceptConnection(int fd);
         void buildResponse(Parsed *data, int cl);
