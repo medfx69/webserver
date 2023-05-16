@@ -37,7 +37,9 @@ void request::handle_body(client *cl, std::string s)
 	std::ostringstream ss2;
 	std::ofstream myfile1;
 	std::string tmp;
+	std::string tmp1;
 
+	std::cout << "<<<<<<<<<<<<<<<<[this is handle body]>>>>>>>>>>>>>>>" << std::endl;
 	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile1.open(ss2.str(), std::ofstream::app);
 	if (cl->chunked == 0 && cl->read_len)
@@ -52,121 +54,44 @@ void request::handle_body(client *cl, std::string s)
 	}
 	else
 	{
-		// std::cout << "eeehhooo :::::  " << s.size() << std::endl;
-		// recursivness(s, myfile1, cl);
-		std::stringstream ss1(s);
-		while (getline(ss1, tmp))
+		if (cl->read_len == 0)
 		{
-			// if (tmp.find("\r\n\r\n"))
-			// 	std::cout << "eheh :: ->>>>>>> " << tmp << std::endl;
-			if (cl->read_len == 0)
+			char *tmp1 = strtok(const_cast<char *>(s.c_str()), "\r\n");
+			std::string st(tmp1);
+			try
 			{
-				try
-				{
-					cl->read_len = std::stoi(tmp, 0, 16);
-				}
-				catch (std::exception &x)
-				{
-					std::cerr << x.what() << std::endl;
-				}
-				if (cl->read_len == 0)
-				{
-					cl->flag = 2;
-					cl->read_status = 1;
-					break;
-				}
+				cl->read_len = std::stol(st, 0, 16);
 			}
-			else if (tmp.size() + cl->readed < cl->read_len)
+			catch (std::exception &x)
 			{
-				myfile1 << tmp;
-				myfile1 << "\n";
-				cl->readed += tmp.size() + 1;
+				std::cerr << x.what() << std::endl;
 			}
-			else if (tmp.size() + cl->readed >= cl->read_len)
+			s.erase(0, st.size() + 2);
+		}
+		if (s.find("\r\n0\r\n\r\n") == std::string::npos)
+		{
+			myfile1 << s;
+			cl->readed += s.size();
+			if (cl->readed >= cl->read_len)
 			{
-				tmp = tmp + "\n";
-				myfile1 << tmp;
-				cl->readed += tmp.size() - 2;
-				cl->read_len = 0;
+				cl->readed = 0;
+			}
+		}
+		else
+		{
+			s.erase(s.size() - 7, s.size());
+			std::cout << "[" << s << "]" << std::endl;
+			myfile1 << s;
+			cl->readed += s.size();
+			if (cl->readed >= cl->read_len)
+			{
+				cl->read_status = 1;
+				cl->flag = 2;
 			}
 		}
 	}
-	// while (getline(myfile, tmp))
-	// {
-	// 	std::cout << "This is handle body <-----> ..............." << tmp << std::endl;
-	// 	if (cl->chunked == 0)
-	// 	{
-	// 		if (tmp.size() + cl->readed < cl->read_len)
-	// 		{
-	// 			myfile1 << tmp;
-	// 			myfile1 << "\n";
-	// 			cl->readed += tmp.size() + 1;
-	// 		}
-	// 		else if (tmp.size() + cl->readed >= cl->read_len)
-	// 		{
-	// 			myfile1 << tmp;
-	// 			cl->readed += tmp.size();
-	// 			cl->flag = 2;
-	// 			cl->read_status = 1;
-	// 		}
-	// 		else
-	// 		{
-	// 			myfile1.write(tmp.c_str(), cl->read_len - cl->readed);
-	// 			cl->readed += cl->read_len - cl->readed;
-	// 			cl->flag = 2;
-	// 			cl->read_status = 1;
-	// 		}
-	// 	}
-	// 	else
-	// 	{
-	// 		if (cl->read_len == 0)
-	// 		{
-	// 			try
-	// 			{
-	// 				cl->read_len = std::stoi(tmp, 0, 16);
-	// 			}
-	// 			catch (std::exception &x)
-	// 			{
-	// 				std::cerr << x.what() << std::endl;
-	// 			}
-	// 			if (cl->read_len == 0)
-	// 			{
-	// 				cl->flag = 2;
-	// 				cl->read_status = 1;
-	// 				break;
-	// 			}
-	// 		}
-	// 		else if (tmp.size() + cl->readed < cl->read_len)
-	// 		{
-	// 			myfile1 << tmp;
-	// 			myfile1 << "\n";
-	// 			cl->readed += tmp.size() + 1;
-	// 		}
-	// 		else if (tmp.size() + cl->readed >= cl->read_len)
-	// 		{
-	// 			tmp = tmp + "\n";
-	// 			myfile1 << tmp;
-	// 			cl->readed += tmp.size() - 1;
-	// 		}
-	// 		else
-	// 		{
-	// 			myfile1 << tmp;
-	// 			cl->readed += tmp.size();
-	// 		}
-	// 		if (cl->readed >= cl->read_len)
-	// 		{
-	// 			cl->read_len = 0;
-	// 			cl->readed = 0;
-	// 		}
-	// 	}
-	// }
-	// if (cl->read_status == 0 && cl->flag == 1)
-	// {
-	// 	cl->read_status = 1;
-	// 	--cl->readed;
-	// }
-	std::cout << "[" << cl->readed << "] <----->  this is cl->readed from c-length ===  " << cl->read_len << "\n"
-			  << "---------read status--- " << cl->read_status << " ------ flag----" << cl->flag << std::endl;
+	// std::cout << "[" << cl->readed << "] <----->  this is cl->readed from c-length ===  " << cl->read_len << "\n"
+	// 		  << "---------read status--- " << cl->read_status << " ------ flag----" << cl->flag << std::endl;
 }
 
 request::request(client *cl, std::string s)
@@ -186,10 +111,8 @@ request::request(client *cl, std::string s)
 	{
 		std::cout << "error\n";
 	}
-	// int p = 0;
 	tmp1 = s.substr(0, endOfHeadres);
 	s.erase(0, s.find("\r\n\r\n") + 4);
-	std::cout << "[" << s << "]" << std::endl;
 	std::stringstream ss(tmp1);
 	while (getline(ss, tmp))
 	{
