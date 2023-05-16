@@ -17,16 +17,8 @@ http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket
     {
         for (size_t j = 0; j < _data->getDate()[i].listen.size(); j++)
         {
-            if ((_data->getDate()[i]).listen[j].first.find('.') != std::string::npos)
-            {
-                m_ip_address.push_back((_data->getDate()[i]).listen[j].first);
-                m_port.push_back(std::stoi((_data->getDate()[i]).listen[j].second));
-            }
-            else
-            {
-                m_port.push_back(std::stoi((_data->getDate()[i]).listen[j].first));
-                m_ip_address.push_back((_data->getDate()[i]).server_name);
-            }
+            m_ip_address.push_back((_data->getDate()[i]).listen[j].first);
+            m_port.push_back(std::stoi((_data->getDate()[i]).listen[j].second));
             m_socketAress.sin_family = AF_INET;
             std::cout << "port :" << m_port[j] << std::endl;
             m_socketAress.sin_port = htons(m_port[j]);
@@ -128,13 +120,18 @@ int http::TcpServer::listening()
     return max_fd;
 }
 
-void http::TcpServer::save(int fd, int client)
+void http::TcpServer::save(int fd, int client, int size)
 {
     (void)fd;
+    std::string s(buffer, size);
+
     if (clients[client].flag == 0 && clients[client].read_status == 0)
-        clients[client].req = pars_request(&clients[client], buffer);
+    {
+        std::cout << buffer;
+        clients[client].req = pars_request(&clients[client], s);
+    }
     else if (clients[client].flag == 1)
-        clients[client].req->handle_body(&clients[client], buffer);
+        clients[client].req->handle_body(&clients[client], s);
     else
         std::cout << "xi 3jab\n";
 }
@@ -174,7 +171,8 @@ void http::TcpServer::startListen(Parsed *data)
         read_tmp = readst;
         write_tmp = writest;
         log("====== Waiting for a new connection ======\n");
-        // std::cout << "here-1\n";
+        if (FD_ISSET(max_fd, &readst))
+            std::cout << "here-1\n";
         act = select(max_fd + 1, &readst, &writest, NULL, NULL);
         if (act < 0)
             exitWithError("--------select error-------");
@@ -212,15 +210,16 @@ void http::TcpServer::startListen(Parsed *data)
                 {
                     bytesReceived = read(i, buffer, BUFFER_SIZE);
                     size_t cl1 = 0;
-                    if (bytesReceived >= 0)
+                    if (bytesReceived > 0)
                     {
-                        // std::cout << "here2\n";
+                        std::cout << "here2\n";
+                        std::cout << "b re > " << bytesReceived << std::endl;
                         buffer[bytesReceived] = 0;
                         for (; cl1 < clients.size(); cl1++)
                         {
                             if (clients[cl1].client_fd == i)
                             {
-                                save(i, cl1);
+                                save(i, cl1, bytesReceived);
                                 clients[cl1].write_sened = 0;
                                 break;
                             }
@@ -237,10 +236,17 @@ void http::TcpServer::startListen(Parsed *data)
                             clients[cl1].readed = 0;
                         }
                     }
-                    else if (bytesReceived < 0)
+                    else if (bytesReceived == 0)
                     {
-                        close(i);
+                        std::cout << "here5\n";
                         FD_CLR(i, &read_tmp);
+                        // FD_SET(i, &write_tmp);
+                        close(i);
+                    }
+                    else
+                    {
+                        FD_CLR(i, &read_tmp);
+                        close(i);
                     }
                 }
             }
