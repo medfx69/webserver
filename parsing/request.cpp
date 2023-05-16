@@ -24,6 +24,14 @@ void end_of_headers(request *req, client *cl)
 	// std::cout << cl->read_len << " : " << cl->readed << " : " << cl->flag << std::endl;
 }
 
+// void	recursivness(std::string &s, std::ofstream myfile1, client *cl)
+// {
+// 	if (s.find("\r\n"))
+// 	{
+
+// 	}
+// }
+
 void request::handle_body(client *cl, std::string s)
 {
 	std::ostringstream ss2;
@@ -42,10 +50,47 @@ void request::handle_body(client *cl, std::string s)
 			cl->flag = 2;
 		}
 	}
-	// else
-	// {
-	// 	if (s.find)
-	// }
+	else
+	{
+		// std::cout << "eeehhooo :::::  " << s.size() << std::endl;
+		// recursivness(s, myfile1, cl);
+		std::stringstream ss1(s);
+		while (getline(ss1, tmp))
+		{
+			// if (tmp.find("\r\n\r\n"))
+			// 	std::cout << "eheh :: ->>>>>>> " << tmp << std::endl;
+			if (cl->read_len == 0)
+			{
+				try
+				{
+					cl->read_len = std::stoi(tmp, 0, 16);
+				}
+				catch (std::exception &x)
+				{
+					std::cerr << x.what() << std::endl;
+				}
+				if (cl->read_len == 0)
+				{
+					cl->flag = 2;
+					cl->read_status = 1;
+					break;
+				}
+			}
+			else if (tmp.size() + cl->readed < cl->read_len)
+			{
+				myfile1 << tmp;
+				myfile1 << "\n";
+				cl->readed += tmp.size() + 1;
+			}
+			else if (tmp.size() + cl->readed >= cl->read_len)
+			{
+				tmp = tmp + "\n";
+				myfile1 << tmp;
+				cl->readed += tmp.size() - 2;
+				cl->read_len = 0;
+			}
+		}
+	}
 	// while (getline(myfile, tmp))
 	// {
 	// 	std::cout << "This is handle body <-----> ..............." << tmp << std::endl;
@@ -120,8 +165,8 @@ void request::handle_body(client *cl, std::string s)
 	// 	cl->read_status = 1;
 	// 	--cl->readed;
 	// }
-	// std::cout << "[" << cl->readed << "] <----->  this is cl->readed from c-length ===  " << cl->read_len << "\n"
-	// 		  << "---------read status--- " << cl->read_status << " ------ flag----" << cl->flag << std::endl;
+	std::cout << "[" << cl->readed << "] <----->  this is cl->readed from c-length ===  " << cl->read_len << "\n"
+			  << "---------read status--- " << cl->read_status << " ------ flag----" << cl->flag << std::endl;
 }
 
 request::request(client *cl, std::string s)
