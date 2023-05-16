@@ -4,12 +4,12 @@ server {
     listen 127.0.0.1:8084;
     listen 127.0.0.1:8085;
     server_name localhost;
-    autoindex ON;
     root /Users/omar/Desktop;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
 
     location / {
+        autoindex ON;
         try_files $uri $uri/ /index.html>>>;
         root /Users/omar/Desktop/webserver/;
         error_page 500 502 503 504 /50x.html;
