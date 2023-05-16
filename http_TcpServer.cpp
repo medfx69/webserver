@@ -174,11 +174,11 @@ void http::TcpServer::startListen(Parsed *data)
         read_tmp = readst;
         write_tmp = writest;
         log("====== Waiting for a new connection ======\n");
-        std::cout << "here-1\n";
+        // std::cout << "here-1\n";
         act = select(max_fd + 1, &readst, &writest, NULL, NULL);
         if (act < 0)
             exitWithError("--------select error-------");
-        std::cout << "here0\n";
+        // std::cout << "here0\n";
         for (int i = 0; i < max_fd + 1; i++)
         {
             if (FD_ISSET(i, &readst))
@@ -186,7 +186,7 @@ void http::TcpServer::startListen(Parsed *data)
                 if (isMaster(i))
                 {
                     int index = findIndex(i);
-                    std::cout << "here1\n";
+                    // std::cout << "here1\n";
                     max_fd_check = acceptConnection(i);
                     FD_SET(max_fd_check, &read_tmp);
                     if (max_fd_check > max_fd_tmp)
@@ -214,7 +214,7 @@ void http::TcpServer::startListen(Parsed *data)
                     size_t cl1 = 0;
                     if (bytesReceived >= 0)
                     {
-                        std::cout << "here2\n";
+                        // std::cout << "here2\n";
                         buffer[bytesReceived] = 0;
                         for (; cl1 < clients.size(); cl1++)
                         {
@@ -225,13 +225,13 @@ void http::TcpServer::startListen(Parsed *data)
                                 break;
                             }
                         }
-                        std::cout << "here3\n";
+                        // std::cout << "here3\n";
                         if ((clients[cl1].read_status == 1 && clients[cl1].flag == 2) ||
                             (clients[cl1].read_len == clients[cl1].readed))
                         {
                             FD_SET(i, &write_tmp);
                             FD_CLR(i, &read_tmp);
-                            std::cout << "here5\n";
+                            // std::cout << "here5\n";
                             clients[cl1].read_status = 0;
                             clients[cl1].flag = 0;
                             clients[cl1].readed = 0;
@@ -300,7 +300,7 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
 
     size_t cl2;
     req = NULL;
-    std::cout << "here6\n";
+    // std::cout << "here6\n";
     for (cl2 = 0; cl2 < clients.size(); cl2++)
     {
         if (clients[cl2].client_fd == cl)
