@@ -1,6 +1,6 @@
 #include "func.hpp"
 
-data_reader &data_reader::operator=(data_reader& data)
+data_reader &data_reader::operator=(data_reader &data)
 {
 	block_name = data.block_name;
 	dir = copyy(data.dir);
@@ -10,7 +10,7 @@ data_reader &data_reader::operator=(data_reader& data)
 	// 	// std::cout << ">>>>";
 	// 	std::cout << ">>>>" << data.block[i].block_name << std::endl;
 	// }
-		
+
 	return *this;
 }
 
@@ -50,11 +50,11 @@ data_reader read_server_block(std::ifstream &myFile, std::string block_start)
 	data_reader s;
 	std::string readed;
 
-	s.block_name = block_start.substr(0, block_start.find('}'));// here we can check if syntax is clear
+	s.block_name = block_start.substr(0, block_start.find('}')); // here we can check if syntax is clear
 	while (getline(myFile, readed))
 	{
 		if (readed.find('{') != std::string::npos)
-	 		s.block.push_back(read_block(myFile, readed));
+			s.block.push_back(read_block(myFile, readed));
 		else if (readed.find('}') != std::string::npos)
 			return s;
 		else if (readed.find(';') != std::string::npos)
@@ -100,18 +100,18 @@ std::vector<std::string> parser_helper(std::string s)
 	while (iss >> tmp)
 	{
 		if (tmp.find(';') != std::string::npos)
-				tmp.erase(tmp.find(';'), 1);
+			tmp.erase(tmp.find(';'), 1);
 		ret.push_back(tmp);
 	}
 	return ret;
 }
 
-request *pars_request(client *cl)
+request *pars_request(client *cl, std::string b)
 {
-   
+
 	request *req = NULL;
 
-	req = new request(cl);
+	req = new request(cl, b);
 	return req;
 }
 
@@ -176,7 +176,7 @@ std::vector<Location> pars_locations(data_reader data)
 std::vector<server> data_handler(std::vector<data_reader> s)
 {
 	std::vector<server> serv;
-	for(std::vector<data_reader>::iterator it0 = s.begin(); it0 < s.end(); it0++)
+	for (std::vector<data_reader>::iterator it0 = s.begin(); it0 < s.end(); it0++)
 	{
 		std::vector<std::string>::iterator it = (*it0).dir.begin();
 		server x;
@@ -197,7 +197,7 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 			{
 				std::pair<std::string, std::string> x1;
 				tmp = tmp2;
-				
+
 				x1.first = tmp.substr(0, tmp.find(':'));
 				x1.second = tmp.substr(tmp.find(':') + 1, tmp.find(';') - tmp.find(':') - 1);
 				x.listen.push_back(x1);
@@ -208,7 +208,7 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 				x.client_max_body_size = tmp2;
 			else if (tmp.compare("autoindex") == 0)
 				x.autoindex = tmp2;
-			else if(tmp.compare("index") == 0)
+			else if (tmp.compare("index") == 0)
 				x.index.push_back(tmp2);
 			else if (tmp.compare("chunked_transfer_encoding") == 0)
 				x.chunked_transfer_encoding = tmp2;
