@@ -198,9 +198,23 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 				std::pair<std::string, std::string> x1;
 				tmp = tmp2;
 
-				x1.first = tmp.substr(0, tmp.find(':'));
-				x1.second = tmp.substr(tmp.find(':') + 1, tmp.find(';') - tmp.find(':') - 1);
-				x.listen.push_back(x1);
+				if (tmp.find(":") != std::string::npos){
+					x1.first = tmp.substr(0, tmp.find(':'));
+					x1.second = tmp.substr(tmp.find(':') + 1, tmp.find(';') - tmp.find(':') - 1);
+					x.listen.push_back(x1);
+				}
+				else if (tmp.find(".") == std::string::npos){
+					x1.first = "127.0.0.1";
+					x1.second = tmp.substr(tmp.find(':') + 1, tmp.find(';') - tmp.find(':') - 1);
+					x.listen.push_back(x1);
+				}
+				else if (tmp.find(".") != std::string::npos){
+					x1.first = tmp.substr(0, tmp.find(':'));
+					x1.second = "8080";
+					x.listen.push_back(x1);
+				}
+				else
+					std::cout << "Error: not a valid host\n";
 			}
 			else if (tmp.compare("root") == 0)
 				x.root = tmp2;
