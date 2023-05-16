@@ -4,15 +4,74 @@ response::response(request* _req, server _config)
 {
 	this->req = _req;
 	this->config = new server(_config);
+	
+	mimeTypeMap.insert(std::make_pair("aac", "audio/aac"));
+	mimeTypeMap.insert(std::make_pair("abw", "application/x-abiword"));
+	mimeTypeMap.insert(std::make_pair("arc", "application/octet-stream"));
+	mimeTypeMap.insert(std::make_pair("avi", "video/x-msvideo"));
+	mimeTypeMap.insert(std::make_pair("azw", "application/vnd.amazon.ebook"));
+	mimeTypeMap.insert(std::make_pair("bin", "application/octet-stream"));
+	mimeTypeMap.insert(std::make_pair("bmp", "image/bmp"));
+	mimeTypeMap.insert(std::make_pair("bz", "application/x-bzip"));
+	mimeTypeMap.insert(std::make_pair("bz2", "application/x-bzip2"));
+	mimeTypeMap.insert(std::make_pair("csh", "application/x-csh"));
+	mimeTypeMap.insert(std::make_pair("css", "text/css"));
+	mimeTypeMap.insert(std::make_pair("csv", "text/csv"));
+	mimeTypeMap.insert(std::make_pair("doc", "application/msword"));
+	mimeTypeMap.insert(std::make_pair("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+	mimeTypeMap.insert(std::make_pair("eot", "application/vnd.ms-fontobject"));
+	mimeTypeMap.insert(std::make_pair("epub", "application/epub+zip"));
+	mimeTypeMap.insert(std::make_pair("gif", "image/gif"));
+	mimeTypeMap.insert(std::make_pair("htm", "text/html"));
 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
-    mimeTypeMap.insert(std::make_pair("htm", "text/html"));
-    mimeTypeMap.insert(std::make_pair("css", "text/css"));
-    mimeTypeMap.insert(std::make_pair("js", "application/javascript"));
-    mimeTypeMap.insert(std::make_pair("jpg", "image/jpeg"));
-    mimeTypeMap.insert(std::make_pair("jpeg", "image/jpeg"));
-    mimeTypeMap.insert(std::make_pair("png", "image/png"));
-    mimeTypeMap.insert(std::make_pair("gif", "image/gif"));
-    mimeTypeMap.insert(std::make_pair("pdf", "application/pdf"));
+	mimeTypeMap.insert(std::make_pair("ico", "image/x-icon"));
+	mimeTypeMap.insert(std::make_pair("ics", "text/calendar"));
+	mimeTypeMap.insert(std::make_pair("jar", "application/java-archive"));
+	mimeTypeMap.insert(std::make_pair("jpeg", "image/jpeg"));
+	mimeTypeMap.insert(std::make_pair("jpg", "image/jpeg"));
+	mimeTypeMap.insert(std::make_pair("js", "application/javascript"));
+	mimeTypeMap.insert(std::make_pair("json", "application/json"));
+	mimeTypeMap.insert(std::make_pair("mid", "audio/midi"));
+	mimeTypeMap.insert(std::make_pair("midi", "audio/midi"));
+	mimeTypeMap.insert(std::make_pair("mpeg", "video/mpeg"));
+	mimeTypeMap.insert(std::make_pair("mpkg", "application/vnd.apple.installer+xml"));
+	mimeTypeMap.insert(std::make_pair("odp", "application/vnd.oasis.opendocument.presentation"));
+	mimeTypeMap.insert(std::make_pair("ods", "application/vnd.oasis.opendocument.spreadsheet"));
+	mimeTypeMap.insert(std::make_pair("odt", "application/vnd.oasis.opendocument.text"));
+	mimeTypeMap.insert(std::make_pair("oga", "audio/ogg"));
+	mimeTypeMap.insert(std::make_pair("ogv", "video/ogg"));
+	mimeTypeMap.insert(std::make_pair("ogx", "application/ogg"));
+	mimeTypeMap.insert(std::make_pair("otf", "font/otf"));
+	mimeTypeMap.insert(std::make_pair("png", "image/png"));
+	mimeTypeMap.insert(std::make_pair("pdf", "application/pdf"));
+	mimeTypeMap.insert(std::make_pair("ppt", "application/vnd.ms-powerpoint"));
+	mimeTypeMap.insert(std::make_pair("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"));
+	mimeTypeMap.insert(std::make_pair("rar", "application/x-rar-compressed"));
+	mimeTypeMap.insert(std::make_pair("rtf", "application/rtf"));
+	mimeTypeMap.insert(std::make_pair("sh", "application/x-sh"));
+	mimeTypeMap.insert(std::make_pair("svg", "image/svg+xml"));
+	mimeTypeMap.insert(std::make_pair("swf", "application/x-shockwave-flash"));
+	mimeTypeMap.insert(std::make_pair("tar", "application/x-tar"));
+	mimeTypeMap.insert(std::make_pair("tif", "image/tiff"));
+	mimeTypeMap.insert(std::make_pair("tiff", "image/tiff"));
+	mimeTypeMap.insert(std::make_pair("ts", "application/typescript"));
+	mimeTypeMap.insert(std::make_pair("ttf", "font/ttf"));
+	mimeTypeMap.insert(std::make_pair("vsd", "application/vnd.visio"));
+	mimeTypeMap.insert(std::make_pair("wav", "audio/x-wav"));
+	mimeTypeMap.insert(std::make_pair("weba", "audio/webm"));
+	mimeTypeMap.insert(std::make_pair("webm", "video/webm"));
+	mimeTypeMap.insert(std::make_pair("webp", "image/webp"));
+	mimeTypeMap.insert(std::make_pair("woff", "font/woff"));
+	mimeTypeMap.insert(std::make_pair("woff2", "font/woff2"));
+	mimeTypeMap.insert(std::make_pair("xhtml", "application/xhtml+xml"));
+	mimeTypeMap.insert(std::make_pair("xls", "application/vnd.ms-excel"));
+	mimeTypeMap.insert(std::make_pair("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+	mimeTypeMap.insert(std::make_pair("xml", "application/xml"));
+	mimeTypeMap.insert(std::make_pair("xul", "application/vnd.mozilla.xul+xml"));
+	mimeTypeMap.insert(std::make_pair("zip", "application/zip"));
+	mimeTypeMap.insert(std::make_pair("3gp", "video/3gpp audio/3gpp"));
+	mimeTypeMap.insert(std::make_pair("3g2", "video/3gpp2 audio/3gpp2"));
+	mimeTypeMap.insert(std::make_pair("7z", "application/x-7z-compressed"));
 }
 
 
@@ -60,8 +119,7 @@ std::string response::getfile()
 	std::ifstream file(req->absoluteURI);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << req->absoluteURI << '\n';
-		std::string body = generateErrorPages(404);
-		return generateResponseHeader("text/html", std::to_string(body.size()), 404) + body;
+		return errorPage(404);
 	}
 	std::ostringstream file_content;
 	file_content << file.rdbuf();
@@ -73,14 +131,15 @@ std::string response::getfolder()
 {
 	if(req->absoluteURI.back() != '/')
 		return errorPage(301);
+	// if(!config->location[indexLocation].index.empty())
 	if (!config->index.empty())
 	{
 		req->absoluteURI +=  config->index[0]; 
 		return getfile();
 	}
-	else if(config->autoindex == "ON")
+	else if(config->location[indexLocation].autoindex == "ON")
 		return createIndexHtml();
-	else if(config->autoindex == "OFF" )
+	else if(config->location[indexLocation].autoindex == "OFF" )
 		return errorPage(301);
 	return errorPage(404);
 }
@@ -158,6 +217,7 @@ std::string   response::get_response()
 	else if(req->absoluteURI.size() > 2048)
 		return errorPage(414);
 	req->absoluteURI = matchLocation();
+
 	std::cout << "URI2: " << req->absoluteURI << std::endl;
 	if(req->absoluteURI.empty())
 		return errorPage(404);
