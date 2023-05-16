@@ -33,7 +33,6 @@ std::string response::createIndexHtml()
 	DIR* dir = opendir(req->absoluteURI.c_str());
 	if(dir != NULL)
 	{
-		// std::ofstream htmlfile("index.html");
 		std::ostringstream htmlfile;
 		htmlfile << "<!DOCTYPE html>\n<html lang=\"en\">\n\t\t<body>\n";
 		struct dirent* entry;
@@ -73,10 +72,7 @@ std::string response::getfile()
 std::string response::getfolder()
 {
 	if(req->absoluteURI.back() != '/')
-	{
-		status = status_code(301);
-		return generateResponseHeader("text/html", std::to_string(status.size()), 301) + status;
-	}
+		return errorPage(301);
 	if (!config->index.empty())
 	{
 		req->absoluteURI +=  config->index[0]; 
@@ -85,12 +81,8 @@ std::string response::getfolder()
 	else if(config->autoindex == "ON")
 		return createIndexHtml();
 	else if(config->autoindex == "OFF" )
-	{
-		status = status_code(301);
-		return generateResponseHeader("text/html", std::to_string(status.size()), 301) + status;
-	}
-	std::string body = generateErrorPages(404);
-	return generateResponseHeader("text/html", std::to_string(body.size()), 404) + body;
+		return errorPage(301);
+	return errorPage(404);
 }
 
 std::string response::getFileExtension()
@@ -134,7 +126,7 @@ std::string response::generateResponseHeader(std::string content_type, std::stri
 
 std::string	response::matchLocation()
 {
-	int index = -1;
+	indexLocation = -1;
 	std::string location;
 	std::cout << "absolutURI " + req->absoluteURI << std::endl; 
 	for(size_t i = 0; i < config->location.size(); i++)
@@ -144,40 +136,37 @@ std::string	response::matchLocation()
 			if(config->location[i].location_name.size() > location.size())
 			{
 				location = config->location[i].location_name;
-				index = i;
+				indexLocation = i;
 			}
 		}
 	}
-	if(location.empty())
-		return config->root + req->absoluteURI;
-	else
-		return config->location[index].root + req->absoluteURI.substr(location.size());
-	return "";
-
+	if(indexLocation == -1 || config->location[indexLocation].root.empty())
+	{
+		std::cout << "Bad URL\n";
+		return errorPage(404);
+	}
+	return config->location[indexLocation].root + req->absoluteURI.substr(location.size());
 }
 
 std::string   response::get_response()
 {
-	std::cout << "root------ " << this->config->root << std::endl;
-	std::cout << "URI1------- " << req->absoluteURI << std::endl;
-	//!generate header
+	std::cout << "URI1: " << req->absoluteURI << std::endl;
 	if(!config->chunked_transfer_encoding.empty() && config->chunked_transfer_encoding != "chunked")
-		return status_code(501);
+		return errorPage(501);
 	if(req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
-		return status_code(400);
+		return errorPage(400);
 	else if(req->absoluteURI.size() > 2048)
-		return status_code(414);
+		return errorPage(414);
 	req->absoluteURI = matchLocation();
-	std::cout << "location:::::: " << req->absoluteURI << std::endl;
+	std::cout << "URI2: " << req->absoluteURI << std::endl;
 	if(req->absoluteURI.empty())
-		return status_code(404);
+		return errorPage(404);
 	std::string pathtype = checkPathType();
 	if(pathtype == "FILE")
 		return getfile();
 	else if(pathtype == "FOLDER")
 		return getfolder();
-	std::string body = generateErrorPages(404);
-	return generateResponseHeader("text/html", std::to_string(body.size()), 404) + body;
+	return errorPage(404);
 }
 
 std::string	response::status_code(int status_code)
@@ -190,21 +179,38 @@ std::string	response::status_code(int status_code)
 		return "HTTP/1.1 400 Bad Request\r\n";
 	else if(status_code == 404)
 		return "HTTP/1.1 404 Not Found\r\n";
-	else if(status_code == 501)
-		return "HTTP/1.1 501 Not Implemented\r\n";
 	else if(status_code == 413)
 		return "HTTP/1.1 413 Request Entity Too Large\r\n";
 	else if(status_code == 414)
 		return "HTTP/1.1 414 Request-URI Too Long\r\n";
+	else if(status_code == 501)
+		return "HTTP/1.1 501 Not Implemented\r\n";
 	return NULL;
 }
 
 std::string response::generateErrorPages(int code)
 {
-	(void)code;
 	std::ifstream file;
-	file.open("/Users/omar/Desktop/webserver/error_pages/index.html");
+	file.open("/Users/omar/Desktop/webserver/error_pages/" + std::to_string(code) + ".html");
 	std::ostringstream content;
 	content << file.rdbuf();
 	return content.str();
+}
+
+std::string	response::errorPage(int code)
+{
+	std::string body;
+	if(code == 301)
+		body = generateErrorPages(301);
+	else if(code == 400)
+		body = generateErrorPages(400);
+	else if(code == 404)
+		body = generateErrorPages(404);
+	else if(code == 413)
+		body = generateErrorPages(413);
+	else if(code == 414)
+		body = generateErrorPages(414);
+	else if(code == 501)
+		body = generateErrorPages(501);
+	return generateResponseHeader("text/html", std::to_string(body.size()), code) + body;
 }
