@@ -251,7 +251,7 @@ std::string	response::status_code(int status_code)
 std::string response::generateErrorPages(int code)
 {
 	std::ifstream file;
-	file.open("/Users/omar/Desktop/webserver/error_pages/" + std::to_string(code) + ".html");
+	file.open("/Users/mait-aad/Desktop/webserver/error_pages/" + std::to_string(code) + ".html");
 	std::ostringstream content;
 	content << file.rdbuf();
 	return content.str();
