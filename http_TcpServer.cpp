@@ -13,8 +13,10 @@ void exitWithError(const std::string &message)
 
 http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket()
 {
-    for (size_t i = 0; i < _data->getDate().size(); i++){
-        for (size_t j = 0; j  < _data->getDate()[i].listen.size() ; j++) {
+    for (size_t i = 0; i < _data->getDate().size(); i++)
+    {
+        for (size_t j = 0; j < _data->getDate()[i].listen.size(); j++)
+        {
             m_ip_address.push_back((_data->getDate()[i]).listen[j].first);
             m_port.push_back(std::stoi((_data->getDate()[i]).listen[j].second));
             m_socketAress.sin_family = AF_INET;
@@ -123,8 +125,9 @@ void http::TcpServer::save(int fd, int client, int size)
     (void)fd;
     std::string s(buffer, size);
 
-    if (clients[client].flag == 0 && clients[client].read_status == 0){
-        std::cout << buffer ;
+    if (clients[client].flag == 0 && clients[client].read_status == 0)
+    {
+        std::cout << buffer;
         clients[client].req = pars_request(&clients[client], s);
     }
     else if (clients[client].flag == 1)
@@ -173,7 +176,7 @@ void http::TcpServer::startListen(Parsed *data)
         act = select(max_fd + 1, &readst, &writest, NULL, NULL);
         if (act < 0)
             exitWithError("--------select error-------");
-        std::cout << "here0\n";
+        // std::cout << "here0\n";
         for (int i = 0; i < max_fd + 1; i++)
         {
             if (FD_ISSET(i, &readst))
@@ -181,7 +184,7 @@ void http::TcpServer::startListen(Parsed *data)
                 if (isMaster(i))
                 {
                     int index = findIndex(i);
-                    std::cout << "here1\n";
+                    // std::cout << "here1\n";
                     max_fd_check = acceptConnection(i);
                     FD_SET(max_fd_check, &read_tmp);
                     if (max_fd_check > max_fd_tmp)
@@ -221,13 +224,13 @@ void http::TcpServer::startListen(Parsed *data)
                                 break;
                             }
                         }
-                        std::cout << "here3\n";
+                        // std::cout << "here3\n";
                         if ((clients[cl1].read_status == 1 && clients[cl1].flag == 2) ||
                             (clients[cl1].read_len == clients[cl1].readed))
                         {
                             FD_SET(i, &write_tmp);
                             FD_CLR(i, &read_tmp);
-                            std::cout << "here5\n";
+                            // std::cout << "here5\n";
                             clients[cl1].read_status = 0;
                             clients[cl1].flag = 0;
                             clients[cl1].readed = 0;
@@ -240,7 +243,8 @@ void http::TcpServer::startListen(Parsed *data)
                         // FD_SET(i, &write_tmp);
                         close(i);
                     }
-                    else{
+                    else
+                    {
                         FD_CLR(i, &read_tmp);
                         close(i);
                     }
@@ -302,7 +306,7 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
 
     size_t cl2;
     req = NULL;
-    std::cout << "here6\n";
+    // std::cout << "here6\n";
     for (cl2 = 0; cl2 < clients.size(); cl2++)
     {
         if (clients[cl2].client_fd == cl)
