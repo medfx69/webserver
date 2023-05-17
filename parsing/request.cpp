@@ -70,6 +70,10 @@ void request::handle_body(client *cl, std::string s)
 		}
 		if (s.find("\r\n0\r\n\r\n") == std::string::npos)
 		{
+			if (s.find("\r\n\r\n") != std::string::npos)
+			{
+				std::cout << "alloha lloha dfklsdf >>>>>>>>>>>>>>>>>>>>" << std::endl;
+			}
 			myfile1 << s;
 			cl->readed += s.size();
 			if (cl->readed >= cl->read_len)
@@ -140,7 +144,8 @@ request::request(client *cl, std::string s)
 	}
 	cl->flag = 1;
 	end_of_headers(this, cl);
-	this->handle_body(cl, s);
+	if (cl->read_status == 0)
+		this->handle_body(cl, s);
 }
 // if (cl->read_status == 0 && cl->flag == 1)
 // {
