@@ -234,14 +234,10 @@ void http::TcpServer::startListen(Parsed *data)
                             clients[cl1].read_status = 0;
                             clients[cl1].flag = 0;
                             clients[cl1].readed = 0;
+                            clients[cl1].write_len = 0;
+                            clients[cl1].write_sened = 0;
+                            buildResponse(data, i);
                         }
-                    }
-                    else if (bytesReceived == 0)
-                    {
-                        std::cout << "here5\n";
-                        FD_CLR(i, &read_tmp);
-                        // FD_SET(i, &write_tmp);
-                        close(i);
                     }
                     else
                     {
@@ -253,38 +249,33 @@ void http::TcpServer::startListen(Parsed *data)
             if (FD_ISSET(i, &writest))
             {
                 std::cout << "write fd: " << i << std::endl;
-                buildResponse(data, i);
-                if (FD_ISSET(i, &writest))
+                int send = sendResponse(i);
+                if (send > 0)
                 {
-                    int send = sendResponse(i);
-                    if (send >= 0)
+                    size_t cl2 = 0;
+                    for (; cl2 < clients.size(); cl2++)
                     {
-                        size_t cl2 = 0;
-                        for (; cl2 < clients.size(); cl2++)
-                        {
-                            if (clients[cl2].client_fd == i)
-                            {
-                                clients[cl2].read_status = status;
-                                clients[cl2].write_sened += send;
-                                break;
-                            }
-                        }
-                        if (clients[cl2].write_sened >= clients[cl2].client_res_message.size())
-                        {
-                            FD_CLR(i, &write_tmp);
-                            close(i);
-                            clients[cl2].fd_enabeld = 0;
-                            clients[cl2].write_sened = 0;
-                            delete clients[cl2].req;
-                            // remove(clients[cl2].client_reqFile.c_str());
+                        if (clients[cl2].client_fd == i){
+                            clients[cl2].read_status = status;
+                            break;
                         }
                     }
-                    else
+                    if (clients[cl2].write_sened >= clients[cl2].write_len)
                     {
                         FD_CLR(i, &write_tmp);
                         close(i);
+                        clients[cl2].fd_enabeld = 0;
+                        clients[cl2].write_sened = 0;
+                        delete clients[cl2].req;
+                        remove(clients[cl2].client_resFile.c_str());
                     }
                 }
+                else
+                {
+                    FD_CLR(i, &write_tmp);
+                    close(i);
+                }
+            
             }
         }
         max_fd = max_fd_tmp;
@@ -303,10 +294,14 @@ int http::TcpServer::closeServer()
 void http::TcpServer::buildResponse(Parsed *data, int cl)
 {
     request *req;
+	std::ostringstream ss2;
+	std::ofstream myfile1;
+
 
     size_t cl2;
     req = NULL;
-    // std::cout << "here6\n";
+    if (!data)
+        return;
     for (cl2 = 0; cl2 < clients.size(); cl2++)
     {
         if (clients[cl2].client_fd == cl)
@@ -317,13 +312,7 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     }
     response res(req, data->getDate()[clients[cl2].serverIndex]);
     if (req->method == "GET")
-    {
         m_serverMessage = res.get_response();
-        std::cout << m_serverMessage << std::endl;
-        clients[cl2].client_res_message = this->m_serverMessage;
-
-        return;
-    }
     // i++;
     // else if(data->req->method == "DELETE")
     //     ;
@@ -334,9 +323,30 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     //     this->m_serverMessage = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
     //     return ;
     // }
+	ss2 << "/tmp/Response_" << clients[cl2].client_fd;
+    clients[cl2].client_resFile = ss2.str();
+	myfile1.open(ss2.str());
+    myfile1 << this->m_serverMessage;
+    myfile1.close();
+    clients[cl2].write_len = this->m_serverMessage.size();
+    clients[cl2].write_sened = 0;
+    this->m_serverMessage.resize(0);
 }
 
 int http::TcpServer::sendResponse(int fd)
 {
-    return (write(fd, m_serverMessage.c_str(), m_serverMessage.size()));
+    char wBuffer[BUFFER_SIZE];
+    int count = 0;
+
+    size_t cl2 = 0;
+    for (; cl2 < clients.size(); cl2++)
+        if (clients[cl2].client_fd == fd)
+            break;
+    std::ifstream MyResFile(clients[cl2].client_resFile);
+    MyResFile.seekg(clients[cl2].write_sened, std::ios::beg);
+    MyResFile.read(wBuffer, BUFFER_SIZE);
+    count = MyResFile.gcount();
+    clients[cl2].write_sened += count;
+    MyResFile.close();
+    return (write(fd, wBuffer, count));
 }

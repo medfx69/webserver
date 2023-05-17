@@ -68,8 +68,9 @@ void request::handle_body(client *cl, std::string s)
 			}
 			s.erase(0, s.find("\n") + 1);
 		}
-		if (s.find("\r\n0\r\n\r\n") == std::string::npos)
+		if (s.find ("\r\n0\r\n\r\n") == std::string::npos)
 		{
+
 			myfile1 << s;
 			cl->readed += s.size();
 			if (cl->readed >= cl->read_len)
@@ -79,8 +80,9 @@ void request::handle_body(client *cl, std::string s)
 		}
 		else
 		{
-			s.erase(s.size() - 7, s.size());
+			std::cout << "[asdlkfhdsalkfkhdsalkfhdsalkfhsadlkfhhdsalfakh]" << std::endl;
 			std::cout << "[" << s << "]" << std::endl;
+			s.erase(s.size() - 7, s.size());
 			myfile1 << s;
 			cl->readed += s.size();
 			if (cl->readed >= cl->read_len)
@@ -99,9 +101,12 @@ request::request(client *cl, std::string s)
 	std::ostringstream ss2;
 	std::string tmp;
 	std::string tmp1;
+	std::ofstream myfile1;
 
 	int i = 0;
+	ss2 << "/tmp/body_" << cl->client_fd;
 	size_t endOfHeadres = s.find("\r\n\r\n");
+	myfile1.open(ss2.str());
 	if (endOfHeadres == std::string::npos)
 	{
 		std::cout << "error\n";
@@ -135,7 +140,8 @@ request::request(client *cl, std::string s)
 	}
 	cl->flag = 1;
 	end_of_headers(this, cl);
-	this->handle_body(cl, s);
+	if (cl->chunked == 1 || cl->read_len != 0)
+		this->handle_body(cl, s);
 }
 // if (cl->read_status == 0 && cl->flag == 1)
 // {

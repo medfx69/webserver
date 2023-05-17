@@ -1,34 +1,28 @@
 
 server {
-    listen 127.0.0.1;
+    listen 127.0.0.1:8080;
     listen 127.0.0.1:8084;
     listen 127.0.0.1:8085;
     server_name localhost;
-    root /Users/omar/Desktop;
+    root /Users/mait-aad/Desktop/;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
 
     location / {
-<<<<<<< HEAD
-        try_files $uri $uri/ /index.html;
-        root /Users/mait-aad/Desktop/static-website-example/;
-=======
         autoindex ON;
-        try_files $uri $uri/ /index.html>>>;
-        root /Users/omar/Desktop/webserver/;
->>>>>>> origin/flokiBranch
+        root /Users/mait-aad/Desktop/HTML_All-in-one_School-Website/;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
     }
-    location /Users/mait-aad/Desktop/static-website-example/ {
+    location /Users/mait-aad/Desktop/HTML_All-in-one_School-Website/ {
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
     }
     location / {
-        root /Users/mait-aad/Desktop/static-website-example/;
+        root /Users/mait-aad/Desktop/HTML_All-in-one_School-Website/;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
@@ -47,7 +41,7 @@ server {
     server_name localhost;
 
     root /Users/abayar/Desktop;
-    root /Users/omar/Desktop;
+    root /Users/mait-aad/Desktop;
     autoindex ON;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
@@ -58,7 +52,7 @@ server {
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
     }
-    location /Users/omar/Desktop/webserver/ {
+    location /Users/mait-aad/Desktop/webserver/ {
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
