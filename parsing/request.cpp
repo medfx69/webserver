@@ -96,16 +96,11 @@ void request::handle_body(client *cl, std::string s)
 
 request::request(client *cl, std::string s)
 {
-	std::ofstream myfile1;
 	std::ostringstream ss2;
 	std::string tmp;
 	std::string tmp1;
 
 	int i = 0;
-	ss2 << "/tmp/body_" << cl->client_fd;
-	myfile1.open(ss2.str());
-	if (myfile1.fail())
-		exit(0);
 	size_t endOfHeadres = s.find("\r\n\r\n");
 	if (endOfHeadres == std::string::npos)
 	{

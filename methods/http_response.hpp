@@ -10,6 +10,7 @@ class response
 {
 	private:
 		std::map<std::string, std::string> mimeTypeMap;
+		int indexLocation;
 		request *req;
 		server *config;
 		std::string content_type;
@@ -30,6 +31,7 @@ class response
 		std::string	status_code(int );
 		std::string	get_date();
 		std::string generateErrorPages(int status_code);
+		std::string	errorPage(int code);
 		//delete
 		bool folder_exists(std::string folder_path);
 		std::string path_creat(std::string folder_path, std::string join_path);
