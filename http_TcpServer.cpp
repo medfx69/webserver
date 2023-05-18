@@ -166,7 +166,6 @@ void http::TcpServer::startListen(Parsed *data)
         write_tmp = writest;
         log("====== Waiting for a new connection ======\n");
         act = select(max_fd + 1, &readst, &writest, NULL, NULL);
-        std::cout << "daz \n";
         if (act < 0)
             exitWithError("--------select error-------");
         for (int i = 0; i < max_fd + 1; i++)

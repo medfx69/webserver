@@ -41,7 +41,7 @@ void request::handle_body(client *cl, std::string s)
 	std::string chunk;
 
 	// std::cout << ">>>>>" << s << std::endl;
-	// std::cout << "<<<<<<<<<<<<<<<<[this is handle body]>>>>>>>>>>>>>>>read status : " << cl->read_status << " and flag : " << cl->flag << " readed = " << cl->readed << " read_len = " << cl->read_len << std::endl;
+	std::cout << "<<<<<<<<<<<<<<<<[this is handle body]>>>>>>>>>>>>>>>read status : " << cl->read_status << " and flag : " << cl->flag << " readed = " << cl->readed << " read_len = " << cl->read_len << std::endl;
 	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile1.open(ss2.str(), std::ofstream::app);
 	if (cl->chunked == 0 && cl->read_len)
@@ -148,16 +148,17 @@ void request::handle_body(client *cl, std::string s)
 
 request::request(client *cl, std::string s)
 {
+	std::ofstream myfile1;
 	std::ostringstream ss2;
 	std::string tmp;
 	std::string tmp1;
-	std::ofstream myfile1;
 
 	int i = 0;
 	ss2 << "/tmp/body_" << cl->client_fd;
-	size_t endOfHeadres = s.find("\r\n\r\n");
 	myfile1.open(ss2.str());
-	cl->client_body = ss2.str();
+	if (myfile1.fail())
+		exit(0);
+	size_t endOfHeadres = s.find("\r\n\r\n");
 	if (endOfHeadres == std::string::npos)
 	{
 		std::cout << "error\n";
