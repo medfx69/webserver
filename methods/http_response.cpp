@@ -4,15 +4,74 @@ response::response(request* _req, server _config)
 {
 	this->req = _req;
 	this->config = new server(_config);
+	
+	mimeTypeMap.insert(std::make_pair("aac", "audio/aac"));
+	mimeTypeMap.insert(std::make_pair("abw", "application/x-abiword"));
+	mimeTypeMap.insert(std::make_pair("arc", "application/octet-stream"));
+	mimeTypeMap.insert(std::make_pair("avi", "video/x-msvideo"));
+	mimeTypeMap.insert(std::make_pair("azw", "application/vnd.amazon.ebook"));
+	mimeTypeMap.insert(std::make_pair("bin", "application/octet-stream"));
+	mimeTypeMap.insert(std::make_pair("bmp", "image/bmp"));
+	mimeTypeMap.insert(std::make_pair("bz", "application/x-bzip"));
+	mimeTypeMap.insert(std::make_pair("bz2", "application/x-bzip2"));
+	mimeTypeMap.insert(std::make_pair("csh", "application/x-csh"));
+	mimeTypeMap.insert(std::make_pair("css", "text/css"));
+	mimeTypeMap.insert(std::make_pair("csv", "text/csv"));
+	mimeTypeMap.insert(std::make_pair("doc", "application/msword"));
+	mimeTypeMap.insert(std::make_pair("docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+	mimeTypeMap.insert(std::make_pair("eot", "application/vnd.ms-fontobject"));
+	mimeTypeMap.insert(std::make_pair("epub", "application/epub+zip"));
+	mimeTypeMap.insert(std::make_pair("gif", "image/gif"));
+	mimeTypeMap.insert(std::make_pair("htm", "text/html"));
 	mimeTypeMap.insert(std::make_pair("html", "text/html"));
-    mimeTypeMap.insert(std::make_pair("htm", "text/html"));
-    mimeTypeMap.insert(std::make_pair("css", "text/css"));
-    mimeTypeMap.insert(std::make_pair("js", "application/javascript"));
-    mimeTypeMap.insert(std::make_pair("jpg", "image/jpeg"));
-    mimeTypeMap.insert(std::make_pair("jpeg", "image/jpeg"));
-    mimeTypeMap.insert(std::make_pair("png", "image/png"));
-    mimeTypeMap.insert(std::make_pair("gif", "image/gif"));
-    mimeTypeMap.insert(std::make_pair("pdf", "application/pdf"));
+	mimeTypeMap.insert(std::make_pair("ico", "image/x-icon"));
+	mimeTypeMap.insert(std::make_pair("ics", "text/calendar"));
+	mimeTypeMap.insert(std::make_pair("jar", "application/java-archive"));
+	mimeTypeMap.insert(std::make_pair("jpeg", "image/jpeg"));
+	mimeTypeMap.insert(std::make_pair("jpg", "image/jpeg"));
+	mimeTypeMap.insert(std::make_pair("js", "application/javascript"));
+	mimeTypeMap.insert(std::make_pair("json", "application/json"));
+	mimeTypeMap.insert(std::make_pair("mid", "audio/midi"));
+	mimeTypeMap.insert(std::make_pair("midi", "audio/midi"));
+	mimeTypeMap.insert(std::make_pair("mpeg", "video/mpeg"));
+	mimeTypeMap.insert(std::make_pair("mpkg", "application/vnd.apple.installer+xml"));
+	mimeTypeMap.insert(std::make_pair("odp", "application/vnd.oasis.opendocument.presentation"));
+	mimeTypeMap.insert(std::make_pair("ods", "application/vnd.oasis.opendocument.spreadsheet"));
+	mimeTypeMap.insert(std::make_pair("odt", "application/vnd.oasis.opendocument.text"));
+	mimeTypeMap.insert(std::make_pair("oga", "audio/ogg"));
+	mimeTypeMap.insert(std::make_pair("ogv", "video/ogg"));
+	mimeTypeMap.insert(std::make_pair("ogx", "application/ogg"));
+	mimeTypeMap.insert(std::make_pair("otf", "font/otf"));
+	mimeTypeMap.insert(std::make_pair("png", "image/png"));
+	mimeTypeMap.insert(std::make_pair("pdf", "application/pdf"));
+	mimeTypeMap.insert(std::make_pair("ppt", "application/vnd.ms-powerpoint"));
+	mimeTypeMap.insert(std::make_pair("pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"));
+	mimeTypeMap.insert(std::make_pair("rar", "application/x-rar-compressed"));
+	mimeTypeMap.insert(std::make_pair("rtf", "application/rtf"));
+	mimeTypeMap.insert(std::make_pair("sh", "application/x-sh"));
+	mimeTypeMap.insert(std::make_pair("svg", "image/svg+xml"));
+	mimeTypeMap.insert(std::make_pair("swf", "application/x-shockwave-flash"));
+	mimeTypeMap.insert(std::make_pair("tar", "application/x-tar"));
+	mimeTypeMap.insert(std::make_pair("tif", "image/tiff"));
+	mimeTypeMap.insert(std::make_pair("tiff", "image/tiff"));
+	mimeTypeMap.insert(std::make_pair("ts", "application/typescript"));
+	mimeTypeMap.insert(std::make_pair("ttf", "font/ttf"));
+	mimeTypeMap.insert(std::make_pair("vsd", "application/vnd.visio"));
+	mimeTypeMap.insert(std::make_pair("wav", "audio/x-wav"));
+	mimeTypeMap.insert(std::make_pair("weba", "audio/webm"));
+	mimeTypeMap.insert(std::make_pair("webm", "video/webm"));
+	mimeTypeMap.insert(std::make_pair("webp", "image/webp"));
+	mimeTypeMap.insert(std::make_pair("woff", "font/woff"));
+	mimeTypeMap.insert(std::make_pair("woff2", "font/woff2"));
+	mimeTypeMap.insert(std::make_pair("xhtml", "application/xhtml+xml"));
+	mimeTypeMap.insert(std::make_pair("xls", "application/vnd.ms-excel"));
+	mimeTypeMap.insert(std::make_pair("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+	mimeTypeMap.insert(std::make_pair("xml", "application/xml"));
+	mimeTypeMap.insert(std::make_pair("xul", "application/vnd.mozilla.xul+xml"));
+	mimeTypeMap.insert(std::make_pair("zip", "application/zip"));
+	mimeTypeMap.insert(std::make_pair("3gp", "video/3gpp audio/3gpp"));
+	mimeTypeMap.insert(std::make_pair("3g2", "video/3gpp2 audio/3gpp2"));
+	mimeTypeMap.insert(std::make_pair("7z", "application/x-7z-compressed"));
 }
 
 
@@ -33,7 +92,6 @@ std::string response::createIndexHtml()
 	DIR* dir = opendir(req->absoluteURI.c_str());
 	if(dir != NULL)
 	{
-		// std::ofstream htmlfile("index.html");
 		std::ostringstream htmlfile;
 		htmlfile << "<!DOCTYPE html>\n<html lang=\"en\">\n\t\t<body>\n";
 		struct dirent* entry;
@@ -61,8 +119,7 @@ std::string response::getfile()
 	std::ifstream file(req->absoluteURI);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << req->absoluteURI << '\n';
-		std::string body = generateErrorPages(404);
-		return generateResponseHeader("text/html", std::to_string(body.size()), 404) + body;
+		return errorPage(404);
 	}
 	std::ostringstream file_content;
 	file_content << file.rdbuf();
@@ -73,24 +130,18 @@ std::string response::getfile()
 std::string response::getfolder()
 {
 	if(req->absoluteURI.back() != '/')
-	{
-		status = status_code(301);
-		return generateResponseHeader("text/html", std::to_string(status.size()), 301) + status;
-	}
+		return errorPage(301);
+	// if(!config->location[indexLocation].index.empty())
 	if (!config->index.empty())
 	{
 		req->absoluteURI +=  config->index[0]; 
 		return getfile();
 	}
-	else if(config->autoindex == "ON")
+	else if(config->location[indexLocation].autoindex == "ON")
 		return createIndexHtml();
-	else if(config->autoindex == "OFF" )
-	{
-		status = status_code(301);
-		return generateResponseHeader("text/html", std::to_string(status.size()), 301) + status;
-	}
-	std::string body = generateErrorPages(404);
-	return generateResponseHeader("text/html", std::to_string(body.size()), 404) + body;
+	else if(config->location[indexLocation].autoindex == "OFF" )
+		return errorPage(301);
+	return errorPage(404);
 }
 
 std::string response::getFileExtension()
@@ -134,7 +185,7 @@ std::string response::generateResponseHeader(std::string content_type, std::stri
 
 std::string	response::matchLocation()
 {
-	int index = -1;
+	indexLocation = -1;
 	std::string location;
 	std::cout << "absolutURI " + req->absoluteURI << std::endl; 
 	for(size_t i = 0; i < config->location.size(); i++)
@@ -144,40 +195,38 @@ std::string	response::matchLocation()
 			if(config->location[i].location_name.size() > location.size())
 			{
 				location = config->location[i].location_name;
-				index = i;
+				indexLocation = i;
 			}
 		}
 	}
-	if(location.empty())
-		return config->root + req->absoluteURI;
-	else
-		return config->location[index].root + req->absoluteURI.substr(location.size());
-	return "";
-
+	if(indexLocation == -1 || config->location[indexLocation].root.empty())
+	{
+		std::cout << "Bad URL\n";
+		return errorPage(404);
+	}
+	return config->location[indexLocation].root + req->absoluteURI.substr(location.size());
 }
 
 std::string   response::get_response()
 {
-	std::cout << "root------ " << this->config->root << std::endl;
-	std::cout << "URI1------- " << req->absoluteURI << std::endl;
-	//!generate header
+	std::cout << "URI1: " << req->absoluteURI << std::endl;
 	if(!config->chunked_transfer_encoding.empty() && config->chunked_transfer_encoding != "chunked")
-		return status_code(501);
+		return errorPage(501);
 	if(req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
-		return status_code(400);
+		return errorPage(400);
 	else if(req->absoluteURI.size() > 2048)
-		return status_code(414);
+		return errorPage(414);
 	req->absoluteURI = matchLocation();
-	std::cout << "location:::::: " << req->absoluteURI << std::endl;
+
+	std::cout << "URI2: " << req->absoluteURI << std::endl;
 	if(req->absoluteURI.empty())
-		return status_code(404);
+		return errorPage(404);
 	std::string pathtype = checkPathType();
 	if(pathtype == "FILE")
 		return getfile();
 	else if(pathtype == "FOLDER")
 		return getfolder();
-	std::string body = generateErrorPages(404);
-	return generateResponseHeader("text/html", std::to_string(body.size()), 404) + body;
+	return errorPage(404);
 }
 
 std::string	response::status_code(int status_code)
@@ -190,21 +239,38 @@ std::string	response::status_code(int status_code)
 		return "HTTP/1.1 400 Bad Request\r\n";
 	else if(status_code == 404)
 		return "HTTP/1.1 404 Not Found\r\n";
-	else if(status_code == 501)
-		return "HTTP/1.1 501 Not Implemented\r\n";
 	else if(status_code == 413)
 		return "HTTP/1.1 413 Request Entity Too Large\r\n";
 	else if(status_code == 414)
 		return "HTTP/1.1 414 Request-URI Too Long\r\n";
+	else if(status_code == 501)
+		return "HTTP/1.1 501 Not Implemented\r\n";
 	return NULL;
 }
 
 std::string response::generateErrorPages(int code)
 {
-	(void)code;
 	std::ifstream file;
-	file.open("/Users/omar/Desktop/webserver/error_pages/index.html");
+	file.open("/Users/mait-aad/Desktop/webserver/error_pages/" + std::to_string(code) + ".html");
 	std::ostringstream content;
 	content << file.rdbuf();
 	return content.str();
+}
+
+std::string	response::errorPage(int code)
+{
+	std::string body;
+	if(code == 301)
+		body = generateErrorPages(301);
+	else if(code == 400)
+		body = generateErrorPages(400);
+	else if(code == 404)
+		body = generateErrorPages(404);
+	else if(code == 413)
+		body = generateErrorPages(413);
+	else if(code == 414)
+		body = generateErrorPages(414);
+	else if(code == 501)
+		body = generateErrorPages(501);
+	return generateResponseHeader("text/html", std::to_string(body.size()), code) + body;
 }
