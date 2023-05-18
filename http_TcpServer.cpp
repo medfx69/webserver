@@ -124,16 +124,10 @@ void http::TcpServer::save(int fd, int client, int size)
 {
     (void)fd;
     std::string s(buffer, size);
-
     if (clients[client].flag == 0 && clients[client].read_status == 0)
-    {
-        std::cout << buffer;
         clients[client].req = pars_request(&clients[client], s);
-    }
     else if (clients[client].flag == 1)
         clients[client].req->handle_body(&clients[client], s);
-    else
-        std::cout << "xi 3jab\n";
 }
 
 bool http::TcpServer::isMaster(int fd)
@@ -171,12 +165,10 @@ void http::TcpServer::startListen(Parsed *data)
         read_tmp = readst;
         write_tmp = writest;
         log("====== Waiting for a new connection ======\n");
-        if (FD_ISSET(max_fd, &readst))
-            std::cout << "here-1\n";
         act = select(max_fd + 1, &readst, &writest, NULL, NULL);
+        std::cout << "daz \n";
         if (act < 0)
             exitWithError("--------select error-------");
-        // std::cout << "here0\n";
         for (int i = 0; i < max_fd + 1; i++)
         {
             if (FD_ISSET(i, &readst))
@@ -184,7 +176,6 @@ void http::TcpServer::startListen(Parsed *data)
                 if (isMaster(i))
                 {
                     int index = findIndex(i);
-                    // std::cout << "here1\n";
                     max_fd_check = acceptConnection(i);
                     FD_SET(max_fd_check, &read_tmp);
                     if (max_fd_check > max_fd_tmp)
@@ -196,6 +187,11 @@ void http::TcpServer::startListen(Parsed *data)
                         {
                             clients[cl].read_status = 0;
                             clients[cl].write_sened = 0;
+                            clients[cl].chunked = 0;
+                            clients[cl].client_body = "";
+                            clients[cl].client_res_message = "";
+                            clients[cl].readed = 0;
+                            clients[cl].read_len = 0;
                             clients[cl].serverIndex = index;
                         }
                     }
@@ -212,8 +208,7 @@ void http::TcpServer::startListen(Parsed *data)
                     size_t cl1 = 0;
                     if (bytesReceived > 0)
                     {
-                        std::cout << "here2\n";
-                        std::cout << "b re > " << bytesReceived << std::endl;
+                        log("======   message request received   ======\n");
                         buffer[bytesReceived] = 0;
                         for (; cl1 < clients.size(); cl1++)
                         {
@@ -224,13 +219,11 @@ void http::TcpServer::startListen(Parsed *data)
                                 break;
                             }
                         }
-                        // std::cout << "here3\n";
                         if ((clients[cl1].read_status == 1 && clients[cl1].flag == 2) ||
                             (clients[cl1].read_len == clients[cl1].readed))
                         {
                             FD_SET(i, &write_tmp);
                             FD_CLR(i, &read_tmp);
-                            // std::cout << "here5\n";
                             clients[cl1].read_status = 0;
                             clients[cl1].flag = 0;
                             clients[cl1].readed = 0;
@@ -248,7 +241,6 @@ void http::TcpServer::startListen(Parsed *data)
             }
             if (FD_ISSET(i, &writest))
             {
-                std::cout << "write fd: " << i << std::endl;
                 int send = sendResponse(i);
                 if (send > 0)
                 {
@@ -262,12 +254,15 @@ void http::TcpServer::startListen(Parsed *data)
                     }
                     if (clients[cl2].write_sened >= clients[cl2].write_len)
                     {
+                        log("======   response messge sended   ======\n");
                         FD_CLR(i, &write_tmp);
                         close(i);
                         clients[cl2].fd_enabeld = 0;
+                        clients[cl2].read_status = 0;
                         clients[cl2].write_sened = 0;
                         delete clients[cl2].req;
                         remove(clients[cl2].client_resFile.c_str());
+                        remove(clients[cl2].client_body.c_str());
                     }
                 }
                 else
