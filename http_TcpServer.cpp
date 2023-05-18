@@ -124,12 +124,8 @@ void http::TcpServer::save(int fd, int client, int size)
 {
     (void)fd;
     std::string s(buffer, size);
-
     if (clients[client].flag == 0 && clients[client].read_status == 0)
-    {
-        std::cout << buffer;
         clients[client].req = pars_request(&clients[client], s);
-    }
     else if (clients[client].flag == 1)
         clients[client].req->handle_body(&clients[client], s);
     else
@@ -212,8 +208,6 @@ void http::TcpServer::startListen(Parsed *data)
                     size_t cl1 = 0;
                     if (bytesReceived > 0)
                     {
-                        std::cout << "here2\n";
-                        std::cout << "b re > " << bytesReceived << std::endl;
                         buffer[bytesReceived] = 0;
                         for (; cl1 < clients.size(); cl1++)
                         {
