@@ -41,7 +41,7 @@ void request::handle_body(client *cl, std::string s)
 	std::string chunk;
 
 	// std::cout << ">>>>>" << s << std::endl;
-	// std::cout << "<<<<<<<<<<<<<<<<[this is handle body]>>>>>>>>>>>>>>>read status : " << cl->read_status << " and flag : " << cl->flag << " readed = " << cl->readed << " read_len = " << cl->read_len << std::endl;
+	std::cout << "<<<<<<<<<<<<<<<<[this is handle body]>>>>>>>>>>>>>>>read status : " << cl->read_status << " and flag : " << cl->flag << " readed = " << cl->readed << " read_len = " << cl->read_len << std::endl;
 	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile1.open(ss2.str(), std::ofstream::app);
 	if (cl->chunked == 0 && cl->read_len)
