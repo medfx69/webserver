@@ -19,7 +19,7 @@
 #include <arpa/inet.h>
 #include <vector>
 #include "methods/http_response.hpp"
-#define BUFFER_SIZE 40000
+#define BUFFER_SIZE 400000
 
 class response;
 
