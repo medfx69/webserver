@@ -10,6 +10,7 @@
 #include <string.h>
 #include <fstream>
 #include "func.hpp"
+ #include <signal.h>
 #include "Location.hpp"
 #include "server.hpp"
 #include "request.hpp"

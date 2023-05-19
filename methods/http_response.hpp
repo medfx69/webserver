@@ -19,6 +19,7 @@ class response
 	public:
 		//get
 		response (request* _req,server _config);
+		~response();
 		std::string	get_response();
 		std::string	getfolder();
 		std::string	getfile();
