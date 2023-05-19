@@ -130,12 +130,24 @@ std::string response::getfile()
 std::string response::getfolder()
 {
 	if(req->absoluteURI.back() != '/')
-		return errorPage(301);
-	// if(!config->location[indexLocation].index.empty())
-	if (!config->index.empty())
 	{
-		req->absoluteURI +=  config->index[0]; 
-		return getfile();
+		req->absoluteURI.push_back('/');
+		// status = 301;
+	}
+	if (!config->location[indexLocation].index.empty())
+	{
+		std::string pathfile;
+		for(size_t i = 0; i < config->location[indexLocation].index.size(); i++)
+		{
+			pathfile = req->absoluteURI +  config->location[indexLocation].index[i]; 
+			std::ifstream file(pathfile);
+			if(file.is_open())
+			{
+				req->absoluteURI = pathfile;
+				return getfile();
+			}
+		}
+		return errorPage(404);
 	}
 	else if(config->location[indexLocation].autoindex == "ON")
 		return createIndexHtml();
@@ -202,31 +214,90 @@ std::string	response::matchLocation()
 	if(indexLocation == -1 || config->location[indexLocation].root.empty())
 	{
 		std::cout << "Bad URL\n";
-		return errorPage(404);
+		return "";
 	}
 	return config->location[indexLocation].root + req->absoluteURI.substr(location.size());
 }
 
+bool response::methode_allowded(std::string methode)
+{
+	std::cout << "indexlocation-------------------:" << indexLocation << std::endl;
+	if(config->location[indexLocation].methods.empty())
+		return false;
+	for(size_t i = 0; i < config->location[indexLocation].methods.size(); i++)
+			if(config->location[indexLocation].methods[i] == methode)
+				return true;
+	return false;
+}
+
 std::string   response::get_response()
 {
+	// if(!req->chunked_transfer_encoding.empty() && req->chunked_transfer_encoding != "chunked")
+		// return errorPage(501);
+	// if(req->method == "POST" && (req->chunked_transfer_encoding.empty() || req->content-lenght.empty()))
+		// return errorPage(400);
 	std::cout << "URI1: " << req->absoluteURI << std::endl;
-	if(!config->chunked_transfer_encoding.empty() && config->chunked_transfer_encoding != "chunked")
-		return errorPage(501);
 	if(req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
 		return errorPage(400);
 	else if(req->absoluteURI.size() > 2048)
 		return errorPage(414);
+	// else if(req->body.size() > std::stoi(config->client_max_body_size))
+		// return errorPage(413);
 	req->absoluteURI = matchLocation();
-
-	std::cout << "URI2: " << req->absoluteURI << std::endl;
 	if(req->absoluteURI.empty())
 		return errorPage(404);
-	std::string pathtype = checkPathType();
-	if(pathtype == "FILE")
-		return getfile();
-	else if(pathtype == "FOLDER")
-		return getfolder();
-	return errorPage(404);
+	std::cout << "URI2: " << req->absoluteURI << std::endl;
+	if(req->method == "GET")
+	{
+		if(!methode_allowded("GET"))
+			return errorPage(405);
+		std::string pathtype = checkPathType();
+		if(pathtype == "FILE")
+			return getfile();
+		else if(pathtype == "FOLDER")
+			return getfolder();
+		return errorPage(404);
+	}
+	else if(req->method == "POST")
+	{
+		// ! is_POST_method_allowded_in_location
+		//  if(!config->location[indexLocation].upload.empty())
+    	// {
+        	// uplaod the Post Request Body
+        	// return errorPage(201);
+    	// }
+    	// get_requested_resource()
+    	// std::string pathtype = checkPathType();
+    	// if(pathtype == "NOT FOUND")
+    	    // return errorPage(404);
+    	// if(pathtype == "FILE")
+    	// {
+    	    // if_location_has_cgi()
+    	    // {
+    	        // run cgi on requested file with POST REQUEST_METHOD
+    	        // Returtn Code Depend on cgi
+    	    // }
+    	    // else 
+    	        // return status_code(403);
+    	// }
+    	// else if(pathtype == "FOLDER")
+    	// {
+    	//         if(req->absoluteURI.back() != '/')
+    	//         {
+    	//                 // make a 301 redirection to request uri with “/” addeed at the end
+    	//                 return errorPage(301);
+    	//         }
+    	//         if(!config->location[indexLocation].index.empty())
+    	//         {
+    	//             req->absoluteURI += config->location[indexLocation].index[0];
+    	//             return getfile();
+    	//         }
+    	//         else
+    	//             return errorPage(403);
+    	// }
+
+	}
+		return errorPage(404);
 }
 
 std::string	response::status_code(int status_code)
@@ -239,6 +310,8 @@ std::string	response::status_code(int status_code)
 		return "HTTP/1.1 400 Bad Request\r\n";
 	else if(status_code == 404)
 		return "HTTP/1.1 404 Not Found\r\n";
+	else if(status_code == 405)
+		return "HTTP/1.1 405 Method Not Allowed\r\n";
 	else if(status_code == 413)
 		return "HTTP/1.1 413 Request Entity Too Large\r\n";
 	else if(status_code == 414)
@@ -266,6 +339,8 @@ std::string	response::errorPage(int code)
 		body = generateErrorPages(400);
 	else if(code == 404)
 		body = generateErrorPages(404);
+	else if(code == 405)
+		body = generateErrorPages(405);
 	else if(code == 413)
 		body = generateErrorPages(413);
 	else if(code == 414)
