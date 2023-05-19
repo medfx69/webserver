@@ -143,6 +143,7 @@ std::string response::getfolder()
 			std::ifstream file(pathfile);
 			if(file.is_open())
 			{
+				file.close();
 				req->absoluteURI = pathfile;
 				return getfile();
 			}
@@ -152,7 +153,7 @@ std::string response::getfolder()
 	else if(config->location[indexLocation].autoindex == "ON")
 		return createIndexHtml();
 	else if(config->location[indexLocation].autoindex == "OFF" )
-		return errorPage(301);
+		return errorPage(403);
 	return errorPage(404);
 }
 
@@ -261,11 +262,14 @@ std::string   response::get_response()
 	else if(req->method == "POST")
 	{
 		// ! is_POST_method_allowded_in_location
-		//  if(!config->location[indexLocation].upload.empty())
-    	// {
+		if(!methode_allowded("POST"))
+			return errorPage(405);
+		 if(!config->location[indexLocation].upload.empty())
+    	{
+			
         	// uplaod the Post Request Body
-        	// return errorPage(201);
-    	// }
+        	return errorPage(201);
+    	}
     	// get_requested_resource()
     	// std::string pathtype = checkPathType();
     	// if(pathtype == "NOT FOUND")
