@@ -211,6 +211,7 @@ void http::TcpServer::startListen(Parsed *data)
                         size_t cl1 = 0;
                         for (; cl1 < clients.size(); cl1++)
                         {
+                            std::cout << "hello" << std::endl;
                             if (clients[cl1].client_fd == i)
                                 save(i, cl1, bytesReceived);
                                 break;
