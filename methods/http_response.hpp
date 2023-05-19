@@ -32,6 +32,7 @@ class response
 		std::string	get_date();
 		std::string generateErrorPages(int status_code);
 		std::string	errorPage(int code);
+		bool 		methode_allowded(std::string methode);
 		//delete
 		bool folder_exists(std::string folder_path);
 		std::string path_creat(std::string folder_path, std::string join_path);

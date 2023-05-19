@@ -8,9 +8,10 @@ public:
 	std::string location_name;
 	std::string root;
 	std::string client_max_body_size;
-	// std::vector<std::string> index;
 	std::vector<std::vector<std::string> > try_files;
 	std::string autoindex;
+	std::vector<std::string> index;
+	std::vector<std::string> methods;
 	std::string chunked_transfer_encoding;
 	Location	&operator=(Location &x);
 };
