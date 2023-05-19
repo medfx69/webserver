@@ -164,7 +164,7 @@ void http::TcpServer::startListen(Parsed *data)
     {
         read_tmp = readst;
         write_tmp = writest;
-        log("====== Waiting for a new connection ======\n");
+        // log("====== Waiting for a new connection ======\n");
         act = select(max_fd + 1, &readst, &writest, NULL, NULL);
         if (act < 0)
             exitWithError("--------select error-------");
@@ -194,7 +194,7 @@ void http::TcpServer::startListen(Parsed *data)
                             clients[cl].serverIndex = index;
                         }
                     }
-                    if (cl == clients.size())
+                    if (cl >= clients.size())
                     {
                         std::ostringstream ss1;
                         ss1 << "/tmp/request_" << max_fd_check;
@@ -204,30 +204,23 @@ void http::TcpServer::startListen(Parsed *data)
                 else
                 {
                     bytesReceived = read(i, buffer, BUFFER_SIZE);
-                    size_t cl1 = 0;
                     if (bytesReceived > 0)
                     {
-                        log("======   message request received   ======\n");
+                        // log("======   message request received   ======\n");
                         buffer[bytesReceived] = 0;
+                        size_t cl1 = 0;
                         for (; cl1 < clients.size(); cl1++)
                         {
                             if (clients[cl1].client_fd == i)
-                            {
                                 save(i, cl1, bytesReceived);
-                                clients[cl1].write_sened = 0;
                                 break;
-                            }
                         }
                         if ((clients[cl1].read_status == 1 && clients[cl1].flag == 2) ||
-                            (clients[cl1].read_len == clients[cl1].readed))
+                            (clients[cl1].read_len == clients[cl1].readed && clients[cl1].flag == 2))
                         {
                             FD_SET(i, &write_tmp);
                             FD_CLR(i, &read_tmp);
-                            clients[cl1].read_status = 0;
-                            clients[cl1].flag = 0;
-                            clients[cl1].readed = 0;
-                            clients[cl1].write_len = 0;
-                            clients[cl1].write_sened = 0;
+                            std::cout << "hello \n";
                             buildResponse(data, i);
                         }
                     }
@@ -256,8 +249,14 @@ void http::TcpServer::startListen(Parsed *data)
                         log("======   response messge sended   ======\n");
                         FD_CLR(i, &write_tmp);
                         close(i);
+                        clients[cl2].read_status = 0;
+                        clients[cl2].flag = 0;
+                        clients[cl2].write_len = 0;
+                        clients[cl2].write_sened = 0;
+                        clients[cl2].readed = 0;
                         clients[cl2].fd_enabeld = 0;
                         clients[cl2].read_status = 0;
+                        clients[cl2].write_len = 0;
                         clients[cl2].write_sened = 0;
                         delete clients[cl2].req;
                         remove(clients[cl2].client_resFile.c_str());

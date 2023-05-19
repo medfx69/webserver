@@ -41,6 +41,7 @@ response::response(request* _req, server _config)
 	mimeTypeMap.insert(std::make_pair("oga", "audio/ogg"));
 	mimeTypeMap.insert(std::make_pair("ogv", "video/ogg"));
 	mimeTypeMap.insert(std::make_pair("ogx", "application/ogg"));
+	mimeTypeMap.insert(std::make_pair("mp4", "video/mp4"));
 	mimeTypeMap.insert(std::make_pair("otf", "font/otf"));
 	mimeTypeMap.insert(std::make_pair("png", "image/png"));
 	mimeTypeMap.insert(std::make_pair("pdf", "application/pdf"));
@@ -273,4 +274,9 @@ std::string	response::errorPage(int code)
 	else if(code == 501)
 		body = generateErrorPages(501);
 	return generateResponseHeader("text/html", std::to_string(body.size()), code) + body;
+}
+
+
+response::~response(){
+	delete this->config;
 }
