@@ -1,41 +1,42 @@
 
 server {
-    listen 127.0.0.1:8081;
+    listen 127.0.0.1;
     listen 127.0.0.1:8084;
     listen 127.0.0.1:8085;
     server_name localhost;
-    root /Users/omar/Desktop;
+    autoindex ON;
+    root /Users/omar/Desktop/webserver;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
 
-    location /path {
-        methods grgr okro ofkeof GET;
-        index index.php index.html;
-        try_files $uri $uri/ /index.html>>>;
+    location / {
+        index index.py index.php index.html;
+        methods GET;
+        autoindex ON;
+        try_files $uri $uri/ /index.html;
+        root /Users/omar/Desktop/webserver/;
+        error_page 500 502 503 504 /50x.html;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
+    }
+    location /maroc {
+        index index.py index.php index.html;
+        methods GET;
+        autoindex ON;
+        try_files $uri $uri/ /index.html;
         root /Users/omar/Desktop/maroc/;
         error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
-    }
-    location /error_page {
-        root /Users/omar/Desktop/webserver/error_pages/;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
     location /Users/omar/Desktop/webserver/ {
-        try_files $uri $uri/ /index.html>>>;
+        autoindex ON;
+        methods GET;
+        root /Users/omar/Desktop/webserver/;
+        try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
-    }
-    location /dsfdsf/dsfdsf/dsf {
-        try_files $uri $uri/ /index.html>>>;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
-    }
-    location /ali/mohamed {
-        try_files $uri $uri2/ /index.html;
-        try_files $uri $uri2/ /index.html1;
-        try_files $uri $uri2/ /index.html2;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
     client_max_body_size 10m;
 }
@@ -44,34 +45,34 @@ server {
     listen 127.0.0.1:8082;
     server_name localhost;
 
-    root /Users/mait-aad/Desktop;
-    root /Users/omar/Desktop;
+    root /Users/abayar/Desktop;
+    root /Users/omar/Desktop/webserver;
     autoindex ON;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
 
     location / {
-        try_files $uri $uri/ /index.html>>>;
+        try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
     location /Users/omar/Desktop/webserver/ {
-        try_files $uri $uri/ /index.html>>>;
+        try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
     location /dsfdsf/dsfdsf/dsf {
-        try_files $uri $uri/ /index.html>>>;
+        try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
     location /ali/mohamed {
         try_files $uri $uri2/ /index.html;
-        try_files $uri $uri2/ /index.html1;
-        try_files $uri $uri2/ /index.html2;
+        try_files $uri $uri2/ /index.html;
+        try_files $uri $uri2/ /index.html;
     }
     client_max_body_size 10m;
 }
