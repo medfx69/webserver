@@ -6,6 +6,13 @@
 #include "../parsing/includes.hpp"
 #include "../http_TcpServer.hpp"
 
+struct del
+{
+  public:
+    std::string filename;
+    std::string foldername;
+};
+
 class response
 {
 	private:
@@ -35,7 +42,7 @@ class response
 		std::string	errorPage(int code);
 		bool 		methode_allowded(std::string methode);
 		//delete
-		bool folder_exists(std::string folder_path);
+		bool DELETE(std::string folder_path);
 		std::string path_creat(std::string folder_path, std::string join_path);
 		void  f_remove(std::string path);
 		//post
