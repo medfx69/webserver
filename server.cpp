@@ -6,9 +6,8 @@ int main(int ac, char **av)
 {
     if (ac == 2)
     {
+        signal(SIGPIPE, SIG_IGN);
         Parsed *pr = new Parsed(av[1]);
-
-        // sigaction(SIGPIPE, 0, NULL);
         // std::cout << (*pr.getserver()->block.begin()).block_name << std::endl;
         // (*pr.getserver()->block.begin()).block_name = "hello";
         // std::cout << ">>> " << (*pr.getserver()->block.begin()).block_name << std::endl;
