@@ -41,6 +41,7 @@ response::response(request* _req, server _config)
 	mimeTypeMap.insert(std::make_pair("oga", "audio/ogg"));
 	mimeTypeMap.insert(std::make_pair("ogv", "video/ogg"));
 	mimeTypeMap.insert(std::make_pair("ogx", "application/ogg"));
+	mimeTypeMap.insert(std::make_pair("mp4", "video/mp4"));
 	mimeTypeMap.insert(std::make_pair("otf", "font/otf"));
 	mimeTypeMap.insert(std::make_pair("png", "image/png"));
 	mimeTypeMap.insert(std::make_pair("pdf", "application/pdf"));
@@ -101,7 +102,7 @@ std::string response::createIndexHtml()
 			if(fd == "." || fd == "..")
 				;
 			else
-				htmlfile << "\t\t\t<a href='" << "./" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
+				htmlfile << "\t\t\t<a href='" << req->absoluteURI << fd << "'>" << fd << "</a><br /><br />" << std::endl;
 		}
 		closedir(dir);
 		htmlfile << "\t\t</body>\n</html>";
@@ -139,7 +140,7 @@ std::string response::getfolder()
 		std::string pathfile;
 		for(size_t i = 0; i < config->location[indexLocation].index.size(); i++)
 		{
-			pathfile = req->absoluteURI +  config->location[indexLocation].index[i]; 
+			pathfile = req->absoluteURI + config->location[indexLocation].index[i];
 			std::ifstream file(pathfile);
 			if(file.is_open())
 			{
@@ -214,10 +215,14 @@ std::string	response::matchLocation()
 	}
 	if(indexLocation == -1 || config->location[indexLocation].root.empty())
 	{
+		std::cout << "location: " << indexLocation <<std::endl;
 		std::cout << "Bad URL\n";
 		return "";
 	}
+	// std::string path_ = req->absoluteURI.substr(location.size());
+	// if(path_.empty() || path_[0] == '/')
 	return config->location[indexLocation].root + req->absoluteURI.substr(location.size());
+	// return ";
 }
 
 bool response::methode_allowded(std::string methode)
@@ -266,9 +271,21 @@ std::string   response::get_response()
 			return errorPage(405);
 		 if(!config->location[indexLocation].upload.empty())
     	{
-			
-        	// uplaod the Post Request Body
-        	return errorPage(201);
+			if(req->data.find("content-type") != req->data.end() && req->data["content-type"].find("multipart/form-data") == 0)
+			{
+					//search for the boundry contain name="file"
+        			// uplaod the Post Request Body
+			}
+			else
+			{
+        		// uplaod the Post Request Body
+				req->absoluteURI = "/upload";
+				req->absoluteURI = matchLocation();
+				std::ofstream file_content(req->absoluteURI + "/filename");
+				file_content << req->body;
+				file_content.close();
+        		return errorPage(201);
+			}
     	}
     	// get_requested_resource()
     	// std::string pathtype = checkPathType();
@@ -352,4 +369,9 @@ std::string	response::errorPage(int code)
 	else if(code == 501)
 		body = generateErrorPages(501);
 	return generateResponseHeader("text/html", std::to_string(body.size()), code) + body;
+}
+
+
+response::~response(){
+	delete this->config;
 }

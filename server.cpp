@@ -8,7 +8,7 @@ int main(int ac, char **av)
     {
         Parsed *pr = new Parsed(av[1]);
 
-        (void)ac;
+        // sigaction(SIGPIPE, 0, NULL);
         // std::cout << (*pr.getserver()->block.begin()).block_name << std::endl;
         // (*pr.getserver()->block.begin()).block_name = "hello";
         // std::cout << ">>> " << (*pr.getserver()->block.begin()).block_name << std::endl;
