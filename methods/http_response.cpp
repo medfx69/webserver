@@ -318,7 +318,11 @@ std::string   response::get_response()
     	// }
 
 	}
-		return errorPage(404);
+	else if(req->method == "DELETE")
+	{
+		DELETE(req->absoluteURI);
+	}
+	return errorPage(404);
 }
 
 std::string	response::status_code(int status_code)

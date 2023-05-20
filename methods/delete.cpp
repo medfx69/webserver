@@ -1,11 +1,3 @@
-#include "../http_TcpServer.hpp"
-#include "methods.hpp"
-
-#include <sys/stat.h>
-#include <stdbool.h>
-#include <iostream>
-#include <cstring>
-#include <dirent.h>
 #include "http_response.hpp"
 
 void  response::f_remove(std::string path)
@@ -21,47 +13,52 @@ std::string response::path_creat(std::string path, std::string join_path)
   return path += "/" + join_path;
 }
 
-bool response::folder_exists(std::string folder_path)
+bool response::DELETE(std::string path)
 {
-  DIR* dir = opendir(folder_path.c_str());
-  del jj;
-  if (dir != NULL)
+  std::string pathtype = checkPathType();
+	if(pathtype == "FOLDER")
   {
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != NULL)
+    del jj;
+    DIR* dir = opendir(path.c_str());
+    if (dir != NULL)
     {
-      if (entry->d_type == DT_REG)
+      struct dirent* entry;
+      while ((entry = readdir(dir)) != NULL)
       {
-        jj.filename = path_creat(folder_path, entry->d_name);
-        std::cout << "File found: " << jj.filename << std::endl;
-        f_remove(jj.filename);
-      }
-      else if (entry->d_type == DT_DIR)
-      {
-        std::string fd = entry->d_name;
-        if(fd == "." || fd == "..")
-          std::cout << entry->d_name << std::endl;
-        else
+        if (entry->d_type == DT_REG)
         {
-          jj.foldername = path_creat(folder_path, entry->d_name);
-          std::cout << "Subdirectory found: " << jj.foldername << std::endl;
-          folder_exists(jj.foldername);
-          f_remove(jj.foldername);
-        } 
+          jj.filename = path_creat(path, entry->d_name);
+          std::cout << "File found: " << jj.filename << std::endl;
+        }
+        else if (entry->d_type == DT_DIR)
+        {
+          std::string fd = entry->d_name;
+          f_remove(jj.filename);
+          if(fd == "." || fd == "..")
+            std::cout << entry->d_name << std::endl;
+          else
+          {
+            jj.foldername = path_creat(path, entry->d_name);
+            std::cout << "Subdirectory found: " << jj.foldername << std::endl;
+            DELETE(jj.foldername);
+            f_remove(jj.foldername);
+          } 
+        }
       }
+      closedir(dir);
+      // return 1;
     }
-    closedir(dir);
-    return 1;
-  }
-  else
+    else
       std::cout << "Folder not found or could not be opened" << std::endl;
+  }
+	else if(pathtype == "FILE")
+    f_remove(path);
   return 0;
 }
-
 // int main()
 // {
 //   std::string fd = "folder";
-//   if(folder_exists(fd))
+//   if(DELETE(fd))
 //     f_remove(fd);
 // }
 
