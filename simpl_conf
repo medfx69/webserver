@@ -11,8 +11,8 @@ server {
 
     location / {
         autoindex ON;
-        try_files $uri $uri/ /index.html;
         root /Users/mait-aad/goinfre/;
+        try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;

@@ -88,7 +88,6 @@ void request::handle_body(client *cl, std::string s)
 					s.resize(0);
 				cl->read_len = save;
 				myfile1.close();
-				std::cout << "here2" << std::endl;
 				return ;
 			}
 		}
@@ -106,7 +105,6 @@ void request::handle_body(client *cl, std::string s)
 				cl->readed = 0;
 				if (ab == s.size() || ab + 2 == s.size())
 					return ;
-				std::cout << "here3" << std::endl;
 				s = s.erase(0, chunk.size() + 2);
 				myfile1.close();
 				handle_body(cl, s);
@@ -115,7 +113,6 @@ void request::handle_body(client *cl, std::string s)
 			{
 				if (save >= s.size())
 					s.resize(0);
-				std::cout << "here4" << std::endl;
 				myfile1.close();
 				return ;
 			}
