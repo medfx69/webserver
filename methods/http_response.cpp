@@ -318,10 +318,10 @@ std::string   response::get_response()
     	// }
 
 	}
-	else if(req->method == "DELETE")
-	{
-		DELETE(req->absoluteURI);
-	}
+	// else if(req->method == "DELETE")
+	// {
+	// 	DELETE(req->absoluteURI);
+	// }
 	return errorPage(404);
 }
 
