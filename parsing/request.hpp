@@ -25,6 +25,7 @@ struct client
         fd_enabeld(en), serverIndex(index), client_fd(fd), chunked(0){
             (void) w_status;
             req = NULL;
+            client_res_message = "";
         }
 };
 
