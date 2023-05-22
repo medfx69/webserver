@@ -34,7 +34,6 @@ namespace http
         std::vector<int> m_socket;
         std::vector<int> m_new_socket;
         std::vector<client> clients;
-        int status;
         struct sockaddr_in m_socketAress;
         int m_socketAddress_len;
         std::string m_serverMessage;

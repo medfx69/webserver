@@ -124,7 +124,6 @@ void http::TcpServer::save(int fd, int client, int size)
 {
     (void)fd;
     std::string s(buffer, size);
-    // std::cout << "hello :" << fd << std::endl;
     if (clients[client].flag == 0 && clients[client].read_status == 0)
         clients[client].req = pars_request(&clients[client], s);
     else if (clients[client].flag == 1)
@@ -200,7 +199,7 @@ void http::TcpServer::startListen(Parsed *data)
                     if (max_fd_check > max_fd_tmp)
                         max_fd_tmp = max_fd_check;
                 }
-                else if (FD_ISSET(i, &readst))
+                else
                 {
                     bytesReceived = read(i, buffer, BUFFER_SIZE);
                     std::cout << buffer << std::endl;
@@ -241,11 +240,10 @@ void http::TcpServer::startListen(Parsed *data)
                     for (; cl2 < clients.size(); cl2++)
                     {
                         if (clients[cl2].client_fd == i){
-                            clients[cl2].read_status = status;
                             break;
                         }
                     }
-                    if (clients[cl2].write_sened == clients[cl2].write_len)
+                    if (clients[cl2].write_sened >= clients[cl2].write_len)
                     {
                         log("======   response messge sended   ======\n");
                         std::cout << clients[cl2].write_sened << "|" << clients[cl2].write_len << std::endl; 
@@ -262,17 +260,16 @@ void http::TcpServer::startListen(Parsed *data)
                         clients[cl2].req = 0;
                         remove(clients[cl2].client_resFile.c_str());
                         remove(clients[cl2].client_body.c_str());
-                        std::cout << "sended :" << clients[cl2].write_len << std::endl;
                         FD_CLR(i, &write_tmp);
                         close(i);
                     }
                 }
-                else if (send < 0)
-                    std::cout << "hello , 0" << std::endl;
+                // else if (send < 0)
                 // {
+
                 //     FD_CLR(i, &write_tmp);
                 //     close(i);
-                // }
+                // } 
             }
         }
         max_fd = max_fd_tmp;
@@ -329,6 +326,7 @@ int http::TcpServer::sendResponse(int fd)
 {
     char wBuffer[BUFFER_SIZE];
     int count = 0;
+    int sended;
 
     size_t cl2 = 0;
     for (; cl2 < clients.size(); cl2++)
@@ -338,8 +336,9 @@ int http::TcpServer::sendResponse(int fd)
     MyResFile.seekg(clients[cl2].write_sened, std::ios::beg);
     MyResFile.read(wBuffer, BUFFER_SIZE);
     count = MyResFile.gcount();
-    clients[cl2].write_sened += count;
     MyResFile.close();
-    std::cout << "readed from the file" << count << std::endl;
-    return (write(fd, wBuffer, count));
+    sended = write(fd, wBuffer, count);
+    if (sended > 0)
+        clients[cl2].write_sened += sended;
+    return sended;
 }
