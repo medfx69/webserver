@@ -158,7 +158,6 @@ std::string    response::checkPathType()
 
 std::string response::createIndexHtml()
 {
-	std::cout << "Generateindex.html\n";
 	DIR* dir = opendir(req->absoluteURI.c_str());
 	if(dir != NULL)
 	{
@@ -185,7 +184,6 @@ std::string response::createIndexHtml()
 
 std::string response::getfile()
 {
-	std::cout << "file: " << req->absoluteURI << std::endl;
 	std::ifstream file(req->absoluteURI);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open file: " << req->absoluteURI << '\n';
@@ -270,7 +268,6 @@ std::string	response::matchLocation()
 {
 	indexLocation = -1;
 	std::string location;
-	std::cout << "absolutURI " + req->absoluteURI << std::endl; 
 	for(size_t i = 0; i < config->location.size(); i++)
 	{
 		if(req->absoluteURI.find(config->location[i].location_name) == 0)
@@ -284,8 +281,6 @@ std::string	response::matchLocation()
 	}
 	if(indexLocation == -1 || config->location[indexLocation].root.empty())
 	{
-		std::cout << "location: " << indexLocation <<std::endl;
-		std::cout << "Bad URL\n";
 		return "";
 	}
 	// std::string path_ = req->absoluteURI.substr(location.size());
@@ -296,7 +291,6 @@ std::string	response::matchLocation()
 
 bool response::methode_allowded(std::string methode)
 {
-	std::cout << "indexlocation-------------------:" << indexLocation << std::endl;
 	if(config->location[indexLocation].methods.empty())
 		return false;
 	for(size_t i = 0; i < config->location[indexLocation].methods.size(); i++)
@@ -319,10 +313,10 @@ std::string generateRandomString(int length) {
 
 void	response::uploadbody()
 {
-	std::string filename = req->absoluteURI + "/"+ generateRandomString(8);
-	if(!req->boundry.empty())
+	std::string filename = req->absoluteURI + "/";
+	if(req->boundry.empty())
 	{
-
+		filename += generateRandomString(8);
 		std::map<std::string, std::string>::iterator it = req->data.find("Content-Type:");
 		if(it != req->data.end())
 		{
@@ -332,41 +326,48 @@ void	response::uploadbody()
 	}
 	else
 	{
-		std::map<std::string, std::string>::iterator it = boundray.find("Content-Disposition:");
-		if(it != boundray.end())
+		std::map<std::string, std::string>::iterator it = boundray.find("Content-Disposition");
+		std::map<std::string, std::string>::iterator it2 = boundray.find("Content-Type");
+		if(it != boundray.end() && it2 != boundray.end())
 		{
-			std::cout << "-uploadbody--------------------------\n";
-			std::cout << Bbody << std::endl;
-			std::cout << "-enduploadbody--------------------------\n";
+			if ((*it).second.find("filename") != std::string::npos)
+			{
+				filename +=	(*it).second.erase(0, (*it).second.find("filename=") + 10);
+			}
+			filename.erase(filename.size() - 1, filename.size());
+
+
 			// if (this->mimeTypeMap2.find((*it).second) != this->mimeTypeMap2.end())
 			// 	filename += "." + (*this->mimeTypeMap2.find((*it).second)).second;
 		}
+		else if (it != boundray.end()) {
+			if ((*it).second.find("name") != std::string::npos)
+			{
+				filename +=	(*it).second.erase(0, (*it).second.find("name=") + 6);
+			}
+			filename.erase(filename.size() - 1, filename.size());
+		}
 	}
-	std::cout << "filename-----------------------" << filename << std::endl;
 	std::ofstream file_content(filename);
 	file_content << Bbody;
 	file_content.close();
 }
 
-int	response::addboundaryheader()
+int	response::addboundaryheader(std::string &file)
 {
 	std::string line;
 	int length = 0;
-	std::getline(bodyfile,line);
+	line = file.substr(0, file.find("\r\n"));
 	while(line.find(':') != std::string::npos)
 	{
-    	size_t colonpos = line.find(':');
-    	if (colonpos != std::string::npos)
-		{
-        	std::string key = line.substr(0, colonpos);
-        	std::string value = line.substr(colonpos + 1);
-        	boundray[key] = value;
-			std::cout << "key >>>" << key << std::endl;
-			std::cout << "value >>>" << value << std::endl;
-    	}
+        std::string key = line.substr(0, line.find(":"));
+        std::string value = line.substr(line.find(":") + 1, line.size());
+        boundray[key] = value;
 		length += line.size();
-    	std::getline(bodyfile, line);
+		file.erase(0, file.find("\r\n") + 2);
+		line = file.substr(0, file.find("\r\n"));
     }
+	file.erase(0, 2);
 	// if(line == "\r")
 	// {
     // 	std::getline(bodyfile, line);
@@ -376,7 +377,6 @@ int	response::addboundaryheader()
 	// std::map<std::string, std::string>::iterator it = boundray.begin();
     // while (it != boundray.end())
 	// {
-    // 	std::cout << "Header: " << it->first << " - Value: " << it->second << std::endl;
     // 	it++;
     // }
 	return length;
@@ -388,7 +388,6 @@ std::string   response::get_response()
 		// return errorPage(501);
 	// if(req->method == "POST" && (req->chunked_transfer_encoding.empty() || req->content-lenght.empty()))
 		// return errorPage(400);
-	std::cout << "URI1: " << req->absoluteURI << std::endl;
 	if(req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
 		return errorPage(400);
 	else if(req->absoluteURI.size() > 2048)
@@ -398,7 +397,6 @@ std::string   response::get_response()
 	req->absoluteURI = matchLocation();
 	if(req->absoluteURI.empty())
 		return errorPage(404);
-	std::cout << "URI2: " << req->absoluteURI << std::endl;
 	if(req->method == "GET")
 	{
 		if(!methode_allowded("GET"))
@@ -414,14 +412,12 @@ std::string   response::get_response()
 	{
 		req->absoluteURI = "/upload";
 		req->absoluteURI = matchLocation();
-		std::cout << "upload----------" << config->location[indexLocation].upload << std::endl;
 		if(!methode_allowded("POST"))
 			return errorPage(405);
 		if(!config->location[indexLocation].upload.empty())
     	{
 			if(!req->boundry.empty())
 			{
-				std::cout << "-----------boundary-------------\n";
 				bodyfile.open(req->body);
     			if (!bodyfile)
 				{
@@ -434,28 +430,19 @@ std::string   response::get_response()
 				bodyfile.clear();
     			bodyfile.seekg(0);
 				std::string line;
-				while(std::getline(bodyfile, line))
-				{
-					if(line == ("--" + req->boundry + "\r"))
-					{
-						if(bodyfile.eof())
-							exit(0);
-						int lenght = line.size();
-						lenght += addboundaryheader();
-    					body.erase(0, lenght);
-						std::cout << "bodynow:\n" << body << std::endl;
-    					size_t boundaryPos = body.find(req->boundry);
-    					if (boundaryPos != std::string::npos) 
-						{
-    					    Bbody = body.substr(0, boundaryPos - 2);
-							body.erase(0,boundaryPos);
-    					}
-    					std::cout << "Bbody:\n" << Bbody << std::endl;
-						uploadbody();
-        				//! uplaod the Post Request Body
-					}
+				std::vector<std::string> bodys;
+				while(body.size()){
+					if (body.substr(0, body.find("\r\n")) == "--" + req->boundry + "--")
+						break;
+					line = body.substr(0, body.find("\r\n"));
+					body = body.erase(0, body.find("\r\n") + 2);
+					addboundaryheader(body);
+  					Bbody = body.substr(0, body.find("--" + req->boundry) - 2);
+					uploadbody();
+					body.erase(0, body.find("--" + req->boundry));
 				}
 			}
+
 			else
 			{
 				std::ifstream bodyfile(req->body);
@@ -463,6 +450,7 @@ std::string   response::get_response()
 				bodycontent << bodyfile.rdbuf();
 				Bbody = bodycontent.str();
 				bodyfile.close();
+				uploadbody();
         		// return errorPage(201);
 			}
     	}
