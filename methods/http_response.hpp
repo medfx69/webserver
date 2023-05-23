@@ -47,7 +47,7 @@ class response
 		bool 		methode_allowded(std::string methode);
 		//post
 		std::string	post();
-		int	addboundaryheader();
+		int	addboundaryheader(std::string &);
 		void	uploadbody();
 		//delete
 		bool DELETE(std::string folder_path);
