@@ -319,12 +319,6 @@ std::string generateRandomString(int length) {
 
 int	response::addboundaryheader()
 {
-	std::ostringstream bodycontent;
-	bodycontent << bodyfile.rdbuf();
-	std::string body = bodycontent.str();
-	
-	bodyfile.clear();
-    bodyfile.seekg(0);
 	std::string line;
 	int length = 0;
 	std::getline(bodyfile,line);
@@ -389,6 +383,7 @@ std::string   response::get_response()
 			if(!req->boundry.empty())
 			{
 				std::cout << "-----------boundary-------------\n";
+				std::cout << "file:---" << req->body << std::endl;
 				bodyfile.open(req->body);
     			if (!bodyfile)
 				{
@@ -398,20 +393,27 @@ std::string   response::get_response()
 				std::ostringstream bodycontent;
 				bodycontent << bodyfile.rdbuf();
 				std::string body = bodycontent.str();
+				std::cout << ":body:" << body << ":body:\n";
+				std::cout << "-boundary::" << req->boundry << std::endl;
+				bodyfile.clear();
+    			bodyfile.seekg(0);
 				std::string line;
 				while(std::getline(bodyfile, line))
 				{
-					if(line == req->boundry)
+					if(line == ("--" + req->boundry + "\r"))
 					{
 						if(bodyfile.eof())
 							exit(0);
-						int lenght = addboundaryheader();
+						int lenght = line.size();
+						lenght += addboundaryheader();
 						std::string body2;
+						std::cout << "lenght: " << lenght << std::endl;
     					body.erase(0, lenght);
+						std::cout << "bodynow:\n" << body << std::endl; 
     					size_t boundaryPos = body.find(req->boundry);
     					if (boundaryPos != std::string::npos) 
 						{
-    					    body2 = body.substr(0, boundaryPos);
+    					    body2 = body.substr(0, boundaryPos - 2);
 							body.erase(0,boundaryPos);
     					}
     					std::cout << "Body: " << body2 << std::endl;
@@ -419,26 +421,26 @@ std::string   response::get_response()
 					}
 				}
 			}
-    	}
-		else
-		{
-        	// uplaod the Post Request Body
-			std::string filename = req->absoluteURI + "/"+ generateRandomString(8);
-			std::map<std::string, std::string>::iterator it = req->data.find("Content-Type:");
-			if(it != req->data.end())
+			else
 			{
-				if (this->mimeTypeMap2.find((*it).second) != this->mimeTypeMap2.end())
-					filename += "." + (*this->mimeTypeMap2.find((*it).second)).second;
+        		// uplaod the Post Request Body
+				std::cout << "----binary----\n";
+				std::string filename = req->absoluteURI + "/"+ generateRandomString(8);
+				std::map<std::string, std::string>::iterator it = req->data.find("Content-Type:");
+				if(it != req->data.end())
+				{
+					if (this->mimeTypeMap2.find((*it).second) != this->mimeTypeMap2.end())
+						filename += "." + (*this->mimeTypeMap2.find((*it).second)).second;
+				}
+				std::cout << "filename-----------------------" << filename << std::endl;
+				std::ofstream file_content(filename);
+				std::ifstream filebody(req->body);
+				file_content << filebody.rdbuf();
+				file_content.close();
+				filebody.close();
+        		// return errorPage(201);
 			}
-			std::cout << "filename-----------------------" << filename << std::endl;
-			std::ofstream file_content(filename);
-			std::ifstream filebody(req->body);
-			std::cout << "boundary is empty---------------------\n";
-			file_content << filebody.rdbuf();
-			file_content.close();
-			filebody.close();
-        	return errorPage(201);
-		}
+    	}
 	}
     	// get_requested_resource()
     	// std::string pathtype = checkPathType();
