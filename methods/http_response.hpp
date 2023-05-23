@@ -17,12 +17,16 @@ class response
 {
 	private:
 		std::map<std::string, std::string> mimeTypeMap;
+		std::map<std::string, std::string> mimeTypeMap2;
 		int indexLocation;
 		request *req;
 		server *config;
 		std::string content_type;
 		int content_lenght;
 		std::string	status;
+		std::ifstream bodyfile;
+		std::map<std::string ,std::string> boundray;
+		std::string Bbody;
 	public:
 		//get
 		response (request* _req,server _config);
@@ -41,12 +45,14 @@ class response
 		std::string generateErrorPages(int status_code);
 		std::string	errorPage(int code);
 		bool 		methode_allowded(std::string methode);
+		//post
+		std::string	post();
+		int	addboundaryheader();
+		void	uploadbody();
 		//delete
 		bool DELETE(std::string folder_path);
 		std::string path_creat(std::string folder_path, std::string join_path);
 		void  f_remove(std::string path);
-		//post
-		std::string	post();
 };
 
 #endif
