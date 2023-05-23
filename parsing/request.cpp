@@ -163,7 +163,9 @@ request::request(client *cl, std::string s)
 			if (tmp2 == "Content-Type:" && tmp3 == "multipart/form-data;")
 			{
 				iss >> boundry;
+				std::cout << "-bbbb-" << iss.str() << std::endl;
 				boundry.erase(0, 9);
+				std::cout << "-bbbb-" << boundry << std::endl;
 			}
 			std::pair<std::string, std::string> pr;
 			pr.first = tmp2;
