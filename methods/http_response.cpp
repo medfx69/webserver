@@ -73,6 +73,75 @@ response::response(request* _req, server _config)
 	mimeTypeMap.insert(std::make_pair("3gp", "video/3gpp audio/3gpp"));
 	mimeTypeMap.insert(std::make_pair("3g2", "video/3gpp2 audio/3gpp2"));
 	mimeTypeMap.insert(std::make_pair("7z", "application/x-7z-compressed"));
+
+	mimeTypeMap2.insert(std::make_pair("audio/aac", "aac"));
+	mimeTypeMap2.insert(std::make_pair("application/x-abiword", "abw"));
+	mimeTypeMap2.insert(std::make_pair("application/octet-stream", "arc"));
+	mimeTypeMap2.insert(std::make_pair("video/x-msvideo", "avi"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.amazon.ebook", "azw"));
+	mimeTypeMap2.insert(std::make_pair("application/octet-stream", "bin"));
+	mimeTypeMap2.insert(std::make_pair("image/bmp", "bmp"));
+	mimeTypeMap2.insert(std::make_pair("application/x-bzip", "bz"));
+	mimeTypeMap2.insert(std::make_pair("application/x-bzip2", "bz2"));
+	mimeTypeMap2.insert(std::make_pair("application/x-csh", "csh"));
+	mimeTypeMap2.insert(std::make_pair("text/css", "css"));
+	mimeTypeMap2.insert(std::make_pair("text/csv", "csv"));
+	mimeTypeMap2.insert(std::make_pair("application/msword", "doc"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "docx"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.ms-fontobject", "eot"));
+	mimeTypeMap2.insert(std::make_pair("application/epub+zip", "epub"));
+	mimeTypeMap2.insert(std::make_pair("image/gif", "gif"));
+	mimeTypeMap2.insert(std::make_pair("text/html", "htm"));
+	mimeTypeMap2.insert(std::make_pair("text/html", "html"));
+	mimeTypeMap2.insert(std::make_pair("image/x-icon", "ico"));
+	mimeTypeMap2.insert(std::make_pair("text/calendar", "ics"));
+	mimeTypeMap2.insert(std::make_pair("application/java-archive", "jar"));
+	mimeTypeMap2.insert(std::make_pair("image/jpeg", "jpeg"));
+	mimeTypeMap2.insert(std::make_pair("image/jpeg", "jpg"));
+	mimeTypeMap2.insert(std::make_pair("application/javascript", "js"));
+	mimeTypeMap2.insert(std::make_pair("application/json", "json"));
+	mimeTypeMap2.insert(std::make_pair("audio/midi", "mid"));
+	mimeTypeMap2.insert(std::make_pair("audio/midi", "midi"));
+	mimeTypeMap2.insert(std::make_pair("video/mpeg", "mpeg"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.apple.installer+xml", "mpkg"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.oasis.opendocument.presentation", "odp"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.oasis.opendocument.spreadsheet", "ods"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.oasis.opendocument.text", "odt"));
+	mimeTypeMap2.insert(std::make_pair("audio/ogg", "oga"));
+	mimeTypeMap2.insert(std::make_pair("video/ogg", "ogv"));
+	mimeTypeMap2.insert(std::make_pair("application/ogg", "ogx"));
+	mimeTypeMap2.insert(std::make_pair("video/mp4", "mp4"));
+	mimeTypeMap2.insert(std::make_pair("font/otf", "otf"));
+	mimeTypeMap2.insert(std::make_pair("image/png", "png"));
+	mimeTypeMap2.insert(std::make_pair("application/pdf", "pdf"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.ms-powerpoint", "ppt"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.openxmlformats-officedocument.presentationml.presentation", "pptx"));
+	mimeTypeMap2.insert(std::make_pair("application/x-rar-compressed", "rar"));
+	mimeTypeMap2.insert(std::make_pair("application/rtf", "rtf"));
+	mimeTypeMap2.insert(std::make_pair("application/x-sh", "sh"));
+	mimeTypeMap2.insert(std::make_pair("image/svg+xml", "svg"));
+	mimeTypeMap2.insert(std::make_pair("application/x-shockwave-flash", "swf"));
+	mimeTypeMap2.insert(std::make_pair("application/x-tar", "tar"));
+	mimeTypeMap2.insert(std::make_pair("image/tiff", "tif"));
+	mimeTypeMap2.insert(std::make_pair("image/tiff", "tiff"));
+	mimeTypeMap2.insert(std::make_pair("application/typescript", "ts"));
+	mimeTypeMap2.insert(std::make_pair("font/ttf", "ttf"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.visio", "vsd"));
+	mimeTypeMap2.insert(std::make_pair("audio/x-wav", "wav"));
+	mimeTypeMap2.insert(std::make_pair("audio/webm", "weba"));
+	mimeTypeMap2.insert(std::make_pair("video/webm", "webm"));
+	mimeTypeMap2.insert(std::make_pair("image/webp", "webp"));
+	mimeTypeMap2.insert(std::make_pair("font/woff", "woff"));
+	mimeTypeMap2.insert(std::make_pair("font/woff2", "woff2"));
+	mimeTypeMap2.insert(std::make_pair("application/xhtml+xml", "xhtml"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.ms-excel", "xls"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx"));
+	mimeTypeMap2.insert(std::make_pair("application/xml", "xml"));
+	mimeTypeMap2.insert(std::make_pair("application/vnd.mozilla.xul+xml", "xul"));
+	mimeTypeMap2.insert(std::make_pair("application/zip", "zip"));
+	mimeTypeMap2.insert(std::make_pair("video/3gpp audio/3gpp", "3gp"));
+	mimeTypeMap2.insert(std::make_pair("video/3gpp2 audio/3gpp2", "3g2"));
+	mimeTypeMap2.insert(std::make_pair("application/x-7z-compressed", "7z"));
 }
 
 
@@ -236,6 +305,44 @@ bool response::methode_allowded(std::string methode)
 	return false;
 }
 
+std::string generateRandomString(int length) {
+    std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    std::string randomString;
+
+    for (int i = 0; i < length; ++i) {
+        int randomIndex = rand() % charset.length();
+        randomString += charset[randomIndex];
+    }
+    return randomString;
+}
+
+
+int	response::addboundaryheader()
+{
+	std::string line;
+	int length = 0;
+	std::getline(bodyfile,line);
+	while(line.find(':') != std::string::npos)
+	{
+    	size_t colonpos = line.find(':');
+    	if (colonpos != std::string::npos)
+		{
+        	std::string key = line.substr(0, colonpos);
+        	std::string value = line.substr(colonpos + 1);
+        	boundray[key] = value;
+    	}
+		length += line.size();
+    	std::getline(bodyfile, line);
+    }
+	// std::map<std::string, std::string>::iterator it = boundray.begin();
+    // while (it != boundray.end())
+	// {
+    // 	std::cout << "Header: " << it->first << " - Value: " << it->second << std::endl;
+    // 	it++;
+    // }
+	return length;
+}
+
 std::string   response::get_response()
 {
 	// if(!req->chunked_transfer_encoding.empty() && req->chunked_transfer_encoding != "chunked")
@@ -266,27 +373,75 @@ std::string   response::get_response()
 	}
 	else if(req->method == "POST")
 	{
-		// ! is_POST_method_allowded_in_location
+		req->absoluteURI = "/upload";
+		req->absoluteURI = matchLocation();
+		std::cout << "upload----------" << config->location[indexLocation].upload << std::endl;
 		if(!methode_allowded("POST"))
 			return errorPage(405);
-		 if(!config->location[indexLocation].upload.empty())
+		if(!config->location[indexLocation].upload.empty())
     	{
-			if(req->data.find("content-type") != req->data.end() && req->data["content-type"].find("multipart/form-data") == 0)
+			if(!req->boundry.empty())
 			{
-					//search for the boundry contain name="file"
-        			// uplaod the Post Request Body
+				std::cout << "-----------boundary-------------\n";
+				std::cout << "file:---" << req->body << std::endl;
+				bodyfile.open(req->body);
+    			if (!bodyfile)
+				{
+    				std::cerr << "Failed to open body file: " << req->body << std::endl;
+    				exit(0);
+				}
+				std::ostringstream bodycontent;
+				bodycontent << bodyfile.rdbuf();
+				std::string body = bodycontent.str();
+				std::cout << ":body:" << body << ":body:\n";
+				std::cout << "-boundary::" << req->boundry << std::endl;
+				bodyfile.clear();
+    			bodyfile.seekg(0);
+				std::string line;
+				while(std::getline(bodyfile, line))
+				{
+					if(line == ("--" + req->boundry + "\r"))
+					{
+						if(bodyfile.eof())
+							exit(0);
+						int lenght = line.size();
+						lenght += addboundaryheader();
+						std::string body2;
+						std::cout << "lenght: " << lenght << std::endl;
+    					body.erase(0, lenght);
+						std::cout << "bodynow:\n" << body << std::endl; 
+    					size_t boundaryPos = body.find(req->boundry);
+    					if (boundaryPos != std::string::npos) 
+						{
+    					    body2 = body.substr(0, boundaryPos - 2);
+							body.erase(0,boundaryPos);
+    					}
+    					std::cout << "Body: " << body2 << std::endl;
+        				//! uplaod the Post Request Body
+					}
+				}
 			}
 			else
 			{
         		// uplaod the Post Request Body
-				req->absoluteURI = "/upload";
-				req->absoluteURI = matchLocation();
-				std::ofstream file_content(req->absoluteURI + "/filename");
-				file_content << req->body;
+				std::cout << "----binary----\n";
+				std::string filename = req->absoluteURI + "/"+ generateRandomString(8);
+				std::map<std::string, std::string>::iterator it = req->data.find("Content-Type:");
+				if(it != req->data.end())
+				{
+					if (this->mimeTypeMap2.find((*it).second) != this->mimeTypeMap2.end())
+						filename += "." + (*this->mimeTypeMap2.find((*it).second)).second;
+				}
+				std::cout << "filename-----------------------" << filename << std::endl;
+				std::ofstream file_content(filename);
+				std::ifstream filebody(req->body);
+				file_content << filebody.rdbuf();
 				file_content.close();
-        		return errorPage(201);
+				filebody.close();
+        		// return errorPage(201);
 			}
     	}
+	}
     	// get_requested_resource()
     	// std::string pathtype = checkPathType();
     	// if(pathtype == "NOT FOUND")
@@ -316,8 +471,6 @@ std::string   response::get_response()
     	//         else
     	//             return errorPage(403);
     	// }
-
-	}
 	// else if(req->method == "DELETE")
 	// {
 	// 	DELETE(req->absoluteURI);

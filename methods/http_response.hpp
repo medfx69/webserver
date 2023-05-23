@@ -17,12 +17,15 @@ class response
 {
 	private:
 		std::map<std::string, std::string> mimeTypeMap;
+		std::map<std::string, std::string> mimeTypeMap2;
 		int indexLocation;
 		request *req;
 		server *config;
 		std::string content_type;
 		int content_lenght;
 		std::string	status;
+		std::ifstream bodyfile;
+		std::map<std::string ,std::string> boundray;
 	public:
 		//get
 		response (request* _req,server _config);
@@ -44,6 +47,7 @@ class response
 		//delete
 		bool DELETE(std::string folder_path);
 		std::string path_creat(std::string folder_path, std::string join_path);
+		int	addboundaryheader();
 		void  f_remove(std::string path);
 		//post
 		std::string	post();

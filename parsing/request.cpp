@@ -132,6 +132,7 @@ request::request(client *cl, std::string s)
 	int i = 0;
 	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile1.open(ss2.str());
+	cl->client_body = ss2.str();
 	if (myfile1.fail())
 		exit(0);
 	size_t endOfHeadres = s.find("\r\n\r\n");
@@ -154,10 +155,18 @@ request::request(client *cl, std::string s)
 		}
 		else if (tmp.find(":") != std::string::npos && cl->flag == 0)
 		{
+
 			std::string tmp2;
 			std::string tmp3;
 			iss >> tmp2;
 			iss >> tmp3;
+			if (tmp2 == "Content-Type:" && tmp3 == "multipart/form-data;")
+			{
+				iss >> boundry;
+				std::cout << "-bbbb-" << iss.str() << std::endl;
+				boundry.erase(0, 9);
+				std::cout << "-bbbb-" << boundry << std::endl;
+			}
 			std::pair<std::string, std::string> pr;
 			pr.first = tmp2;
 			pr.second = tmp3;
