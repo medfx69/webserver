@@ -267,12 +267,11 @@ void http::TcpServer::startListen(Parsed *data)
                         close(i);
                     }
                 }
-                else if (send < 0)
-                    std::cout << "hello , 0" << std::endl;
-                // {
-                //     FD_CLR(i, &write_tmp);
-                //     close(i);
-                // }
+                else if (send == 0)
+                {
+                    FD_CLR(i, &write_tmp);
+                    close(i);
+                }
             }
         }
         max_fd = max_fd_tmp;
@@ -302,8 +301,10 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
         if (clients[cl2].client_fd == cl)
             break;
     }
+    clients[cl2].req->body = clients[cl2].client_body;
     response res(clients[cl2].req, data->getDate()[clients[cl2].serverIndex]);
-    if (clients[cl2].req->method == "GET")
+
+    // if (clients[cl2].req->method == "GET")
         m_serverMessage = res.get_response();
     // i++;
     // else if(data->req->method == "DELETE")
@@ -335,6 +336,8 @@ int http::TcpServer::sendResponse(int fd)
         if (clients[cl2].client_fd == fd)
             break;
     std::ifstream MyResFile(clients[cl2].client_resFile);
+    if (clients[cl2].write_sened > clients[cl2].write_len)
+        return 0;
     MyResFile.seekg(clients[cl2].write_sened, std::ios::beg);
     MyResFile.read(wBuffer, BUFFER_SIZE);
     count = MyResFile.gcount();
