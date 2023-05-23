@@ -330,6 +330,8 @@ int	response::addboundaryheader()
         	std::string key = line.substr(0, colonpos);
         	std::string value = line.substr(colonpos + 1);
         	boundray[key] = value;
+			std::cout << "key >>>" << key << std::endl;
+			std::cout << "value >>>" << value << std::endl;
     	}
 		length += line.size();
     	std::getline(bodyfile, line);
@@ -471,6 +473,8 @@ std::string   response::get_response()
     	//         else
     	//             return errorPage(403);
     	// }
+
+	// }
 	// else if(req->method == "DELETE")
 	// {
 	// 	DELETE(req->absoluteURI);
