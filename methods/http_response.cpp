@@ -299,6 +299,7 @@ bool response::methode_allowded(std::string methode)
 	return false;
 }
 
+
 std::string generateRandomString(int length) {
     std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     std::string randomString;
@@ -309,7 +310,6 @@ std::string generateRandomString(int length) {
     }
     return randomString;
 }
-
 
 void	response::uploadbody()
 {
@@ -331,20 +331,13 @@ void	response::uploadbody()
 		if(it != boundray.end() && it2 != boundray.end())
 		{
 			if ((*it).second.find("filename") != std::string::npos)
-			{
 				filename +=	(*it).second.erase(0, (*it).second.find("filename=") + 10);
-			}
 			filename.erase(filename.size() - 1, filename.size());
-
-
-			// if (this->mimeTypeMap2.find((*it).second) != this->mimeTypeMap2.end())
-			// 	filename += "." + (*this->mimeTypeMap2.find((*it).second)).second;
 		}
-		else if (it != boundray.end()) {
+		else if (it != boundray.end())
+        {
 			if ((*it).second.find("name") != std::string::npos)
-			{
 				filename +=	(*it).second.erase(0, (*it).second.find("name=") + 6);
-			}
 			filename.erase(filename.size() - 1, filename.size());
 		}
 	}
@@ -368,19 +361,57 @@ int	response::addboundaryheader(std::string &file)
 		line = file.substr(0, file.find("\r\n"));
     }
 	file.erase(0, 2);
-	// if(line == "\r")
-	// {
-    // 	std::getline(bodyfile, line);
-	// 	length += line.size();
-	// }
-
-	// std::map<std::string, std::string>::iterator it = boundray.begin();
-    // while (it != boundray.end())
-	// {
-    // 	it++;
-    // }
 	return length;
 }
+
+
+std::string response::post()
+{
+	req->absoluteURI = "/upload";
+	req->absoluteURI = matchLocation();
+	if(!methode_allowded("POST"))
+		return errorPage(405);
+	if(!config->location[indexLocation].upload.empty())
+    {
+		if(!req->boundry.empty())
+		{
+			bodyfile.open(req->body);
+    		if (!bodyfile)
+			{
+    			std::cerr << "Failed to open body file: " << req->body << std::endl;
+    			exit(0);
+			}
+			std::ostringstream bodycontent;
+			bodycontent << bodyfile.rdbuf();
+			std::string body = bodycontent.str();
+			// bodyfile.clear();
+    		// bodyfile.seekg(0);
+			std::string line;
+			while(body.size()){
+				if (body.substr(0, body.find("\r\n")) == "--" + req->boundry + "--")
+					break;
+				line = body.substr(0, body.find("\r\n"));
+				body = body.erase(0, body.find("\r\n") + 2);
+				addboundaryheader(body);
+  				Bbody = body.substr(0, body.find("--" + req->boundry) - 2);
+				uploadbody();
+				body.erase(0, body.find("--" + req->boundry));
+			}
+		}
+		else
+		{
+			std::ifstream bodyfile(req->body);
+			std::ostringstream bodycontent;
+			bodycontent << bodyfile.rdbuf();
+			Bbody = bodycontent.str();
+			bodyfile.close();
+			uploadbody();
+		}
+        return generateResponseHeader("text/html",status_code(201), 201);
+    }
+	return errorPage(404);
+}
+
 
 std::string   response::get_response()
 {
@@ -409,87 +440,7 @@ std::string   response::get_response()
 		return errorPage(404);
 	}
 	else if(req->method == "POST")
-	{
-		req->absoluteURI = "/upload";
-		req->absoluteURI = matchLocation();
-		if(!methode_allowded("POST"))
-			return errorPage(405);
-		if(!config->location[indexLocation].upload.empty())
-    	{
-			if(!req->boundry.empty())
-			{
-				bodyfile.open(req->body);
-    			if (!bodyfile)
-				{
-    				std::cerr << "Failed to open body file: " << req->body << std::endl;
-    				exit(0);
-				}
-				std::ostringstream bodycontent;
-				bodycontent << bodyfile.rdbuf();
-				std::string body = bodycontent.str();
-				bodyfile.clear();
-    			bodyfile.seekg(0);
-				std::string line;
-				std::vector<std::string> bodys;
-				while(body.size()){
-					if (body.substr(0, body.find("\r\n")) == "--" + req->boundry + "--")
-						break;
-					line = body.substr(0, body.find("\r\n"));
-					body = body.erase(0, body.find("\r\n") + 2);
-					addboundaryheader(body);
-  					Bbody = body.substr(0, body.find("--" + req->boundry) - 2);
-					uploadbody();
-					body.erase(0, body.find("--" + req->boundry));
-				}
-			}
-
-			else
-			{
-				std::ifstream bodyfile(req->body);
-				std::ostringstream bodycontent;
-				bodycontent << bodyfile.rdbuf();
-				Bbody = bodycontent.str();
-				bodyfile.close();
-				uploadbody();
-        		// return errorPage(201);
-			}
-    	}
-	}
-    	// get_requested_resource()
-    	// std::string pathtype = checkPathType();
-    	// if(pathtype == "NOT FOUND")
-    	    // return errorPage(404);
-    	// if(pathtype == "FILE")
-    	// {
-    	    // if_location_has_cgi()
-    	    // {
-    	        // run cgi on requested file with POST REQUEST_METHOD
-    	        // Returtn Code Depend on cgi
-    	    // }
-    	    // else 
-    	        // return status_code(403);
-    	// }
-    	// else if(pathtype == "FOLDER")
-    	// {
-    	//         if(req->absoluteURI.back() != '/')
-    	//         {
-    	//                 // make a 301 redirection to request uri with “/” addeed at the end
-    	//                 return errorPage(301);
-    	//         }
-    	//         if(!config->location[indexLocation].index.empty())
-    	//         {
-    	//             req->absoluteURI += config->location[indexLocation].index[0];
-    	//             return getfile();
-    	//         }
-    	//         else
-    	//             return errorPage(403);
-    	// }
-
-	// }
-	// else if(req->method == "DELETE")
-	// {
-	// 	DELETE(req->absoluteURI);
-	// }
+		return this->post();
 	return errorPage(404);
 }
 
@@ -497,6 +448,8 @@ std::string	response::status_code(int status_code)
 {
 	if(status_code == 200)
 		return "HTTP/1.1 200 Ok\r\n";
+	if(status_code == 201)
+		return "HTTP/1.1 201 Created\r\n";
 	if(status_code == 301)
 		return "HTTP/1.1 301 Moved Permanently\r\n";
 	else if(status_code == 400)
@@ -542,7 +495,6 @@ std::string	response::errorPage(int code)
 		body = generateErrorPages(501);
 	return generateResponseHeader("text/html", std::to_string(body.size()), code) + body;
 }
-
 
 response::~response(){
 	delete this->config;
