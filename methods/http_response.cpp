@@ -260,7 +260,6 @@ std::string response::generateResponseHeader(std::string content_type, std::stri
 	header += "server: nginxa\r\n";
 	header += "cache-control: max-age=3600\r\n";
 	header += "date: " + get_date() + "\r\n\r\n";
-	// header += "connection: close\r\n\r\n";
 	return header;
 }
 
@@ -367,12 +366,13 @@ int	response::addboundaryheader(std::string &file)
 
 std::string response::post()
 {
-	req->absoluteURI = "/upload";
-	req->absoluteURI = matchLocation();
+	// req->absoluteURI = "/upload";
+	// req->absoluteURI = matchLocation();
 	if(!methode_allowded("POST"))
 		return errorPage(405);
 	if(!config->location[indexLocation].upload.empty())
     {
+		req->absoluteURI += config->location[indexLocation].upload;
 		if(!req->boundry.empty())
 		{
 			bodyfile.open(req->body);
@@ -426,6 +426,7 @@ std::string   response::get_response()
 	// else if(req->body.size() > std::stoi(config->client_max_body_size))
 		// return errorPage(413);
 	req->absoluteURI = matchLocation();
+	std::cout << "URI---------------- " << req->absoluteURI << std::endl;
 	if(req->absoluteURI.empty())
 		return errorPage(404);
 	if(req->method == "GET")
@@ -441,6 +442,8 @@ std::string   response::get_response()
 	}
 	else if(req->method == "POST")
 		return this->post();
+	else if(req->method == "DELETE" && checkPermission(req->absoluteURI, (checkPathType())))
+			DELETE(req->absoluteURI);
 	return errorPage(404);
 }
 
