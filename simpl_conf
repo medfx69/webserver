@@ -1,78 +1,14 @@
 
 server {
-    listen 127.0.0.1;
-    listen 127.0.0.1:8084;
-    listen 127.0.0.1:8085;
+    listen 127.0.0.1:8080;
     server_name localhost;
     autoindex ON;
-
-    error_page 404 /404.html;
-    error_page 500 502 503 504 /50x.html;
-
-    location / {
-        autoindex ON;
-        methods GET;
-        root /Users/mait-aad/goinfre/;
-        try_files $uri $uri/ /index.html;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
-    }
-    location /maroc {
-        index index.py index.php index.html;
-        methods GET;
-        autoindex ON;
-        try_files $uri $uri/ /index.html;
-        root /Users/mait-aad/Desktop/maroc/;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
-    }
-    location /upload {
-        autoindex ON;
-        methods POST;
-        upload ON;
-        root /Users/mait-aad/Desktop/webserver/upload;
-        try_files $uri $uri/ /index.html;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
-    }
-    client_max_body_size 10m;
+    root /Users/mait-aad/Desktop/webserver;
 }
 
 server {
-    listen 127.0.0.1:8082;
-    server_name localhost;
-
-    root /Users/abayar/Desktop;
-    root /Users/mait-aad/Desktop/webserver;
+    listen 127.0.0.1:8081;
     autoindex ON;
-    error_page 404 /404.html;
-    error_page 500 502 503 504 /50x.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
-    }
-    location /Users/mait-aad/Desktop/webserver/ {
-        try_files $uri $uri/ /index.html;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
-    }
-    location /dsfdsf/dsfdsf/dsf {
-        try_files $uri $uri/ /index.html;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
-    }
-    location /ali/mohamed {
-        try_files $uri $uri2/ /index.html;
-        try_files $uri $uri2/ /index.html;
-        try_files $uri $uri2/ /index.html;
-    }
-    client_max_body_size 10m;
+    root /Users/mait-aad/Desktop/webserver;
+    server_name exmpl.com;
 }
