@@ -76,18 +76,8 @@ bool response::checkPermission(std::string path, std::string i)
 
 bool response::DELETE(std::string path)
 {
-  char *realPath;
-  std::string pathtype = checkPathType();
+  	std::string pathtype = checkPathType();
 
-
-  std::cout <<">>>>>>>>>>>>>>>>>>>>"<< path << std::endl;
-  realPath = realpath(path.c_str(), NULL);
-  if (!realPath)
-      return std::cout << "permission denied" << std::endl;
-  std::string check(realPath);
-  std::cout <<">>>>>>>>>>>>>>>>>>>>"<< check << std::endl;
-  if (check.find(config->location[indexLocation].root) == std::string::npos)
-      return std::cout << "permission denied" << std::endl;
 	if(pathtype == "FOLDER")
 	{
 		del jj;

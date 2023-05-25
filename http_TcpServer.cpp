@@ -250,8 +250,8 @@ void http::TcpServer::startListen(Parsed *data)
                         {
                             FD_SET(i, &write_tmp);
                             FD_CLR(i, &read_tmp);
-                            buildResponse(data, i);
                             reindexing(clients[cl1]);
+                            buildResponse(data, i);
                             std::cout <<">>>>>>>>>>>>>>>>>>>>>>>>>"<< clients[cl1].serverIndex << std::endl;
                         }
                     }
