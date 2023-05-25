@@ -9,10 +9,10 @@ public:
 	std::string root;
 	std::string upload;
 	std::string client_max_body_size;
-	std::vector<std::vector<std::string> > try_files;
-	std::string autoindex;
 	std::vector<std::string> index;
 	std::vector<std::string> methods;
+	std::vector<std::vector<std::string> > try_files;
+	std::string autoindex;
 	std::string chunked_transfer_encoding;
-	Location	&operator=(Location &x);
+	Location &operator=(Location &x);
 };
