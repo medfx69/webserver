@@ -284,6 +284,9 @@ std::string	response::matchLocation()
 	}
 	// std::string path_ = req->absoluteURI.substr(location.size());
 	// if(path_.empty() || path_[0] == '/')
+	// exit(0);
+	if (req->absoluteURI.find(config->location[indexLocation].root) != std::string::npos)
+		return req->absoluteURI;
 	return config->location[indexLocation].root + req->absoluteURI.substr(location.size());
 	// return ";
 }
@@ -431,7 +434,7 @@ std::string   response::get_response()
 	std::cout << req->absoluteURI << std::endl;
 	if (realPath){
 		std::string check(realPath);
-		if (check.find(config->location[indexLocation].root) == std::string::npos){
+		if (check.find(config->root) == std::string::npos){
 			std::cout << "URI---------------- " << req->absoluteURI << std::endl;
 			std::cout << "permission denied" << std::endl;
 			return errorPage(404);
