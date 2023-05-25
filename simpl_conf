@@ -11,7 +11,7 @@ server {
         autoindex ON;
         methods GET;
 
-        root /Users/omar/Desktop/;
+        root /Users/mait-aad/Desktop/;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
@@ -31,7 +31,7 @@ server {
         autoindex ON;
         methods POST;
         upload ON;
-        root /Users/omar/Desktop/webserver/upload;
+        root /Users/mait-aad/Desktop/webserver/upload;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;

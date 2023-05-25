@@ -426,7 +426,17 @@ std::string   response::get_response()
 	// else if(req->body.size() > std::stoi(config->client_max_body_size))
 		// return errorPage(413);
 	req->absoluteURI = matchLocation();
-	std::cout << "URI---------------- " << req->absoluteURI << std::endl;
+	char *realPath;
+	realPath = realpath(req->absoluteURI.c_str(), NULL);
+	std::cout << req->absoluteURI << std::endl;
+	if (realPath){
+		std::string check(realPath);
+		if (check.find(config->location[indexLocation].root) == std::string::npos){
+			std::cout << "URI---------------- " << req->absoluteURI << std::endl;
+			std::cout << "permission denied" << std::endl;
+			return errorPage(404);
+		}
+	}
 	if(req->absoluteURI.empty())
 		return errorPage(404);
 	if(req->method == "GET")
@@ -473,7 +483,7 @@ std::string	response::status_code(int status_code)
 std::string response::generateErrorPages(int code)
 {
 	std::ifstream file;
-	file.open("/Users/omar/Desktop/webserver/error_pages/" + std::to_string(code) + ".html");
+	file.open("./error_pages/" + std::to_string(code) + ".html");
 	std::ostringstream content;
 	content << file.rdbuf();
 	return content.str();
