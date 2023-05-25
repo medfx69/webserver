@@ -53,6 +53,7 @@ class response
 		bool DELETE(std::string folder_path);
 		std::string path_creat(std::string folder_path, std::string join_path);
 		void  f_remove(std::string path);
+		bool checkPermission(std::string path, std::string i);
 };
 
 #endif
