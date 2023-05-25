@@ -107,6 +107,7 @@ bool response::DELETE(std::string path)
 				}
 		  	}
 			closedir(dir);
+			f_remove(path);
 			return 1;
 		}
 		else
