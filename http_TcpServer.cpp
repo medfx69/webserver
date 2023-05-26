@@ -332,19 +332,7 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     }
     clients[cl2].req->body = clients[cl2].client_body;
     response res(clients[cl2].req, data->getDate()[clients[cl2].serverIndex]);
-
-    // if (clients[cl2].req->method == "GET")
-        m_serverMessage = res.get_response();
-    // i++;
-    // else if(data->req->method == "DELETE")
-    //     ;
-    // else if(data->req->method == "POST")
-    //     ;
-    // else {
-    //     std::cerr << "Unsupported HTTP method: " << data->req->method << '\n';
-    //     this->m_serverMessage = "HTTP/1.1 405 Method Not Allowed\r\n\r\n";
-    //     return ;
-    // }
+    m_serverMessage = res.get_response();
 	ss2 << "/tmp/Response_" << clients[cl2].client_fd;
     clients[cl2].client_resFile = ss2.str();
 	myfile1.open(ss2.str());
