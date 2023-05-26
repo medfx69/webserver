@@ -122,6 +122,54 @@ void request::handle_body(client *cl, std::string s)
 	}
 }
 
+// void	replacee( std::string &s, std::string amlo, std::string argan )
+// {
+// 	int index = 0;
+//     int i;
+//     index = s.find(amlo);
+//     if (index == -1)
+//         return ;
+//     s.erase(index, amlo.length());
+//     i = index;
+//     replacee(s, amlo, argan);
+//     s.insert(i, argan);
+// }
+
+// std::string	checkURI(std::string &URI)
+// {
+// 	if (URI.find("%20") != std::string::npos)
+// 		replacee(URI, "%20", " ");
+// 	else if (URI.find("%22") != std::string::npos)
+// 		replacee(URI, "%22", "\"");
+// 	else if (URI.find("%3c") != std::string::npos)
+// 		replacee(URI, "%3c", "<");
+// 	else if (URI.find("%3e") != std::string::npos)
+// 		replacee(URI, "%3e", ">");
+// 	else if (URI.find("%23") != std::string::npos)
+// 		replacee(URI, "%23", "#");
+// 	else if (URI.find("%25") != std::string::npos)
+// 		replacee(URI, "%25", "%");
+// 	else if (URI.find("%7b") != std::string::npos)
+// 		replacee(URI, "%7b", "{");
+// 	else if (URI.find("%7d") != std::string::npos)
+// 		replacee(URI, "%7d", "}");
+// 	else if (URI.find("%7c") != std::string::npos)
+// 		replacee(URI, "%7c", "|");
+// 	else if (URI.find("%5c") != std::string::npos)
+// 		replacee(URI, "%5c", "\\");
+// 	else if (URI.find("%5e") != std::string::npos)
+// 		replacee(URI, "%5e", "^");
+// 	else if (URI.find("%7e") != std::string::npos)
+// 		replacee(URI, "%7e", "~");
+// 	else if (URI.find("%5b") != std::string::npos)
+// 		replacee(URI, "%5b", "[");
+// 	else if (URI.find("%5d") != std::string::npos)
+// 		replacee(URI, "%5d", "]");
+// 	else if (URI.find("%60") != std::string::npos)
+// 		replacee(URI, "%60", "`");
+// 	return URI;
+// }
+
 request::request(client *cl, std::string s)
 {
 	std::ofstream myfile1;
@@ -151,7 +199,7 @@ request::request(client *cl, std::string s)
 			iss >> method;
 			iss >> absoluteURI;
 			iss >> http_version;
-			// std::cout << "method : " << method << " abslu URI: " << absoluteURI << " http Version: " << http_version << std::endl;
+			std::cout << "method : " << method << " abslutURI: " << absoluteURI << " http Version: " << http_version << std::endl;
 		}
 		else if (tmp.find(":") != std::string::npos && cl->flag == 0)
 		{

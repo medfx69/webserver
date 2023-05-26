@@ -1,7 +1,7 @@
 
 server {
     listen 127.0.0.1:8080;
-    server_name localhost;
+
     autoindex ON;
 
     error_page 404 /404.html;
@@ -41,8 +41,8 @@ server {
 }
 
 server {
-    listen 127.0.0.1:8082;
-    server_name localhost;
+    listen 127.0.0.1:8080;
+    server_name wwww;
 
     root /Users/abayar/Desktop;
     root /Users/mait-aad/Desktop/webserver;
