@@ -295,12 +295,11 @@ void http::TcpServer::startListen(Parsed *data)
                         close(i);
                     }
                 }
-                // else if (send < 0)
-                // {
-
-                //     FD_CLR(i, &write_tmp);
-                //     close(i);
-                // } 
+                else if (send < 0)
+                {
+                    FD_CLR(i, &write_tmp);
+                    close(i);
+                } 
             }
         }
         max_fd = max_fd_tmp;
@@ -363,5 +362,6 @@ int http::TcpServer::sendResponse(int fd)
     sended = write(fd, wBuffer, count);
     if (sended > 0)
         clients[cl2].write_sened += sended;
+    std::cout << sended << std::endl;
     return sended;
 }
