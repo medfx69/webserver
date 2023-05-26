@@ -1,0 +1,11 @@
+POST  /s.php HTTP/1.1
+Cookie: 
+Content-Length: 
+Content-Type: 
+User-Agent: PostmanRuntime/7.32.2
+Accept: */*
+Postman-Token: db7d8e20-f010-43e2-9832-4783cf16e645
+Host: 127.0.0.1:7000
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
