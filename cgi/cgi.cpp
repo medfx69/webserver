@@ -1,13 +1,6 @@
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/wait.h>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <map>
-#include <utility>
+#include "cgi.hpp"
 
-char **setVaribels(std::map<std::string, std::string> reqHeader){
+void setVaribels(std::map<std::string, std::string> reqHeader, char ***env){
     if (reqHeader.find("Content-Type:") == reqHeader.end())
     {
         std::pair<std::string, std::string> p ("Content-Type:", "");
@@ -44,20 +37,18 @@ char **setVaribels(std::map<std::string, std::string> reqHeader){
                     const_cast<char*>(("QUERY_STRING: " + (*reqHeader.find("Query-String:")).second).c_str()),
                     const_cast<char*>(("HTTP_COOKIE: " + (*reqHeader.find("Set-Cookie:")).second).c_str())
                     };
-    return s;
+    *env =  s;
 }
 
-void    exec(std::map<std::string, std::string> reqHeader)
-{
-    char* argv[] = {"php-cgi",const_cast<char *>((*reqHeader.find("File_Name:")).second.c_str()), NULL};
+void    exec(std::map<std::string, std::string> reqHeader){
+    char* argv[] = {const_cast<char *>((*reqHeader.find("Program_Name:")).second.c_str()),const_cast<char *>((*reqHeader.find("File_Name:")).second.c_str()), NULL};
     char **env;
-    env = setVaribels(reqHeader);
+    setVaribels(reqHeader, &env);
     execve(argv[0], argv, env);
     perror("execve");
 }
 
-int    exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader)
-{
+int    exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader){
     std::string outFile("out_file");
     int in_fd = open(inFile.c_str(), O_WRONLY);
     int out_fd = open(outFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
@@ -77,21 +68,23 @@ int    exec_outfile(std::string inFile, std::map<std::string, std::string> reqHe
     close(out_fd);
     return 0;
 }
-int main()
-{
-    std::map<std::string, std::string> m;
+// int main()
+// {
+//     std::map<std::string, std::string> m;
 
-    std::pair<std::string, std::string> p6("File_Name:","/Users/mait-aad/Desktop/webserver/cgi/index.php");
-    m.insert(p6);
-    std::pair<std::string, std::string> p("Content-Lengh:","");
-    m.insert(p);
-    std::pair<std::string, std::string> p1("Content-Type:","");
-    m.insert(p1);
-    std::pair<std::string, std::string> p4("Request_Method:","GET");
-    m.insert(p4);
-    std::pair<std::string, std::string> p5("Query-String:", "127.0.0.1:8080/s.php");
-    m.insert(p5);
-    std::pair<std::string, std::string> p0("Set-Cookie:", "");
-    m.insert(p0);
-    exec_outfile("inFile", m);
-}
+//     std::pair<std::string, std::string> p6("File_Name:","/Users/mait-aad/Desktop/webserver/cgi/index.php");
+//     m.insert(p6);
+//     std::pair<std::string, std::string> p8("Program_Name:","php-cgi");
+//     m.insert(p8);
+//     std::pair<std::string, std::string> p("Content-Lengh:","");
+//     m.insert(p);
+//     std::pair<std::string, std::string> p1("Content-Type:","");
+//     m.insert(p1);
+//     std::pair<std::string, std::string> p4("Request_Method:","GET");
+//     m.insert(p4);
+//     std::pair<std::string, std::string> p5("Query-String:", "127.0.0.1:8080/s.php");
+//     m.insert(p5);
+//     std::pair<std::string, std::string> p0("Set-Cookie:", "");
+//     m.insert(p0);
+//     exec_outfile("inFile", m);
+// }
