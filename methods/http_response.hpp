@@ -29,6 +29,7 @@ class response
 		std::string Bbody;
 	public:
 		//get
+		std::string GET();
 		response (request* _req,server _config);
 		~response();
 		std::string	get_response();
@@ -42,18 +43,18 @@ class response
 		std::string	matchLocation();
 		std::string	status_code(int );
 		std::string	get_date();
-		std::string generateErrorPages(int status_code);
-		std::string	errorPage(int code);
+		std::string generateStatusPages(int status_code);
+		std::string	generateResponse(int code);
 		bool 		methode_allowded(std::string methode);
+		std::string cleanupURI(std::string& uri);
 		//post
-		std::string	post();
+		std::string	POST();
 		int	addboundaryheader(std::string &);
 		void	uploadbody();
 		//delete
-		bool DELETE(std::string folder_path);
-		std::string path_creat(std::string folder_path, std::string join_path);
-		void  f_remove(std::string path);
-		bool checkPermission(std::string path, std::string i);
+		std::string	DELETE();
+		bool 		fd_remove(std::string path);
+		bool 		checkPermission(std::string path, std::string i);
 };
 
 #endif

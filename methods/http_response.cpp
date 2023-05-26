@@ -144,87 +144,6 @@ response::response(request* _req, server _config)
 	mimeTypeMap2.insert(std::make_pair("application/x-7z-compressed", "7z"));
 }
 
-
-std::string    response::checkPathType()
-{
-	struct stat st;
-	if(stat(req->absoluteURI.c_str(), &st) != 0)
-		return "NOT FOUND";
-	else if(S_ISDIR(st.st_mode))
-		return "FOLDER";
-	else
-		return "FILE";
-}
-
-std::string response::createIndexHtml()
-{
-	DIR* dir = opendir(req->absoluteURI.c_str());
-	if(dir != NULL)
-	{
-		std::ostringstream htmlfile;
-		htmlfile << "<!DOCTYPE html>\n<html lang=\"en\">\n\t\t<body>\n";
-		struct dirent* entry;
-		while((entry = readdir(dir)) != NULL)
-		{
-			std::string fd = entry->d_name;
-			if(fd == "." || fd == "..")
-				;
-			else
-				htmlfile << "\t\t\t<a href='" << req->absoluteURI << fd << "'>" << fd << "</a><br /><br />" << std::endl;
-		}
-		closedir(dir);
-		htmlfile << "\t\t</body>\n</html>";
-		content_lenght = htmlfile.str().size();
-		status = status_code(200);
-		return generateResponseHeader("text/html", std::to_string(status.size()), 200) + htmlfile.str();
-	}
-	std::string body = generateErrorPages(404);
-	return generateResponseHeader("text/html", std::to_string(body.size()), 404) + body;
-}
-
-std::string response::getfile()
-{
-	std::ifstream file(req->absoluteURI);
-	if (!file.is_open()) {
-		std::cerr << "Failed to open file: " << req->absoluteURI << '\n';
-		return errorPage(404);
-	}
-	std::ostringstream file_content;
-	file_content << file.rdbuf();
-	file.close();
-	return generateResponseHeader(contentType(), std::to_string(file_content.str().size()), 200) + file_content.str();
-}
-
-std::string response::getfolder()
-{
-	if(req->absoluteURI.back() != '/')
-	{
-		req->absoluteURI.push_back('/');
-		// status = 301;
-	}
-	if (!config->location[indexLocation].index.empty())
-	{
-		std::string pathfile;
-		for(size_t i = 0; i < config->location[indexLocation].index.size(); i++)
-		{
-			pathfile = req->absoluteURI + config->location[indexLocation].index[i];
-			std::ifstream file(pathfile);
-			if(file.is_open())
-			{
-				file.close();
-				req->absoluteURI = pathfile;
-				return getfile();
-			}
-		}
-		return errorPage(404);
-	}
-	else if(config->location[indexLocation].autoindex == "ON")
-		return createIndexHtml();
-	else if(config->location[indexLocation].autoindex == "OFF" )
-		return errorPage(403);
-	return errorPage(404);
-}
-
 std::string response::getFileExtension()
 {
 	size_t dotPos = req->absoluteURI.find_last_of('.');
@@ -263,6 +182,22 @@ std::string response::generateResponseHeader(std::string content_type, std::stri
 	return header;
 }
 
+std::string response::cleanupURI(std::string& uri)
+{
+    std::string cleanedURI;
+    std::string::const_iterator it = uri.begin();
+
+    while (it != uri.end())
+    {
+        if (*it != '/')
+            cleanedURI.push_back(*it);
+        else if (cleanedURI.empty() || cleanedURI.back() != '/')
+            cleanedURI.push_back(*it);
+        ++it;
+    }
+    return cleanedURI;
+}
+
 std::string	response::matchLocation()
 {
 	indexLocation = -1;
@@ -279,13 +214,13 @@ std::string	response::matchLocation()
 		}
 	}
 	if(indexLocation == -1 || config->location[indexLocation].root.empty())
-	{
-		return "";
-	}
-	// std::string path_ = req->absoluteURI.substr(location.size());
-	// if(path_.empty() || path_[0] == '/')
-	return config->location[indexLocation].root + req->absoluteURI.substr(location.size());
-	// return ";
+		req->absoluteURI = "";
+	else if (req->absoluteURI.find(config->location[indexLocation].root) != std::string::npos)
+		req->absoluteURI = req->absoluteURI;
+	else
+		req->absoluteURI = config->location[indexLocation].root + req->absoluteURI.substr(location.size());
+	req->absoluteURI = cleanupURI(req->absoluteURI);
+	return req->absoluteURI;
 }
 
 bool response::methode_allowded(std::string methode)
@@ -298,169 +233,55 @@ bool response::methode_allowded(std::string methode)
 	return false;
 }
 
-
-std::string generateRandomString(int length) {
-    std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    std::string randomString;
-
-    for (int i = 0; i < length; ++i) {
-        int randomIndex = rand() % charset.length();
-        randomString += charset[randomIndex];
-    }
-    return randomString;
-}
-
-void	response::uploadbody()
-{
-	std::string filename = req->absoluteURI + "/";
-	if(req->boundry.empty())
-	{
-		filename += generateRandomString(8);
-		std::map<std::string, std::string>::iterator it = req->data.find("Content-Type:");
-		if(it != req->data.end())
-		{
-			if (this->mimeTypeMap2.find((*it).second) != this->mimeTypeMap2.end())
-				filename += "." + (*this->mimeTypeMap2.find((*it).second)).second;
-		}
-	}
-	else
-	{
-		std::map<std::string, std::string>::iterator it = boundray.find("Content-Disposition");
-		std::map<std::string, std::string>::iterator it2 = boundray.find("Content-Type");
-		if(it != boundray.end() && it2 != boundray.end())
-		{
-			if ((*it).second.find("filename") != std::string::npos)
-				filename +=	(*it).second.erase(0, (*it).second.find("filename=") + 10);
-			filename.erase(filename.size() - 1, filename.size());
-		}
-		else if (it != boundray.end())
-        {
-			if ((*it).second.find("name") != std::string::npos)
-				filename +=	(*it).second.erase(0, (*it).second.find("name=") + 6);
-			filename.erase(filename.size() - 1, filename.size());
-		}
-	}
-	std::ofstream file_content(filename);
-	file_content << Bbody;
-	file_content.close();
-}
-
-int	response::addboundaryheader(std::string &file)
-{
-	std::string line;
-	int length = 0;
-	line = file.substr(0, file.find("\r\n"));
-	while(line.find(':') != std::string::npos)
-	{
-        std::string key = line.substr(0, line.find(":"));
-        std::string value = line.substr(line.find(":") + 1, line.size());
-        boundray[key] = value;
-		length += line.size();
-		file.erase(0, file.find("\r\n") + 2);
-		line = file.substr(0, file.find("\r\n"));
-    }
-	file.erase(0, 2);
-	return length;
-}
-
-
-std::string response::post()
-{
-	// req->absoluteURI = "/upload";
-	// req->absoluteURI = matchLocation();
-	if(!methode_allowded("POST"))
-		return errorPage(405);
-	if(!config->location[indexLocation].upload.empty())
-    {
-		req->absoluteURI += config->location[indexLocation].upload;
-		if(!req->boundry.empty())
-		{
-			bodyfile.open(req->body);
-    		if (!bodyfile)
-			{
-    			std::cerr << "Failed to open body file: " << req->body << std::endl;
-    			exit(0);
-			}
-			std::ostringstream bodycontent;
-			bodycontent << bodyfile.rdbuf();
-			std::string body = bodycontent.str();
-			// bodyfile.clear();
-    		// bodyfile.seekg(0);
-			std::string line;
-			while(body.size()){
-				if (body.substr(0, body.find("\r\n")) == "--" + req->boundry + "--")
-					break;
-				line = body.substr(0, body.find("\r\n"));
-				body = body.erase(0, body.find("\r\n") + 2);
-				addboundaryheader(body);
-  				Bbody = body.substr(0, body.find("--" + req->boundry) - 2);
-				uploadbody();
-				body.erase(0, body.find("--" + req->boundry));
-			}
-		}
-		else
-		{
-			std::ifstream bodyfile(req->body);
-			std::ostringstream bodycontent;
-			bodycontent << bodyfile.rdbuf();
-			Bbody = bodycontent.str();
-			bodyfile.close();
-			uploadbody();
-		}
-        return generateResponseHeader("text/html",status_code(201), 201);
-    }
-	return errorPage(404);
-}
-
-
 std::string   response::get_response()
 {
-	// if(!req->chunked_transfer_encoding.empty() && req->chunked_transfer_encoding != "chunked")
-		// return errorPage(501);
-	// if(req->method == "POST" && (req->chunked_transfer_encoding.empty() || req->content-lenght.empty()))
-		// return errorPage(400);
-	if(req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
-		return errorPage(400);
-	else if(req->absoluteURI.size() > 2048)
-		return errorPage(414);
-	// else if(req->body.size() > std::stoi(config->client_max_body_size))
-		// return errorPage(413);
-	req->absoluteURI = matchLocation();
-	std::cout << "URI---------------- " << req->absoluteURI << std::endl;
-	if(req->absoluteURI.empty())
-		return errorPage(404);
-	if(req->method == "GET")
+	std::map<std::string, std::string>::iterator it = req->data.find("Transfer-Encoding:");
+	if(it != req->data.end() && req->data["Transfer-Encoding:"] != "chunked")
+		return generateResponse(501);
+	else if(req->method == "POST" && it == req->data.end())
 	{
-		if(!methode_allowded("GET"))
-			return errorPage(405);
-		std::string pathtype = checkPathType();
-		if(pathtype == "FILE")
-			return getfile();
-		else if(pathtype == "FOLDER")
-			return getfolder();
-		return errorPage(404);
+		std::map<std::string, std::string>::iterator it = req->data.find("content-lenght:");
+		if(it == req->data.end())
+			return generateResponse(400);
 	}
+	if(req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
+		return generateResponse(400);
+	else if(req->absoluteURI.size() > 2048)
+		return generateResponse(414);
+	// else if(req->body.size() > std::stoi(config->client_max_body_size))
+		// return generateResponse(413);
+	if(matchLocation().empty())
+		return generateResponse(404);
+	std::cout << "URI---------------- " << req->absoluteURI << std::endl;
+	if(req->method == "GET")
+		return GET();
 	else if(req->method == "POST")
-		return this->post();
-	else if(req->method == "DELETE" && checkPermission(req->absoluteURI, (checkPathType())))
-			DELETE(req->absoluteURI);
-	return errorPage(404);
+		return POST();
+	else if(req->method == "DELETE")
+			return DELETE();
+	return generateResponse(404);
 }
 
 std::string	response::status_code(int status_code)
 {
 	if(status_code == 200)
 		return "HTTP/1.1 200 Ok\r\n";
-	if(status_code == 201)
+	else if(status_code == 201)
 		return "HTTP/1.1 201 Created\r\n";
-	if(status_code == 301)
+	else if(status_code == 204)
+		return "HTTP/1.1 204 No Content\r\n";
+	else if(status_code == 301)
 		return "HTTP/1.1 301 Moved Permanently\r\n";
 	else if(status_code == 400)
 		return "HTTP/1.1 400 Bad Request\r\n";
+	else if(status_code == 403)
+		return "HTTP/1.1 403 Forbidden\r\n";
 	else if(status_code == 404)
 		return "HTTP/1.1 404 Not Found\r\n";
 	else if(status_code == 405)
 		return "HTTP/1.1 405 Method Not Allowed\r\n";
+	else if(status_code == 409)
+		return "HTTP/1.1 409 Conflict\r\n";
 	else if(status_code == 413)
 		return "HTTP/1.1 413 Request Entity Too Large\r\n";
 	else if(status_code == 414)
@@ -470,7 +291,7 @@ std::string	response::status_code(int status_code)
 	return NULL;
 }
 
-std::string response::generateErrorPages(int code)
+std::string response::generateStatusPages(int code)
 {
 	std::ifstream file;
 	file.open("/Users/omar/Desktop/webserver/error_pages/" + std::to_string(code) + ".html");
@@ -479,23 +300,29 @@ std::string response::generateErrorPages(int code)
 	return content.str();
 }
 
-std::string	response::errorPage(int code)
+std::string	response::generateResponse(int code)
 {
 	std::string body;
-	if(code == 301)
-		body = generateErrorPages(301);
+	if(code == 204)
+		body = generateStatusPages(204);
+	else if(code == 301)
+		body = generateStatusPages(301);
 	else if(code == 400)
-		body = generateErrorPages(400);
+		body = generateStatusPages(400);
+	else if(code == 403)
+		body = generateStatusPages(400);
 	else if(code == 404)
-		body = generateErrorPages(404);
+		body = generateStatusPages(404);
 	else if(code == 405)
-		body = generateErrorPages(405);
+		body = generateStatusPages(405);
+	else if(code == 409)
+		body = generateStatusPages(409);
 	else if(code == 413)
-		body = generateErrorPages(413);
+		body = generateStatusPages(413);
 	else if(code == 414)
-		body = generateErrorPages(414);
+		body = generateStatusPages(414);
 	else if(code == 501)
-		body = generateErrorPages(501);
+		body = generateStatusPages(501);
 	return generateResponseHeader("text/html", std::to_string(body.size()), code) + body;
 }
 
