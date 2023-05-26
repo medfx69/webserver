@@ -8,7 +8,7 @@ public:
 	std::string location_name;
 	std::string root;
 	std::string upload;
-	std::string client_max_body_size;
+	size_t client_max_body_size;
 	std::vector<std::vector<std::string> > try_files;
 	std::string autoindex;
 	std::vector<std::string> index;
