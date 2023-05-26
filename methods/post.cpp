@@ -1,5 +1,6 @@
 #include "http_response.hpp"
 
+
 std::string generateRandomString(int length) {
     std::string charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     std::string randomString;
@@ -64,14 +65,13 @@ int	response::addboundaryheader(std::string &file)
 	return length;
 }
 
-std::string response::post()
+std::string response::POST()
 {
-	req->absoluteURI = "/upload";
-	req->absoluteURI = matchLocation();
 	if(!methode_allowded("POST"))
-		return errorPage(405);
+		return generateResponse(405);
 	if(!config->location[indexLocation].upload.empty())
     {
+		req->absoluteURI += config->location[indexLocation].upload;
 		if(!req->boundry.empty())
 		{
 			bodyfile.open(req->body);
@@ -108,15 +108,13 @@ std::string response::post()
 		}
         return generateResponseHeader("text/html",status_code(201), 201);
     }
-	return errorPage(404);
+	return generateResponse(404);
 }
-
-
 
 // get_requested_resource()
     	// std::string pathtype = checkPathType();
     	// if(pathtype == "NOT FOUND")
-    	    // return errorPage(404);
+    	    // return generateResponse(404);
     	// if(pathtype == "FILE")
     	// {
     	    // if_location_has_cgi()
@@ -132,7 +130,7 @@ std::string response::post()
     	//         if(req->absoluteURI.back() != '/')
     	//         {
     	//                 // make a 301 redirection to request uri with “/” addeed at the end
-    	//                 return errorPage(301);
+    	//                 return generateResponse(301);
     	//         }
     	//         if(!config->location[indexLocation].index.empty())
     	//         {
@@ -140,7 +138,7 @@ std::string response::post()
     	//             return getfile();
     	//         }
     	//         else
-    	//             return errorPage(403);
+    	//             return generateResponse(403);
     	// }
 
 	// }
