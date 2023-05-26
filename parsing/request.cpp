@@ -150,7 +150,7 @@ request::request(client *cl, std::string s)
 		{
 			iss >> method;
 			iss >> absoluteURI;
-			if (absoluteURI.find("?")){
+			if (absoluteURI.find("?") != std::string::npos){
 				std::pair<std::string, std::string> p("Query-String:", absoluteURI.substr(absoluteURI.find("?"), absoluteURI.size()));
 				data.insert(p);
 			}
