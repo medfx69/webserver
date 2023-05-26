@@ -303,6 +303,8 @@ std::string response::generateStatusPages(int code)
 std::string	response::generateResponse(int code)
 {
 	std::string body;
+	if(code == 201)
+		body = generateStatusPages(201);
 	if(code == 204)
 		body = generateStatusPages(204);
 	else if(code == 301)
