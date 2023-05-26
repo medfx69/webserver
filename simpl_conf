@@ -11,7 +11,7 @@ server {
         autoindex ON;
         methods GET;
 
-        root /Users/mait-aad/Desktop/;
+        root /Users/mait-aad/goinfre/;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
