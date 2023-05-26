@@ -15,5 +15,7 @@
 #include "server.hpp"
 #include "request.hpp"
 #include "pars.hpp"
+#include "../cgi/cgi.hpp"
+
 
 #endif
