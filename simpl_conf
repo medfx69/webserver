@@ -39,6 +39,16 @@ server {
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
     }
+    location /cgi-bin/ {
+        autoindex ON;
+        methods POST GET;
+        cgi_path py;
+        root /Users/omar/Desktop/webserver/;
+        try_files $uri $uri/ /index.html;
+        error_page 500 502 503 504 /50x.html;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
+    }
     client_max_body_size 10m;
 }
 

@@ -6,10 +6,8 @@ bool hasWritePermission(const std::string& path)
     if (stat(path.c_str(), &fileInfo) == 0)
 	{
         mode_t mode = fileInfo.st_mode;
-		std::cout << "file==============: " << path << std::endl;
         return (mode & S_IWUSR) != 0;
     }
-	std::cout << "file==============: " << path << std::endl;
     return false;
 }
 
@@ -63,22 +61,18 @@ bool response::fd_remove(std::string path)
 	  	{
 			if (entry->d_type == DT_REG)
 			{
-				std::cout << entry->d_name << std::endl;
 				jj.filename = path + "/" + entry->d_name;
 				remove(jj.filename.c_str());
 			}
 			else if (entry->d_type == DT_DIR)
 			{
 				std::string fd = entry->d_name;
-				if(fd == "." || fd == "..")
-				  std::cout << entry->d_name << std::endl;
-				else
+				if(fd != "." && fd != "..")
 				{
-				  	std::cout << entry->d_name << std::endl;
 					jj.foldername = path + "/" + entry->d_name;
 					fd_remove(jj.foldername);
 					remove(jj.foldername.c_str());
-				} 
+				}
 			}
 	  	}
 		closedir(dir);
@@ -92,16 +86,15 @@ bool response::fd_remove(std::string path)
 
 std::string response::DELETE()
 {
+	if(!methode_allowded("DELETE"))
+		return generateResponse(405);
 	std::string type = checkPathType();
 	if(type == "NOT FOUND")
 		return generateResponse(404);
 	else if(type == "FOLDER" && req->absoluteURI.back() != '/')
 		return generateResponse(409);
 	else if(!checkPermission(req->absoluteURI, type))
-	{
-		std::cout << "permission\n";
 		return generateResponse(403);
-	}
 	if(type == "FILE")
 		remove(req->absoluteURI.c_str());
 	else if(type == "FOLDER")
