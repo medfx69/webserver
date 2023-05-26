@@ -24,7 +24,7 @@ server {
         methods GET;
         autoindex ON;
         try_files $uri $uri/ /index.html;
-        root /Users/mait-aad/Desktop/maroc/;
+        root /Users/omar/Desktop/maroc/;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
@@ -46,7 +46,7 @@ server {
     listen 127.0.0.1:8082;
     server_name localhost;
 
-    root /Users/abayar/Desktop;
+    root /Users/omar/Desktop;
     root /Users/omar/Desktop/webserver;
     autoindex ON;
     error_page 404 /404.html;
