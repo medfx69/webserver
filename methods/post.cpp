@@ -34,12 +34,14 @@ void	response::uploadbody()
 				filename +=	(*it).second.erase(0, (*it).second.find("filename=") + 10);
 			filename.erase(filename.size() - 1, filename.size());
 		}
-		else if (it != boundray.end())
-        {
-			if ((*it).second.find("name") != std::string::npos)
-				filename +=	(*it).second.erase(0, (*it).second.find("name=") + 6);
-			filename.erase(filename.size() - 1, filename.size());
-		}
+		else
+			filename += generateRandomString(8);
+		// else if (it != boundray.end())
+        // {
+		// 	if ((*it).second.find("name") != std::string::npos)
+		// 		filename +=	(*it).second.erase(0, (*it).second.find("name=") + 6);
+		// 	filename.erase(filename.size() - 1, filename.size());
+		// }
 	}
 	std::ofstream file_content(filename);
 	file_content << Bbody;
