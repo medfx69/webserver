@@ -34,8 +34,7 @@ void request::handle_body(client *cl, std::string s)
 
 	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile1.open(ss2.str(), std::ofstream::app);
-	if (cl->chunked == 0 && cl->read_len)
-	{
+	if (cl->chunked == 0 && cl->read_len){
 		myfile1 << s;
 		cl->readed += s.size();
 		if (cl->readed >= cl->read_len)
@@ -122,6 +121,16 @@ void request::handle_body(client *cl, std::string s)
 	}
 }
 
+int check_header(const std::string &s)
+{
+	for (size_t i = 0; i < s.length(); i++)
+	{
+		if (!isalpha(s[i]) && s[i] != '-')
+			return 0;
+	}
+	return 1;
+}
+
 request::request(client *cl, std::string s)
 {
 	std::ofstream myfile1;
@@ -159,7 +168,7 @@ request::request(client *cl, std::string s)
 		}
 		else if (tmp.find(":") != std::string::npos && cl->flag == 0)
 		{
-
+			check_header(tmp.substr(0, tmp.find(":")));
 			std::string tmp2;
 			std::string tmp3;
 			iss >> tmp2;

@@ -1,6 +1,4 @@
 #include "http_TcpServer.hpp"
-
-#define IMHERE std::cout << __FILE__ << ":" << __LINE__ << " executed\n";
 void log(const std::string &message)
 {
     std::cout << message << std::endl;
@@ -94,11 +92,8 @@ int http::TcpServer::acceptConnection(int fd)
         if (m_socket[c] == fd)
             break;
     }
-    std::cout << "socket: " << m_socket[c] << std::endl;
     m_socketAress = class_m_socketAress[c];
     m_socketAddress_len = class_m_socketAddress_len[c];
-    std::cout << inet_ntoa(m_socketAress.sin_addr) << std::endl;
-    std::cout << ntohs(m_socketAress.sin_port) << std::endl;
     new_socket = accept(fd, (sockaddr *)&m_socketAress, (socklen_t *)&m_socketAddress_len);
     if (new_socket < 0)
     {
@@ -139,6 +134,14 @@ void http::TcpServer::save(int fd, int client, int size)
 {
     (void)fd;
     std::string s(buffer, size);
+    std::ofstream myfile;
+    std::ostringstream ss2;
+
+    ss2 << "/tmp/req_" << clients[client].client_fd;
+    myfile.open(ss2.str(), std::ofstream::app);
+    myfile << buffer;
+    myfile.close();
+    clients[client].client_reqFile = ss2.str();
     if (clients[client].flag == 0 && clients[client].read_status == 0)
         clients[client].req = pars_request(&clients[client], s);
     else if (clients[client].flag == 1)
@@ -276,7 +279,6 @@ void http::TcpServer::startListen(Parsed *data)
                     if (clients[cl2].write_sened >= clients[cl2].write_len)
                     {
                         log("======   response messge sended   ======\n");
-                        std::cout << clients[cl2].write_sened << "|" << clients[cl2].write_len << std::endl; 
                         clients[cl2].read_status = 0;
                         clients[cl2].flag = 0;
                         clients[cl2].write_len = 0;
@@ -289,6 +291,7 @@ void http::TcpServer::startListen(Parsed *data)
                         delete clients[cl2].req;
                         clients[cl2].req = 0;
                         remove(clients[cl2].client_resFile.c_str());
+                        remove(clients[cl2].client_reqFile.c_str());
                         remove(clients[cl2].client_body.c_str());
                         FD_CLR(i, &write_tmp);
                         close(i);
@@ -332,8 +335,8 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     response res(clients[cl2].req, data->getDate()[clients[cl2].serverIndex]);
     m_serverMessage = res.get_response();
 	ss2 << "/tmp/Response_" << clients[cl2].client_fd;
-    clients[cl2].client_resFile = ss2.str();
 	myfile1.open(ss2.str());
+    clients[cl2].client_resFile = ss2.str();
     myfile1 << this->m_serverMessage;
     myfile1.close();
     clients[cl2].write_len = this->m_serverMessage.size();
