@@ -169,6 +169,8 @@ std::vector<Location> pars_locations(data_reader data)
 				adder.second = tmp2;
 				x.error_page.push_back(adder);
 			}
+			else if(tmp.compare("cgi_path") == 0)
+				x.cgi_path = tmp2;
 			else if (!tmp.empty())
 			{
 				std::cerr << "Error: Bad config file.\n";

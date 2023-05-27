@@ -14,5 +14,6 @@ public:
 	std::vector<std::string> index;
 	std::vector<std::string> methods;
 	std::string chunked_transfer_encoding;
+	std::string	cgi_path;
 	Location	&operator=(Location &x);
 };

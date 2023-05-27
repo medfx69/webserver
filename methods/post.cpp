@@ -34,12 +34,14 @@ void	response::uploadbody()
 				filename +=	(*it).second.erase(0, (*it).second.find("filename=") + 10);
 			filename.erase(filename.size() - 1, filename.size());
 		}
-		else if (it != boundray.end())
-        {
-			if ((*it).second.find("name") != std::string::npos)
-				filename +=	(*it).second.erase(0, (*it).second.find("name=") + 6);
-			filename.erase(filename.size() - 1, filename.size());
-		}
+		else
+			filename += generateRandomString(8);
+		// else if (it != boundray.end())
+        // {
+		// 	if ((*it).second.find("name") != std::string::npos)
+		// 		filename +=	(*it).second.erase(0, (*it).second.find("name=") + 6);
+		// 	filename.erase(filename.size() - 1, filename.size());
+		// }
 	}
 	std::ofstream file_content(filename);
 	file_content << Bbody;
@@ -64,27 +66,22 @@ int	response::addboundaryheader(std::string &file)
 	return length;
 }
 
-std::string response::post()
+std::string response::POST()
 {
-	req->absoluteURI = "/upload";
-	req->absoluteURI = matchLocation();
 	if(!methode_allowded("POST"))
-		return errorPage(405);
+		return generateResponse(405);
 	if(!config->location[indexLocation].upload.empty())
     {
+		req->absoluteURI += config->location[indexLocation].upload;
+		req->absoluteURI = cleanupURI(req->absoluteURI);
 		if(!req->boundry.empty())
 		{
 			bodyfile.open(req->body);
     		if (!bodyfile)
-			{
-    			std::cerr << "Failed to open body file: " << req->body << std::endl;
-    			exit(0);
-			}
+				return generateResponse(404);
 			std::ostringstream bodycontent;
 			bodycontent << bodyfile.rdbuf();
 			std::string body = bodycontent.str();
-			// bodyfile.clear();
-    		// bodyfile.seekg(0);
 			std::string line;
 			while(body.size()){
 				if (body.substr(0, body.find("\r\n")) == "--" + req->boundry + "--")
@@ -106,45 +103,38 @@ std::string response::post()
 			bodyfile.close();
 			uploadbody();
 		}
-        return generateResponseHeader("text/html",status_code(201), 201);
+		return generateResponse(201);
     }
-	return errorPage(404);
+    if(config->location[indexLocation].cgi_path.empty())
+		return generateResponse(403);
+    std::string pathtype = checkPathType();
+	if(pathtype == "NOT FOUND")
+		return generateResponse(404);
+	if(pathtype == "FILE")
+	{
+		std::string extention = getFileExtension();
+		if(config->location[indexLocation].cgi_path == extention)
+			return "CGI";
+	}
+	else if(pathtype == "FOLDER")
+	{
+		if (!config->location[indexLocation].index.empty())
+		{
+			std::string pathfile;
+			for(size_t i = 0; i < config->location[indexLocation].index.size(); i++)
+			{
+				pathfile = req->absoluteURI + config->location[indexLocation].index[i];
+    	        pathfile = cleanupURI(pathfile);
+				std::ifstream file(pathfile);
+				if(file.is_open())
+				{
+					file.close();
+					req->absoluteURI = pathfile;
+					return "CGI";
+				}
+			}
+		}
+		return generateResponse(403);
+	}
+	return generateResponse(404);
 }
-
-
-
-// get_requested_resource()
-    	// std::string pathtype = checkPathType();
-    	// if(pathtype == "NOT FOUND")
-    	    // return errorPage(404);
-    	// if(pathtype == "FILE")
-    	// {
-    	    // if_location_has_cgi()
-    	    // {
-    	        // run cgi on requested file with POST REQUEST_METHOD
-    	        // Returtn Code Depend on cgi
-    	    // }
-    	    // else 
-    	        // return status_code(403);
-    	// }
-    	// else if(pathtype == "FOLDER")
-    	// {
-    	//         if(req->absoluteURI.back() != '/')
-    	//         {
-    	//                 // make a 301 redirection to request uri with “/” addeed at the end
-    	//                 return errorPage(301);
-    	//         }
-    	//         if(!config->location[indexLocation].index.empty())
-    	//         {
-    	//             req->absoluteURI += config->location[indexLocation].index[0];
-    	//             return getfile();
-    	//         }
-    	//         else
-    	//             return errorPage(403);
-    	// }
-
-	// }
-	// else if(req->method == "DELETE")
-	// {
-	// 	DELETE(req->absoluteURI);
-	// }

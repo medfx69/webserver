@@ -252,7 +252,6 @@ void http::TcpServer::startListen(Parsed *data)
                             FD_CLR(i, &read_tmp);
                             reindexing(clients[cl1]);
                             buildResponse(data, i);
-                            std::cout <<">>>>>>>>>>>>>>>>>>>>>>>>>"<< clients[cl1].serverIndex << std::endl;
                         }
                     }
                     else
@@ -362,6 +361,5 @@ int http::TcpServer::sendResponse(int fd)
     sended = write(fd, wBuffer, count);
     if (sended > 0)
         clients[cl2].write_sened += sended;
-    std::cout << sended << std::endl;
     return sended;
 }
