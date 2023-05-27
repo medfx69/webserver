@@ -37,13 +37,21 @@ std::string response::createIndexHtml()
 
 std::string response::getfile()
 {
-	std::cout << "path: " << req->absoluteURI << std::endl;
     std::string extension = getFileExtension();
     if(!config->location[indexLocation].cgi_path.empty()
         && config->location[indexLocation].cgi_path == extension)
     {
-        return "CGI\n";
-        // return exec_outfile(req->absoluteURI, );
+		std::string e = req->absoluteURI.substr(req->absoluteURI.find("."), req->absoluteURI.size());
+		if (e == ".py"){
+			std::pair<std::string, std::string> p("Program_Name:", "./cgi/python-cgi");
+			req->data.insert(p);
+		}
+		else if (e == ".php"){
+			std::pair<std::string, std::string> p("Program_Name:","./cgi/php-cgi");
+			req->data.insert(p);
+
+		}
+        return exec_outfile(req->client_reqFile, req->data);
     }
 	std::ifstream file(req->absoluteURI);
 	if (!file.is_open())

@@ -299,9 +299,10 @@ std::string response::get_response()
 	// else if(req->body.size() > std::stoi(config->client_max_body_size))
 	// return generateResponse(413);
 	req->absoluteURI = checkURI(req->absoluteURI);
+	std::pair<std::string, std::string>p2("File_Name:", req->absoluteURI.substr(0, req->absoluteURI.size()));
+	req->data.insert(p2);
 	if (matchLocation().empty())
 		return generateResponse(404);
-	std::cout << "URI---------------- " << req->absoluteURI << std::endl;
 	if (req->method == "GET")
 		return GET();
 	else if (req->method == "POST")
