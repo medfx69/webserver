@@ -11,7 +11,6 @@ std::vector<std::string> copyy(std::vector<std::string> &x)
 
 server &server::operator=(server &x)
 {
-	std::cout << "copy assignement operator\n";
 	autoindex = x.autoindex;
 	chunked_transfer_encoding = x.chunked_transfer_encoding;
 	server_name = x.server_name;

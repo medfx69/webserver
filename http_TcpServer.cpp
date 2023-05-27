@@ -333,6 +333,9 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
             break;
     }
     clients[cl2].req->body = clients[cl2].client_body;
+    clients[cl2].req->client_reqFile = clients[cl2].client_reqFile;
+    std::pair<std::string, std::string>p("Request-Method:",  clients[cl2].req->method);
+     clients[cl2].req->data.insert(p);
     response res(clients[cl2].req, data->getDate()[clients[cl2].serverIndex]);
     m_serverMessage = res.get_response();
     ss2 << "/tmp/Response_" << clients[cl2].client_fd;

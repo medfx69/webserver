@@ -142,10 +142,7 @@ std::vector<Location> pars_locations(data_reader data)
 			if (tmp.compare("try_files") == 0)
 				x.try_files.push_back(parser_helper(*iite2));
 			else if (tmp.compare("client_max_body_size") == 0)
-			{
 				x.client_max_body_size = stol(tmp2);
-				std::cout << x.client_max_body_size << std::endl;
-			}
 			else if (tmp.compare("root") == 0)
 				x.root = tmp2;
 			else if (tmp.compare("autoindex") == 0)

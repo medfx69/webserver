@@ -1,80 +1,86 @@
 #include "cgi.hpp"
 
-void setVaribels(std::map<std::string, std::string> reqHeader)
-{
+char  **setVaribels(std::map<std::string, std::string> reqHeader){
     if (reqHeader.find("Content-Type:") == reqHeader.end())
     {
-        std::pair<std::string, std::string> p("Content-Type:", "");
+        std::pair<std::string, std::string> p ("Content-Type:", "");
         reqHeader.insert(p);
     }
-    if (reqHeader.find("Content-Lengh:") == reqHeader.end())
+    if (reqHeader.find("Content-Length:") == reqHeader.end())
     {
-        std::pair<std::string, std::string> p("Content-Lengh:", "0");
+        std::pair<std::string, std::string> p ("Content-Length:", "0");
         reqHeader.insert(p);
     }
-    if (reqHeader.find("Content-Length") == reqHeader.end())
+    if (reqHeader.find("Cookie:") == reqHeader.end())
     {
-        std::pair<std::string, std::string> p("Content-Length", "");
-        reqHeader.insert(p);
-    }
-    if (reqHeader.find("Set-Cookie:") == reqHeader.end())
-    {
-        std::pair<std::string, std::string> p("Set-Cookie:", "");
+        std::pair<std::string, std::string> p ("Cookie:", "");
         reqHeader.insert(p);
     }
     if (reqHeader.find("Request-Method:") == reqHeader.end())
     {
-        std::pair<std::string, std::string> p("Request-Method:", "");
+        std::pair<std::string, std::string> p ("Request-Method:", "");
         reqHeader.insert(p);
     }
     if (reqHeader.find("Query-String:") == reqHeader.end())
     {
-        std::pair<std::string, std::string> p("Query-String:", "");
+        std::pair<std::string, std::string> p ("Query-String:", "");
         reqHeader.insert(p);
     }
-    // char *s[] =
-    // *env = s;
+    char **s;
+    s = new char*[5];
+    std::string s0 = "CONTENT_TYPE: " + (*reqHeader.find("Content-Type:")).second;
+    s[0] = new char[s0.size()];
+    std::strcpy(s[0], const_cast<char *>(s0.c_str()));
+    std::string s1 = "REQUEST_METHOD: " + (*reqHeader.find("Request-Method:")).second;
+    s[1] = new char[s1.size()];
+    std::strcpy(s[1], const_cast<char *>(s1.c_str()));
+    std::string s2 = "CONTENT_LENGTH: " + (*reqHeader.find("Content-Length:")).second;
+    s[2] = new char[s2.size()];
+    std::strcpy(s[2], const_cast<char *>(s2.c_str()));
+    std::string s3 = "QUERY_STRING: " + (*reqHeader.find("Query-String:")).second;
+    s[3] = new char[s3.size()];
+    std::strcpy(s[3], const_cast<char *>(s3.c_str()));
+    std::string s4 = "HTTP_COOKIE: " + (*reqHeader.find("Cookie:")).second;
+    s[4] = new char[s4.size()];
+    std::strcpy(s[4], const_cast<char *>(s4.c_str()));
+
+    s[5] = NULL;
+    return s;
 }
 
-void exec(std::map<std::string, std::string> reqHeader)
-{
-    char *argv[] = {const_cast<char *>((*reqHeader.find("Program_Name:")).second.c_str()), const_cast<char *>((*reqHeader.find("File_Name:")).second.c_str()), NULL};
-    std::string conT = "CONTENT_TYPE: ";
-    std::string conL = "CONTENT_LENGTH: ";
-    std::string reqM = "REQUEST_METHOD: ";
-    std::string qryS = "QUERY_STRING: ";
-    std::string setC = "SET_COOKIE: ";
-    char *env[] = {const_cast<char *>((conT + (*reqHeader.find("Content-Type:")).second).c_str()),
-                   const_cast<char *>((reqM + (*reqHeader.find("Request_Method:")).second).c_str()),
-                   const_cast<char *>((conL + (*reqHeader.find("Content-Lengh:")).second).c_str()),
-                   const_cast<char *>((qryS + (*reqHeader.find("Query-String:")).second).c_str()),
-                   const_cast<char *>((setC + (*reqHeader.find("Set-Cookie:")).second).c_str())};
-    ;
-    // setVaribels(reqHeader, &env);
+void    exec(std::map<std::string, std::string> reqHeader){
+    char* argv[] = {const_cast<char *>((*reqHeader.find("Program_Name:")).second.c_str()),const_cast<char *>((*reqHeader.find("File_Name:")).second.c_str()), NULL};
+    char **env;
+    env = setVaribels(reqHeader);
     execve(argv[0], argv, env);
-    perror("execve");
+    exit(1);
 }
 
-int exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader)
-{
+std::string    exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader){
     std::string outFile("out_file");
-    int in_fd = open(inFile.c_str(), O_WRONLY);
-    int out_fd = open(outFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    std::string outFileStr;
+    int         in_fd = open(inFile.c_str(), O_WRONLY);
+    int         out_fd = open(outFile.c_str(), O_WRONLY | O_CREAT);
 
     pid_t pid = fork();
     if (pid == -1)
-        return 1;
-    if (pid == 0)
-    {
+        return "";
+    if (pid == 0){
+
         dup2(in_fd, 0);
         dup2(out_fd, 1);
         exec(reqHeader);
-        exit(1);
     }
     waitpid(pid, NULL, WNOHANG);
     close(in_fd);
     close(out_fd);
-    return 0;
+
+    std::ifstream file(outFile);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    outFileStr = buffer.str();
+    file.close();
+    return outFileStr;
 }
 // int main()
 // {
@@ -84,11 +90,11 @@ int exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeade
 //     m.insert(p6);
 //     std::pair<std::string, std::string> p8("Program_Name:","php-cgi");
 //     m.insert(p8);
-//     std::pair<std::string, std::string> p("Content-Lengh:","");
+//     std::pair<std::string, std::string> p("Content-Length:","");
 //     m.insert(p);
 //     std::pair<std::string, std::string> p1("Content-Type:","");
 //     m.insert(p1);
-//     std::pair<std::string, std::string> p4("Request_Method:","GET");
+//     std::pair<std::string, std::string> p4("Request-Method:","GET");
 //     m.insert(p4);
 //     std::pair<std::string, std::string> p5("Query-String:", "127.0.0.1:8080/s.php");
 //     m.insert(p5);

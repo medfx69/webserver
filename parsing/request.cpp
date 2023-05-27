@@ -11,7 +11,6 @@ void end_of_headers(request *req, client *cl)
 	{
 		try
 		{
-			std::cout << ">>>>>>>> this is it" << req->data.find("Content-Length:")->second << std::endl;
 			cl->read_len = stol(req->data.find("Content-Length:")->second);
 		}
 		catch (std::exception &x)
@@ -146,9 +145,7 @@ request::request(client *cl, std::string s)
 		exit(0);
 	size_t endOfHeadres = s.find("\r\n\r\n");
 	if (endOfHeadres == std::string::npos)
-	{
 		std::cout << "error\n";
-	}
 	tmp1 = s.substr(0, endOfHeadres);
 	s = s.erase(0, s.find("\r\n\r\n") + 4);
 	std::stringstream ss(tmp1);
@@ -162,6 +159,7 @@ request::request(client *cl, std::string s)
 			if (absoluteURI.find("?") != std::string::npos){
 				std::pair<std::string, std::string> p("Query-String:", absoluteURI.substr(absoluteURI.find("?"), absoluteURI.size()));
 				data.insert(p);
+				absoluteURI = absoluteURI.substr(0, absoluteURI.find("?"));
 			}
 			iss >> http_version;
 			// std::cout << "method : " << method << " abslutURI: " << absoluteURI << " http Version: " << http_version << std::endl;
@@ -176,9 +174,7 @@ request::request(client *cl, std::string s)
 			if (tmp2 == "Content-Type:" && tmp3 == "multipart/form-data;")
 			{
 				iss >> boundry;
-				std::cout << "-bbbb-" << iss.str() << std::endl;
 				boundry.erase(0, 9);
-				std::cout << "-bbbb-" << boundry << std::endl;
 			}
 			std::pair<std::string, std::string> pr;
 			pr.first = tmp2;
