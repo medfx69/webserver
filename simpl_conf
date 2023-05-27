@@ -9,9 +9,9 @@ server {
 
     location / {
         autoindex ON;
-        methods GET;
 
-        root /Users/mait-aad/goinfre/;
+        methods DELETE;
+        root /Users/mait-aad/Desktop/webserver/;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
@@ -19,20 +19,9 @@ server {
     }
     location /maroc {
         index index.py index.php index.html;
-        methods GET;
         autoindex ON;
         try_files $uri $uri/ /index.html;
-        root /Users/mait-aad/Desktop/maroc/;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
-    }
-    location /upload {
-        autoindex ON;
-        methods POST;
-        upload ON;
-        root /Users/mait-aad/Desktop/webserver/upload;
-        try_files $uri $uri/ /index.html;
+        root /Users/omar/Desktop/maroc/;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
@@ -44,8 +33,8 @@ server {
     listen 127.0.0.1:8080;
     server_name wwww;
 
-    root /Users/abayar/Desktop;
-    root /Users/mait-aad/Desktop/webserver;
+    root /Users/omar/Desktop;
+    root /Users/omar/Desktop/webserver;
     autoindex ON;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
