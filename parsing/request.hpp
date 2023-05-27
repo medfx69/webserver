@@ -7,6 +7,7 @@ class request;
 struct client
 {
     std::string     client_resFile;
+    std::string     client_reqFile;
     std::string     client_body;
     std::string     client_res_message;
     request         *req;
