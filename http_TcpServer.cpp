@@ -18,9 +18,7 @@ http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket
             m_ip_address.push_back((_data->getDate()[i]).listen[j].first);
             m_port.push_back(std::stoi((_data->getDate()[i]).listen[j].second));
             m_socketAress.sin_family = AF_INET;
-            std::cout << "port :" << m_port[j] << std::endl;
             m_socketAress.sin_port = htons(m_port[j]);
-            std::cout << "addres :" << m_ip_address[j] << std::endl;
             m_socketAress.sin_addr.s_addr = inet_addr(m_ip_address[j].c_str());
             m_socketAddress_len = sizeof(m_socketAress);
             class_m_socketAddress_len.push_back(m_socketAddress_len);
@@ -43,9 +41,10 @@ http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket
     }
 }
 
-int http::TcpServer::chekPort(int p, size_t i){
-    std::cout << m_a_port[i] << std::endl;
-    for (size_t j = 0; j < m_a_port.size(); j++){
+int http::TcpServer::chekPort(int p, size_t i)
+{
+    for (size_t j = 0; j < m_a_port.size(); j++)
+    {
         if (j != i && m_a_port[j] == p)
             return 1;
     }
@@ -168,10 +167,13 @@ int http::TcpServer::findIndex(int fd)
     return (0);
 }
 
-void http::TcpServer::reindexing(client &c){
-    for (size_t i = 0; i < _data->getDate().size(); i++){
-        if (_data->getDate()[i].server_name.size()){
-            std::map<std::string, std::string >::iterator it = c.req->data.find("Host:");
+void http::TcpServer::reindexing(client &c)
+{
+    for (size_t i = 0; i < _data->getDate().size(); i++)
+    {
+        if (_data->getDate()[i].server_name.size())
+        {
+            std::map<std::string, std::string>::iterator it = c.req->data.find("Host:");
             if (it != c.req->data.end())
             {
                 if ((*it).second == _data->getDate()[i].server_name && m_socket_c[i] == -1)
@@ -181,8 +183,6 @@ void http::TcpServer::reindexing(client &c){
     }
 }
 
-
-
 void http::TcpServer::startListen(Parsed *data)
 {
     int bytesReceived, max_fd, max_fd_tmp, act, max_fd_check;
@@ -191,7 +191,7 @@ void http::TcpServer::startListen(Parsed *data)
 
     FD_ZERO(&read_tmp);
     FD_ZERO(&write_tmp);
-    
+
     max_fd = listening();
     max_fd_tmp = max_fd;
     while (true)
@@ -225,7 +225,8 @@ void http::TcpServer::startListen(Parsed *data)
                             clients[cl].serverIndex = index;
                         }
                     }
-                    if (cl >= clients.size()){
+                    if (cl >= clients.size())
+                    {
                         clients.push_back(client(0, 0, 0, index, max_fd_check));
                     }
                     FD_SET(max_fd_check, &read_tmp);
@@ -235,7 +236,6 @@ void http::TcpServer::startListen(Parsed *data)
                 else
                 {
                     bytesReceived = read(i, buffer, BUFFER_SIZE);
-                    std::cout << buffer << std::endl;
                     if (bytesReceived > 0)
                     {
                         log("======   message request received   ======\n");
@@ -243,7 +243,8 @@ void http::TcpServer::startListen(Parsed *data)
                         size_t cl1 = 0;
                         for (; cl1 <= clients.size(); cl1++)
                         {
-                            if (clients[cl1].client_fd == i){
+                            if (clients[cl1].client_fd == i)
+                            {
                                 save(i, cl1, bytesReceived);
                                 break;
                             }
@@ -272,7 +273,8 @@ void http::TcpServer::startListen(Parsed *data)
                     size_t cl2 = 0;
                     for (; cl2 < clients.size(); cl2++)
                     {
-                        if (clients[cl2].client_fd == i){
+                        if (clients[cl2].client_fd == i)
+                        {
                             break;
                         }
                     }
@@ -301,7 +303,7 @@ void http::TcpServer::startListen(Parsed *data)
                 {
                     FD_CLR(i, &write_tmp);
                     close(i);
-                } 
+                }
             }
         }
         max_fd = max_fd_tmp;
@@ -319,9 +321,8 @@ int http::TcpServer::closeServer()
 
 void http::TcpServer::buildResponse(Parsed *data, int cl)
 {
-	std::ostringstream ss2;
-	std::ofstream myfile1;
-
+    std::ostringstream ss2;
+    std::ofstream myfile1;
 
     size_t cl2;
     if (!data)
@@ -334,8 +335,8 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     clients[cl2].req->body = clients[cl2].client_body;
     response res(clients[cl2].req, data->getDate()[clients[cl2].serverIndex]);
     m_serverMessage = res.get_response();
-	ss2 << "/tmp/Response_" << clients[cl2].client_fd;
-	myfile1.open(ss2.str());
+    ss2 << "/tmp/Response_" << clients[cl2].client_fd;
+    myfile1.open(ss2.str());
     clients[cl2].client_resFile = ss2.str();
     myfile1 << this->m_serverMessage;
     myfile1.close();
