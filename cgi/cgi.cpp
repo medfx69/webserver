@@ -56,7 +56,7 @@ void    exec(std::map<std::string, std::string> reqHeader){
     exit(1);
 }
 
-std::string    exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader){
+std::string    response::exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader){
     std::string outFile("out_file");
     std::string outFileStr;
     int         in_fd = open(inFile.c_str(), O_WRONLY);
@@ -79,8 +79,17 @@ std::string    exec_outfile(std::string inFile, std::map<std::string, std::strin
     std::stringstream buffer;
     buffer << file.rdbuf();
     outFileStr = buffer.str();
+    if (outFileStr.substr(0, 7) == "Status:")
+        return generateResponse(stoi(outFileStr.substr(8, 3)));
+    std::string cnL("HTTP/1.1 200 Ok\r\nContent-Length: ");
+    std::stringstream ss;
+    ss << (outFileStr.substr(outFileStr.find("\r\n\r\n") + 4, outFileStr.size())).size();
+    cnL += ss.str();
+    cnL += "\n";
+    cnL += outFileStr;
+    std::cout << cnL << std::endl;
     file.close();
-    return outFileStr;
+    return cnL;
 }
 // int main()
 // {
