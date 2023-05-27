@@ -206,7 +206,9 @@ std::string	response::matchLocation()
 	{
 		if(req->absoluteURI.find(config->location[i].location_name) == 0)
 		{
-			if(config->location[i].location_name.size() > location.size())
+			if(config->location[i].location_name != "/" && req->absoluteURI.size() > config->location[i].location_name.size() && req->absoluteURI[config->location[i].location_name.size()] != '/')
+				;
+			else if(config->location[i].location_name.size() > location.size())
 			{
 				location = config->location[i].location_name;
 				indexLocation = i;
@@ -240,18 +242,25 @@ std::string   response::get_response()
 		return generateResponse(501);
 	else if(req->method == "POST" && it == req->data.end())
 	{
+		std::cout << "heeeeeeeeeeeeeeere2\n";
 		std::map<std::string, std::string>::iterator it = req->data.find("content-lenght:");
 		if(it == req->data.end())
 			return generateResponse(400);
 	}
 	if(req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
+	{
+		std::cout << "heeeeeeeeeeeeeeere\n";
 		return generateResponse(400);
+	}
 	else if(req->absoluteURI.size() > 2048)
 		return generateResponse(414);
 	// else if(req->body.size() > std::stoi(config->client_max_body_size))
 		// return generateResponse(413);
 	if(matchLocation().empty())
+	{
+		std::cout << "here\n";
 		return generateResponse(404);
+	}
 	std::cout << "URI---------------- " << req->absoluteURI << std::endl;
 	if(req->method == "GET")
 		return GET();
@@ -312,7 +321,7 @@ std::string	response::generateResponse(int code)
 	else if(code == 400)
 		body = generateStatusPages(400);
 	else if(code == 403)
-		body = generateStatusPages(400);
+		body = generateStatusPages(403);
 	else if(code == 404)
 		body = generateStatusPages(404);
 	else if(code == 405)

@@ -10,9 +10,8 @@ server {
     error_page 500 502 503 504 /50x.html;
 
     location / {
-        autoindex ON;
+        autoindex OFF;
         methods GET;
-
         root /Users/omar/Desktop/;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
@@ -33,7 +32,7 @@ server {
         autoindex ON;
         methods POST;
         upload ON;
-        root /Users/omar/Desktop/webserver/upload;
+        root /Users/omar/Desktop/webserver/UP;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
