@@ -10,7 +10,7 @@ server {
     location / {
         autoindex ON;
 
-        methods DELETE;
+        methods DELETE GET;
         root /Users/mait-aad/Desktop/webserver/;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
