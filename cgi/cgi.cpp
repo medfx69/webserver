@@ -1,62 +1,70 @@
 #include "cgi.hpp"
 
-void setVaribels(std::map<std::string, std::string> reqHeader, char ***env){
+void setVaribels(std::map<std::string, std::string> reqHeader)
+{
     if (reqHeader.find("Content-Type:") == reqHeader.end())
     {
-        std::pair<std::string, std::string> p ("Content-Type:", "");
+        std::pair<std::string, std::string> p("Content-Type:", "");
         reqHeader.insert(p);
     }
     if (reqHeader.find("Content-Lengh:") == reqHeader.end())
     {
-        std::pair<std::string, std::string> p ("Content-Lengh:", "0");
+        std::pair<std::string, std::string> p("Content-Lengh:", "0");
         reqHeader.insert(p);
     }
     if (reqHeader.find("Content-Length") == reqHeader.end())
     {
-        std::pair<std::string, std::string> p ("Content-Length", "");
+        std::pair<std::string, std::string> p("Content-Length", "");
         reqHeader.insert(p);
     }
     if (reqHeader.find("Set-Cookie:") == reqHeader.end())
     {
-        std::pair<std::string, std::string> p ("Set-Cookie:", "");
+        std::pair<std::string, std::string> p("Set-Cookie:", "");
         reqHeader.insert(p);
     }
     if (reqHeader.find("Request-Method:") == reqHeader.end())
     {
-        std::pair<std::string, std::string> p ("Request-Method:", "");
+        std::pair<std::string, std::string> p("Request-Method:", "");
         reqHeader.insert(p);
     }
     if (reqHeader.find("Query-String:") == reqHeader.end())
     {
-        std::pair<std::string, std::string> p ("Query-String:", "");
+        std::pair<std::string, std::string> p("Query-String:", "");
         reqHeader.insert(p);
     }
-    char *s[] = {const_cast<char*>(("CONTENT_TYPE: " + (*reqHeader.find("Content-Type:")).second).c_str()),
-                    const_cast<char*>(("REQUEST_METHOD: " + (*reqHeader.find("Request_Method:")).second).c_str()),
-                    const_cast<char*>(("CONTENT_LENGTH: " + (*reqHeader.find("Content-Lengh:")).second).c_str()),
-                    const_cast<char*>(("QUERY_STRING: " + (*reqHeader.find("Query-String:")).second).c_str()),
-                    const_cast<char*>(("HTTP_COOKIE: " + (*reqHeader.find("Set-Cookie:")).second).c_str())
-                    };
-    *env =  s;
+    // char *s[] =
+    // *env = s;
 }
 
-void    exec(std::map<std::string, std::string> reqHeader){
-    char* argv[] = {const_cast<char *>((*reqHeader.find("Program_Name:")).second.c_str()),const_cast<char *>((*reqHeader.find("File_Name:")).second.c_str()), NULL};
-    char **env;
-    setVaribels(reqHeader, &env);
+void exec(std::map<std::string, std::string> reqHeader)
+{
+    char *argv[] = {const_cast<char *>((*reqHeader.find("Program_Name:")).second.c_str()), const_cast<char *>((*reqHeader.find("File_Name:")).second.c_str()), NULL};
+    std::string conT = "CONTENT_TYPE: ";
+    std::string conL = "CONTENT_LENGTH: ";
+    std::string reqM = "REQUEST_METHOD: ";
+    std::string qryS = "QUERY_STRING: ";
+    std::string setC = "SET_COOKIE: ";
+    char *env[] = {const_cast<char *>((conT + (*reqHeader.find("Content-Type:")).second).c_str()),
+                   const_cast<char *>((reqM + (*reqHeader.find("Request_Method:")).second).c_str()),
+                   const_cast<char *>((conL + (*reqHeader.find("Content-Lengh:")).second).c_str()),
+                   const_cast<char *>((qryS + (*reqHeader.find("Query-String:")).second).c_str()),
+                   const_cast<char *>((setC + (*reqHeader.find("Set-Cookie:")).second).c_str())};
+    ;
+    // setVaribels(reqHeader, &env);
     execve(argv[0], argv, env);
     perror("execve");
 }
 
-int    exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader){
+int exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader)
+{
     std::string outFile("out_file");
     int in_fd = open(inFile.c_str(), O_WRONLY);
     int out_fd = open(outFile.c_str(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 
     pid_t pid = fork();
-    if(pid == -1)
+    if (pid == -1)
         return 1;
-    if(pid == 0)
+    if (pid == 0)
     {
         dup2(in_fd, 0);
         dup2(out_fd, 1);
