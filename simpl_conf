@@ -11,7 +11,8 @@ server {
         autoindex ON;
 
         methods DELETE GET;
-        root /Users/mait-aad/Desktop/webserver/;
+        upload upload/;
+        root /Users/abayar/Desktop/test/;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
@@ -26,7 +27,6 @@ server {
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
     }
-    client_max_body_size 10m;
 }
 
 server {
