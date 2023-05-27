@@ -31,17 +31,23 @@ void	response::uploadbody()
 		if(it != boundray.end() && it2 != boundray.end())
 		{
 			if ((*it).second.find("filename") != std::string::npos)
+			{
 				filename +=	(*it).second.erase(0, (*it).second.find("filename=") + 10);
-			filename.erase(filename.size() - 1, filename.size());
+				filename.erase(filename.size() - 1, filename.size());
+			}
+			else if (it2 != boundray.end())
+        	{
+				filename += generateRandomString(8);
+				if (this->mimeTypeMap2.find((*it2).second) != this->mimeTypeMap2.end())
+					filename += "." + (*this->mimeTypeMap2.find((*it).second)).second;
+			}
 		}
-		else
+		else if (it2 != boundray.end())
+        {
 			filename += generateRandomString(8);
-		// else if (it != boundray.end())
-        // {
-		// 	if ((*it).second.find("name") != std::string::npos)
-		// 		filename +=	(*it).second.erase(0, (*it).second.find("name=") + 6);
-		// 	filename.erase(filename.size() - 1, filename.size());
-		// }
+			if (this->mimeTypeMap2.find((*it2).second) != this->mimeTypeMap2.end())
+				filename += "." + (*this->mimeTypeMap2.find((*it).second)).second;
+		}
 	}
 	std::ofstream file_content(filename);
 	file_content << Bbody;
@@ -72,8 +78,6 @@ std::string response::POST()
 		return generateResponse(405);
 	if(!config->location[indexLocation].upload.empty())
     {
-		req->absoluteURI += config->location[indexLocation].upload;
-		req->absoluteURI = cleanupURI(req->absoluteURI);
 		if(!req->boundry.empty())
 		{
 			bodyfile.open(req->body);

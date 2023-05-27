@@ -37,7 +37,6 @@ std::string response::createIndexHtml()
 
 std::string response::getfile()
 {
-	std::cout << "path: " << req->absoluteURI << std::endl;
     std::string extension = getFileExtension();
     if(!config->location[indexLocation].cgi_path.empty()
         && config->location[indexLocation].cgi_path == extension)
