@@ -12,11 +12,12 @@ server {
 
         methods DELETE GET;
         upload upload/;
-        root /Users/abayar/Desktop/test/;
+        root /Users/mait-aad/Desktop/;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
+        cgi_path php;
     }
     location /maroc {
         index index.py index.php index.html;
