@@ -155,6 +155,8 @@ std::vector<Location> pars_locations(data_reader data)
 				x.upload = tmp2;
 			else if (tmp.compare("chunked_transfer_encoding") == 0)
 				x.chunked_transfer_encoding = tmp2;
+			else if(tmp.compare("return") == 0)
+				x.redirection = tmp2;
 			else if (tmp.compare("error_page") == 0)
 			{
 				std::pair<std::vector<std::string>, std::string> adder;

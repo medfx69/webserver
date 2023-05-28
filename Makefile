@@ -13,7 +13,7 @@ SRC =	server.cpp \
 
 NAME = webserv
 
-FLAG = c++ -std=c++98 -Wall -Wextra
+FLAG = c++ -std=c++98 -Wall -Wextra -fsanitize=address -g3
 all : ${NAME}
 
 ${NAME} :

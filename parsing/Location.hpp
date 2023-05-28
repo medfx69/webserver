@@ -8,11 +8,12 @@ public:
 	std::string location_name;
 	std::string root;
 	std::string upload;
-	size_t client_max_body_size;
+	std::string client_max_body_size;
 	std::vector<std::vector<std::string> > try_files;
 	std::string autoindex;
 	std::vector<std::string> index;
 	std::vector<std::string> methods;
+	std::string redirection;
 	std::string chunked_transfer_encoding;
 	std::string	cgi_path;
 	Location	&operator=(Location &x);

@@ -1,5 +1,4 @@
-#include "cgi.hpp"
-#include <string.h>
+#include "../methods/http_response.hpp"
 
 char  **setVaribels(std::map<std::string, std::string> reqHeader){
     if (reqHeader.find("Content-Type:") == reqHeader.end())
@@ -94,6 +93,7 @@ std::string    response::exec_outfile(std::string inFile, std::map<std::string, 
     file.close();
     return cnL;
 }
+
 // int main()
 // {
 //     std::map<std::string, std::string> m;
