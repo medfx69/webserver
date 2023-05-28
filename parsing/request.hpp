@@ -36,7 +36,7 @@ public:
     std::string method;
     std::string absoluteURI;
     std::string http_version;
-    std::string     boundry;
+    std::string boundry;
     std::string body;
     std::string client_reqFile;
     std::map<std::string, std::string> data;
