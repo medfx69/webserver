@@ -307,8 +307,8 @@ std::string   response::get_response()
 		return generateResponse(400);
 	else if(req->absoluteURI.size() > 2048)
 		return generateResponse(414);
-	// else if(req->body.size() > std::stoi(config->client_max_body_size))
-		// return generateResponse(413);
+	else if(req->body.size() > config->client_max_body_size)
+		return generateResponse(413);
 	req->absoluteURI = checkURI(req->absoluteURI);
 	std::pair<std::string, std::string>p2("File_Name:", req->absoluteURI.substr(0, req->absoluteURI.size()));
 	req->data.insert(p2);
