@@ -47,6 +47,7 @@ class response
 		std::string	generateResponse(int code);
 		bool 		methode_allowded(std::string methode);
 		std::string cleanupURI(std::string& uri);
+		std::string redirection();
 		//post
 		std::string	POST();
 		int	addboundaryheader(std::string &);
@@ -55,6 +56,10 @@ class response
 		std::string	DELETE();
 		bool 		fd_remove(std::string path);
 		bool 		checkPermission(std::string path, std::string i);
+		//cgi
+		std::string	exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader);
+		std::string checkURI(std::string &URI);
+		void 		replacee(std::string &s, std::string amlo, std::string argan);
 };
 
 #endif

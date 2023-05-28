@@ -178,6 +178,8 @@ std::string response::generateResponseHeader(std::string content_type, std::stri
 	header += "content-lenght: " + content_lenght + "\r\n";
 	header += "server: nginxa\r\n";
 	header += "cache-control: max-age=3600\r\n";
+	if(indexLocation != -1 && !config->location[indexLocation].redirection.empty())
+		header += "location: " + config->location[indexLocation].redirection + "\r\n";
 	header += "date: " + get_date() + "\r\n\r\n";
 	return header;
 }
@@ -222,6 +224,7 @@ std::string	response::matchLocation()
 	else
 		req->absoluteURI = config->location[indexLocation].root + req->absoluteURI.substr(location.size());
 	req->absoluteURI = cleanupURI(req->absoluteURI);
+	std::cout << "URI=======================| " << req->absoluteURI << " |=============="<< std::endl;
 	return req->absoluteURI;
 }
 
@@ -235,6 +238,60 @@ bool response::methode_allowded(std::string methode)
 	return false;
 }
 
+
+std::string response::redirection()
+{
+	return generateResponseHeader("text/html", std::to_string(status_code(301).size()), 301) + status_code(301);
+}
+
+void response::replacee(std::string &s, std::string amlo, std::string argan)
+{
+	int index = 0;
+	int i;
+	index = s.find(amlo);
+	if (index == -1)
+		return;
+	s.erase(index, amlo.length());
+	i = index;
+	replacee(s, amlo, argan);
+	s.insert(i, argan);
+}
+
+std::string response::checkURI(std::string &URI)
+{
+	if (URI.find("%20") != std::string::npos)
+		replacee(URI, "%20", " ");
+	else if (URI.find("%22") != std::string::npos)
+		replacee(URI, "%22", "\"");
+	else if (URI.find("%3c") != std::string::npos)
+		replacee(URI, "%3c", "<");
+	else if (URI.find("%3e") != std::string::npos)
+		replacee(URI, "%3e", ">");
+	else if (URI.find("%23") != std::string::npos)
+		replacee(URI, "%23", "#");
+	else if (URI.find("%25") != std::string::npos)
+		replacee(URI, "%25", "%");
+	else if (URI.find("%7b") != std::string::npos)
+		replacee(URI, "%7b", "{");
+	else if (URI.find("%7d") != std::string::npos)
+		replacee(URI, "%7d", "}");
+	else if (URI.find("%7c") != std::string::npos)
+		replacee(URI, "%7c", "|");
+	else if (URI.find("%5c") != std::string::npos)
+		replacee(URI, "%5c", "\\");
+	else if (URI.find("%5e") != std::string::npos)
+		replacee(URI, "%5e", "^");
+	else if (URI.find("%7e") != std::string::npos)
+		replacee(URI, "%7e", "~");
+	else if (URI.find("%5b") != std::string::npos)
+		replacee(URI, "%5b", "[");
+	else if (URI.find("%5d") != std::string::npos)
+		replacee(URI, "%5d", "]");
+	else if (URI.find("%60") != std::string::npos)
+		replacee(URI, "%60", "`");
+	return URI;
+}
+
 std::string   response::get_response()
 {
 	std::map<std::string, std::string>::iterator it = req->data.find("Transfer-Encoding:");
@@ -242,26 +299,23 @@ std::string   response::get_response()
 		return generateResponse(501);
 	else if(req->method == "POST" && it == req->data.end())
 	{
-		std::cout << "heeeeeeeeeeeeeeere2\n";
 		std::map<std::string, std::string>::iterator it = req->data.find("content-lenght:");
 		if(it == req->data.end())
 			return generateResponse(400);
 	}
 	if(req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
-	{
-		std::cout << "heeeeeeeeeeeeeeere\n";
 		return generateResponse(400);
-	}
 	else if(req->absoluteURI.size() > 2048)
 		return generateResponse(414);
 	// else if(req->body.size() > std::stoi(config->client_max_body_size))
 		// return generateResponse(413);
+	req->absoluteURI = checkURI(req->absoluteURI);
+	std::pair<std::string, std::string>p2("File_Name:", req->absoluteURI.substr(0, req->absoluteURI.size()));
+	req->data.insert(p2);
 	if(matchLocation().empty())
-	{
-		std::cout << "here\n";
 		return generateResponse(404);
-	}
-	std::cout << "URI---------------- " << req->absoluteURI << std::endl;
+	if(!config->location[indexLocation].redirection.empty())
+		return redirection();
 	if(req->method == "GET")
 		return GET();
 	else if(req->method == "POST")
