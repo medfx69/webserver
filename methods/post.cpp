@@ -72,48 +72,11 @@ int	response::addboundaryheader(std::string &file)
 	return length;
 }
 
-std::string response::POST()
+std::string response::cgi__()
 {
-	if(!methode_allowded("POST"))
-		return generateResponse(405);
-	if(!config->location[indexLocation].upload.empty())
-    {
-		if(!req->boundry.empty())
-		{
-			bodyfile.open(req->body);
-    		if (!bodyfile)
-				return generateResponse(404);
-			std::ostringstream bodycontent;
-			bodycontent << bodyfile.rdbuf();
-			std::string body = bodycontent.str();
-			std::string line;
-			while(body.size()){
-				if (body.substr(0, body.find("\r\n")) == "--" + req->boundry + "--")
-					break;
-				line = body.substr(0, body.find("\r\n"));
-				body = body.erase(0, body.find("\r\n") + 2);
-				addboundaryheader(body);
-  				Bbody = body.substr(0, body.find("--" + req->boundry) - 2);
-				uploadbody();
-				body.erase(0, body.find("--" + req->boundry));
-			}
-		}
-		else
-		{
-			std::ifstream bodyfile(req->body);
-			std::ostringstream bodycontent;
-			bodycontent << bodyfile.rdbuf();
-			Bbody = bodycontent.str();
-			bodyfile.close();
-			uploadbody();
-		}
-		return generateResponse(201);
-    }
-    if(config->location[indexLocation].cgi_path.empty())
-		return generateResponse(403);
-    std::string pathtype = checkPathType();
-	if(pathtype == "NOT FOUND")
-		return generateResponse(404);
+	if(config->location[indexLocation].cgi_path.empty())
+		return "";
+	std::string pathtype = checkPathType();
 	if(pathtype == "FILE")
 	{
 		std::string extension = getFileExtension();
@@ -142,9 +105,10 @@ std::string response::POST()
 				pathfile = req->absoluteURI + config->location[indexLocation].index[i];
     	        pathfile = cleanupURI(pathfile);
 				std::ifstream file(pathfile);
-				if(file.is_open())
+				if(file.is_open() )
 				{
 					file.close();
+					std::string saveuri = req->absoluteURI;
 					req->absoluteURI = pathfile;
 					std::string extension = getFileExtension();
 					if(config->location[indexLocation].cgi_path == extension)
@@ -162,10 +126,56 @@ std::string response::POST()
 						}
     				    return exec_outfile(req->client_reqFile, req->data);
     				}
+					req->absoluteURI = saveuri;
 				}
 			}
 		}
-		return generateResponse(403);
+		// return generateResponse(403);
 	}
-	return generateResponse(404);
+	return "";
+}
+
+
+std::string response::POST()
+{
+	if(!methode_allowded("POST"))
+		return generateResponse(405);
+	std::string c = cgi__();
+	if(!c.empty())
+		return c;
+	if(config->location[indexLocation].upload.empty())
+			return generateResponse(404);
+	req->absoluteURI = config->location[indexLocation].root + config->location[indexLocation].upload;
+	req->absoluteURI = cleanupURI(req->absoluteURI);
+	std::cout << "UPLOAD: " << req->absoluteURI << std::endl;
+	if(!req->boundry.empty())
+	{
+		bodyfile.open(req->body);
+    	if (!bodyfile)
+			return generateResponse(404);
+		std::ostringstream bodycontent;
+		bodycontent << bodyfile.rdbuf();
+		std::string body = bodycontent.str();
+		std::string line;
+		while(body.size()){
+			if (body.substr(0, body.find("\r\n")) == "--" + req->boundry + "--")
+				break;
+			line = body.substr(0, body.find("\r\n"));
+			body = body.erase(0, body.find("\r\n") + 2);
+			addboundaryheader(body);
+  			Bbody = body.substr(0, body.find("--" + req->boundry) - 2);
+			uploadbody();
+			body.erase(0, body.find("--" + req->boundry));
+		}
+	}
+	else
+	{
+		std::ifstream bodyfile(req->body);
+		std::ostringstream bodycontent;
+		bodycontent << bodyfile.rdbuf();
+		Bbody = bodycontent.str();
+		bodyfile.close();
+		uploadbody();
+	}
+	return generateResponse(201);
 }
