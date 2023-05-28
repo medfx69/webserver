@@ -9,14 +9,14 @@ server {
     error_page 500 502 503 504 /50x.html;
 
     location / {
-        methods GET;
+        methods GET POST;
         autoindex ON;
+        upload /upload;
         try_files $uri $uri/ /index.html;
         root /Users/omar/Desktop/webserver/;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
-        cgi_path php;
     }
     location /redi {
         index index.py index.php index.html;
