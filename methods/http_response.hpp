@@ -39,6 +39,7 @@ class response
 		std::string createIndexHtml();
 		std::string getFileExtension();
 		std::string generateResponseHeader(std::string content_type, std::string content_lenght, int code);
+		std::string exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader);
 		std::string contentType();
 		std::string	matchLocation();
 		std::string	status_code(int );

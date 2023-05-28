@@ -1,10 +1,10 @@
 #include "http_response.hpp"
 
-response::response(request* _req, server _config)
+response::response(request *_req, server _config)
 {
 	this->req = _req;
 	this->config = new server(_config);
-	
+
 	mimeTypeMap.insert(std::make_pair("aac", "audio/aac"));
 	mimeTypeMap.insert(std::make_pair("abw", "application/x-abiword"));
 	mimeTypeMap.insert(std::make_pair("arc", "application/octet-stream"));
@@ -155,15 +155,15 @@ std::string response::getFileExtension()
 std::string response::contentType()
 {
 	std::string extension = getFileExtension();
-	if(mimeTypeMap.count(extension) > 0)
+	if (mimeTypeMap.count(extension) > 0)
 		return mimeTypeMap.at(extension);
 	else
 		return "text/plain";
 }
 
-std::string	response::get_date()
+std::string response::get_date()
 {
-	time_t     now = time(0);
+	time_t now = time(0);
 	struct tm *newtime = localtime(&now);
 	char buf[80];
 	strftime(buf, sizeof(buf), "%a, %d %b %Y %H:%M:%S GMT", newtime);
@@ -182,31 +182,31 @@ std::string response::generateResponseHeader(std::string content_type, std::stri
 	return header;
 }
 
-std::string response::cleanupURI(std::string& uri)
+std::string response::cleanupURI(std::string &uri)
 {
-    std::string cleanedURI;
-    std::string::const_iterator it = uri.begin();
+	std::string cleanedURI;
+	std::string::const_iterator it = uri.begin();
 
-    while (it != uri.end())
-    {
-        if (*it != '/')
-            cleanedURI.push_back(*it);
-        else if (cleanedURI.empty() || cleanedURI.back() != '/')
-            cleanedURI.push_back(*it);
-        ++it;
-    }
-    return cleanedURI;
+	while (it != uri.end())
+	{
+		if (*it != '/')
+			cleanedURI.push_back(*it);
+		else if (cleanedURI.empty() || cleanedURI.back() != '/')
+			cleanedURI.push_back(*it);
+		++it;
+	}
+	return cleanedURI;
 }
 
-std::string	response::matchLocation()
+std::string response::matchLocation()
 {
 	indexLocation = -1;
 	std::string location;
-	for(size_t i = 0; i < config->location.size(); i++)
+	for (size_t i = 0; i < config->location.size(); i++)
 	{
-		if(req->absoluteURI.find(config->location[i].location_name) == 0)
+		if (req->absoluteURI.find(config->location[i].location_name) == 0)
 		{
-			if(config->location[i].location_name.size() > location.size())
+			if (config->location[i].location_name.size() > location.size())
 			{
 				location = config->location[i].location_name;
 				indexLocation = i;
@@ -225,68 +225,120 @@ std::string	response::matchLocation()
 
 bool response::methode_allowded(std::string methode)
 {
-	if(config->location[indexLocation].methods.empty())
+	if (config->location[indexLocation].methods.empty())
 		return false;
-	for(size_t i = 0; i < config->location[indexLocation].methods.size(); i++)
-			if(config->location[indexLocation].methods[i] == methode)
-				return true;
+	for (size_t i = 0; i < config->location[indexLocation].methods.size(); i++)
+		if (config->location[indexLocation].methods[i] == methode)
+			return true;
 	return false;
 }
 
-std::string   response::get_response()
+void replacee(std::string &s, std::string amlo, std::string argan)
+{
+	int index = 0;
+	int i;
+	index = s.find(amlo);
+	if (index == -1)
+		return;
+	s.erase(index, amlo.length());
+	i = index;
+	replacee(s, amlo, argan);
+	s.insert(i, argan);
+}
+
+std::string checkURI(std::string &URI)
+{
+	if (URI.find("%20") != std::string::npos)
+		replacee(URI, "%20", " ");
+	else if (URI.find("%22") != std::string::npos)
+		replacee(URI, "%22", "\"");
+	else if (URI.find("%3c") != std::string::npos)
+		replacee(URI, "%3c", "<");
+	else if (URI.find("%3e") != std::string::npos)
+		replacee(URI, "%3e", ">");
+	else if (URI.find("%23") != std::string::npos)
+		replacee(URI, "%23", "#");
+	else if (URI.find("%25") != std::string::npos)
+		replacee(URI, "%25", "%");
+	else if (URI.find("%7b") != std::string::npos)
+		replacee(URI, "%7b", "{");
+	else if (URI.find("%7d") != std::string::npos)
+		replacee(URI, "%7d", "}");
+	else if (URI.find("%7c") != std::string::npos)
+		replacee(URI, "%7c", "|");
+	else if (URI.find("%5c") != std::string::npos)
+		replacee(URI, "%5c", "\\");
+	else if (URI.find("%5e") != std::string::npos)
+		replacee(URI, "%5e", "^");
+	else if (URI.find("%7e") != std::string::npos)
+		replacee(URI, "%7e", "~");
+	else if (URI.find("%5b") != std::string::npos)
+		replacee(URI, "%5b", "[");
+	else if (URI.find("%5d") != std::string::npos)
+		replacee(URI, "%5d", "]");
+	else if (URI.find("%60") != std::string::npos)
+		replacee(URI, "%60", "`");
+	return URI;
+}
+
+std::string response::get_response()
 {
 	std::map<std::string, std::string>::iterator it = req->data.find("Transfer-Encoding:");
-	if(it != req->data.end() && req->data["Transfer-Encoding:"] != "chunked")
+	if (it != req->data.end() && req->data["Transfer-Encoding:"] != "chunked")
 		return generateResponse(501);
-	else if(req->method == "POST" && it == req->data.end())
+	else if (req->method == "POST" && it == req->data.end())
 	{
-		std::map<std::string, std::string>::iterator it = req->data.find("content-lenght:");
-		if(it == req->data.end())
+		std::map<std::string, std::string>::iterator it = req->data.find("Content-Length:");
+		if (it == req->data.end())
 			return generateResponse(400);
 	}
-	if(req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
+	if (req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
 		return generateResponse(400);
-	else if(req->absoluteURI.size() > 2048)
+	else if (req->absoluteURI.size() > 2048)
 		return generateResponse(414);
 	// else if(req->body.size() > std::stoi(config->client_max_body_size))
-		// return generateResponse(413);
-	if(matchLocation().empty())
+	// return generateResponse(413);
+	req->absoluteURI = checkURI(req->absoluteURI);
+	std::pair<std::string, std::string>p2("File_Name:", req->absoluteURI.substr(0, req->absoluteURI.size()));
+	req->data.insert(p2);
+	if (matchLocation().empty())
 		return generateResponse(404);
-	std::cout << "URI---------------- " << req->absoluteURI << std::endl;
-	if(req->method == "GET")
+	if (req->method == "GET")
 		return GET();
-	else if(req->method == "POST")
+	else if (req->method == "POST")
 		return POST();
-	else if(req->method == "DELETE")
-			return DELETE();
+	else if (req->method == "DELETE")
+	{
+		return DELETE();
+	}
 	return generateResponse(404);
 }
 
-std::string	response::status_code(int status_code)
+std::string response::status_code(int status_code)
 {
-	if(status_code == 200)
+	if (status_code == 200)
 		return "HTTP/1.1 200 Ok\r\n";
-	else if(status_code == 201)
+	else if (status_code == 201)
 		return "HTTP/1.1 201 Created\r\n";
-	else if(status_code == 204)
+	else if (status_code == 204)
 		return "HTTP/1.1 204 No Content\r\n";
-	else if(status_code == 301)
+	else if (status_code == 301)
 		return "HTTP/1.1 301 Moved Permanently\r\n";
-	else if(status_code == 400)
+	else if (status_code == 400)
 		return "HTTP/1.1 400 Bad Request\r\n";
-	else if(status_code == 403)
+	else if (status_code == 403)
 		return "HTTP/1.1 403 Forbidden\r\n";
-	else if(status_code == 404)
+	else if (status_code == 404)
 		return "HTTP/1.1 404 Not Found\r\n";
-	else if(status_code == 405)
+	else if (status_code == 405)
 		return "HTTP/1.1 405 Method Not Allowed\r\n";
-	else if(status_code == 409)
+	else if (status_code == 409)
 		return "HTTP/1.1 409 Conflict\r\n";
-	else if(status_code == 413)
+	else if (status_code == 413)
 		return "HTTP/1.1 413 Request Entity Too Large\r\n";
-	else if(status_code == 414)
+	else if (status_code == 414)
 		return "HTTP/1.1 414 Request-URI Too Long\r\n";
-	else if(status_code == 501)
+	else if (status_code == 501)
 		return "HTTP/1.1 501 Not Implemented\r\n";
 	return NULL;
 }
@@ -300,32 +352,35 @@ std::string response::generateStatusPages(int code)
 	return content.str();
 }
 
-std::string	response::generateResponse(int code)
+std::string response::generateResponse(int code)
 {
 	std::string body;
-	if(code == 204)
+	if (code == 201)
+		body = generateStatusPages(201);
+	if (code == 204)
 		body = generateStatusPages(204);
-	else if(code == 301)
+	else if (code == 301)
 		body = generateStatusPages(301);
-	else if(code == 400)
+	else if (code == 400)
 		body = generateStatusPages(400);
-	else if(code == 403)
-		body = generateStatusPages(400);
-	else if(code == 404)
+	else if (code == 403)
+		body = generateStatusPages(403);
+	else if (code == 404)
 		body = generateStatusPages(404);
-	else if(code == 405)
+	else if (code == 405)
 		body = generateStatusPages(405);
-	else if(code == 409)
+	else if (code == 409)
 		body = generateStatusPages(409);
-	else if(code == 413)
+	else if (code == 413)
 		body = generateStatusPages(413);
-	else if(code == 414)
+	else if (code == 414)
 		body = generateStatusPages(414);
-	else if(code == 501)
+	else if (code == 501)
 		body = generateStatusPages(501);
 	return generateResponseHeader("text/html", std::to_string(body.size()), code) + body;
 }
 
-response::~response(){
+response::~response()
+{
 	delete this->config;
 }

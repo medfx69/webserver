@@ -142,7 +142,7 @@ std::vector<Location> pars_locations(data_reader data)
 			if (tmp.compare("try_files") == 0)
 				x.try_files.push_back(parser_helper(*iite2));
 			else if (tmp.compare("client_max_body_size") == 0)
-				x.client_max_body_size = tmp2;
+				x.client_max_body_size = stol(tmp2);
 			else if (tmp.compare("root") == 0)
 				x.root = tmp2;
 			else if (tmp.compare("autoindex") == 0)
@@ -166,6 +166,8 @@ std::vector<Location> pars_locations(data_reader data)
 				adder.second = tmp2;
 				x.error_page.push_back(adder);
 			}
+			else if(tmp.compare("cgi_path") == 0)
+				x.cgi_path = tmp2;
 			else if (!tmp.empty())
 			{
 				std::cerr << "Error: Bad config file.\n";
@@ -186,6 +188,7 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 	{
 		std::vector<std::string>::iterator it = (*it0).dir.begin();
 		server x;
+		x.client_max_body_size = 0;
 		while (it < (*it0).dir.end())
 		{
 			std::istringstream iss(*it);
@@ -224,8 +227,12 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 			}
 			else if (tmp.compare("root") == 0)
 				x.root = tmp2;
-			else if (tmp.compare("client_max_body_size") == 0)
-				x.client_max_body_size = tmp2;
+			else if (tmp.compare("client_max_body_size") == 0 && x.client_max_body_size == 0)
+			{
+				if (tmp2.find_first_not_of("0123456789mk") == std::string::npos){
+					x.client_max_body_size = stol(tmp2) * ((tmp2[tmp2.size() - 1] == 'k')? 1014:(1014*1014));
+				} 
+			}
 			else if (tmp.compare("autoindex") == 0)
 				x.autoindex = tmp2;
 			else if (tmp.compare("index") == 0)

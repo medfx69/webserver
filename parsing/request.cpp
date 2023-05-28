@@ -11,7 +11,6 @@ void end_of_headers(request *req, client *cl)
 	{
 		try
 		{
-			std::cout << ">>>>>>>> this is it" << req->data.find("Content-Length:")->second << std::endl;
 			cl->read_len = stol(req->data.find("Content-Length:")->second);
 		}
 		catch (std::exception &x)
@@ -35,8 +34,7 @@ void request::handle_body(client *cl, std::string s)
 
 	ss2 << "/tmp/body_" << cl->client_fd;
 	myfile1.open(ss2.str(), std::ofstream::app);
-	if (cl->chunked == 0 && cl->read_len)
-	{
+	if (cl->chunked == 0 && cl->read_len){
 		myfile1 << s;
 		cl->readed += s.size();
 		if (cl->readed >= cl->read_len)
@@ -152,9 +150,7 @@ request::request(client *cl, std::string s)
 		exit(0);
 	size_t endOfHeadres = s.find("\r\n\r\n");
 	if (endOfHeadres == std::string::npos)
-	{
 		std::cout << "error\n";
-	}
 	tmp1 = s.substr(0, endOfHeadres);
 	s = s.erase(0, s.find("\r\n\r\n") + 4);
 	std::stringstream ss(tmp1);
@@ -165,12 +161,17 @@ request::request(client *cl, std::string s)
 		{
 			iss >> method;
 			iss >> absoluteURI;
+			if (absoluteURI.find("?") != std::string::npos){
+				std::pair<std::string, std::string> p("Query-String:", absoluteURI.substr(absoluteURI.find("?"), absoluteURI.size()));
+				data.insert(p);
+				absoluteURI = absoluteURI.substr(0, absoluteURI.find("?"));
+			}
 			iss >> http_version;
-			// std::cout << "method : " << method << " abslu URI: " << absoluteURI << " http Version: " << http_version << std::endl;
+			// std::cout << "method : " << method << " abslutURI: " << absoluteURI << " http Version: " << http_version << std::endl;
 		}
 		else if (tmp.find(":") != std::string::npos && cl->flag == 0)
 		{
-			check_header(tmp.substr(0, tmp.find(":"))); // this for seting is headers valid;
+			check_header(tmp.substr(0, tmp.find(":")));
 			std::string tmp2;
 			std::string tmp3;
 			iss >> tmp2;
@@ -178,9 +179,7 @@ request::request(client *cl, std::string s)
 			if (tmp2 == "Content-Type:" && tmp3 == "multipart/form-data;")
 			{
 				iss >> boundry;
-				std::cout << "-bbbb-" << iss.str() << std::endl;
 				boundry.erase(0, 9);
-				std::cout << "-bbbb-" << boundry << std::endl;
 			}
 			std::pair<std::string, std::string> pr;
 			pr.first = tmp2;
@@ -197,12 +196,5 @@ request::request(client *cl, std::string s)
 	if (cl->read_status == 0)
 		this->handle_body(cl, s);
 }
-// if (cl->read_status == 0 && cl->flag == 1)
-// {
-// 	cl->read_status = 1;
-// 	--cl->readed;
-// }
-// std::cout << "[" << cl->readed << "] <----->  this is cl->readed" << std::endl;
-// std::cout << ">>>.<<<" << cl->flag << "   status  ->>" << cl->read_status << std::endl;
 
 request::request() {}
