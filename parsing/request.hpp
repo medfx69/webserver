@@ -7,6 +7,7 @@ class request;
 struct client
 {
     std::string     client_resFile;
+    std::string     client_reqFile;
     std::string     client_body;
     std::string     client_res_message;
     request         *req;
@@ -37,6 +38,7 @@ public:
     std::string http_version;
     std::string     boundry;
     std::string body;
+    std::string client_reqFile;
     std::map<std::string, std::string> data;
     request(client *cl, std::string req);
     request();

@@ -10,20 +10,31 @@ server {
     error_page 500 502 503 504 /50x.html;
 
     location / {
-        autoindex OFF;
         methods GET;
-        root /Users/omar/Desktop/;
+        autoindex ON;
         try_files $uri $uri/ /index.html;
+        root /Users/omar/Desktop/webserver/;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
+        cgi_path php;
     }
-    location /maroc {
+    location /tt {
         index index.py index.php index.html;
         methods GET;
         autoindex ON;
         try_files $uri $uri/ /index.html;
         root /Users/omar/Desktop/maroc/;
+        error_page 500 502 503 504 /50x.html;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
+        return /redi;
+    }
+    location /redi {
+        methods GET;
+        autoindex ON;
+        try_files $uri $uri/ /index.html;
+        root /Users/omar/Desktop/mac-sort/;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;

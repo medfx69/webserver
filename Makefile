@@ -1,4 +1,5 @@
 SRC =	server.cpp \
+		cgi/cgi.cpp \
 		http_TcpServer.cpp	\
 		methods/http_response.cpp	\
 		parsing/request.cpp	\
