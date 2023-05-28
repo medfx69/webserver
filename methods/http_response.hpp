@@ -57,7 +57,7 @@ class response
 		bool 		fd_remove(std::string path);
 		bool 		checkPermission(std::string path, std::string i);
 		//cgi
-		std::string	exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader);
+		std::string exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader);
 		std::string checkURI(std::string &URI);
 		void 		replacee(std::string &s, std::string amlo, std::string argan);
 };
