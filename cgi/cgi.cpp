@@ -52,12 +52,14 @@ void    exec(std::map<std::string, std::string> reqHeader){
     char* argv[] = {const_cast<char *>((*reqHeader.find("Program_Name:")).second.c_str()),const_cast<char *>((*reqHeader.find("File_Name:")).second.c_str()), NULL};
     char **env;
     env = setVaribels(reqHeader);
+    std::cerr <<">>>>>" << argv[0]<<"|" << std::endl;
     execve(argv[0], argv, env);
 }
 
 std::string    response::exec_outfile(std::string inFile, std::map<std::string, std::string> reqHeader){
     std::string outFile("/tmp/out_file");
     std::string outFileStr;
+    // std::cout << "infile: " << inFile << std::endl;
     int         in_fd = open(inFile.c_str(), O_WRONLY);
     int         out_fd = open(outFile.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0755);
 
@@ -83,7 +85,9 @@ std::string    response::exec_outfile(std::string inFile, std::map<std::string, 
     // std::cout <<">>>>>" << outFileStr.substr(outFile.find("Status:") + 9, 3) << std::endl;
     // exit(0);
     if (outFileStr.substr(0, 7) == "Status:")
+    {
         return generateResponse(stoi(outFileStr.substr(outFile.find("Status:") + 9, 3)));
+    }
     std::string cnL("HTTP/1.1 200 Ok\r\nContent-Length: ");
     std::stringstream ss;
     ss << (outFileStr.substr(outFileStr.find("\r\n\r\n") + 4, outFileStr.size())).size();
@@ -91,6 +95,7 @@ std::string    response::exec_outfile(std::string inFile, std::map<std::string, 
     cnL += "\n";
     cnL += outFileStr;
     file.close();
+    std::cout  << "["<< cnL + "]" << std::endl;
     return cnL;
 }
 

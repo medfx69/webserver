@@ -240,6 +240,7 @@ void http::TcpServer::startListen(Parsed *data)
                     {
                         log("======   message request received   ======\n");
                         buffer[bytesReceived] = 0;
+                        std::cout << buffer << std::endl;
                         size_t cl1 = 0;
                         for (; cl1 <= clients.size(); cl1++)
                         {
@@ -342,6 +343,7 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     myfile1.open(ss2.str());
     clients[cl2].client_resFile = ss2.str();
     myfile1 << this->m_serverMessage;
+    std::cout << this->m_serverMessage << std::endl;
     myfile1.close();
     clients[cl2].write_len = this->m_serverMessage.size();
     clients[cl2].write_sened = 0;

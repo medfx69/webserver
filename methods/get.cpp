@@ -25,7 +25,7 @@ std::string response::createIndexHtml()
 			if(fd == "." || fd == "..")
 				;
 			else
-				htmlfile << "\t\t\t<a href='" << req->absoluteURI << fd << "'>" << fd << "</a><br /><br />" << std::endl;
+				htmlfile << "\t\t\t<a href='" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
 		}
 		closedir(dir);
 		htmlfile << "\t\t</body>\n</html>";
@@ -71,8 +71,9 @@ std::string response::getfolder()
 {
 	if(req->absoluteURI.back() != '/')
 	{
-		req->absoluteURI.push_back('/');
-		// status = 301;
+		req->absoluteURI += "/";
+		std::cout << "301 =============>>>>" << req->absoluteURI<< std::endl;
+		status = "301";
 	}
 	if (!config->location[indexLocation].index.empty())
 	{

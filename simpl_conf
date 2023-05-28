@@ -10,54 +10,21 @@ server {
 
     location / {
         methods GET POST;
+        root /Users/;
         autoindex ON;
         methods DELETE GET POST;
         upload /upload;
-        root /Users/mait-aad/Desktop/webserver;
-        try_files $uri $uri/ /index.html;
-        root /Users/mait-aad/Desktop/webserver/;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
-        return /redi;
-    }
-    location /redi {
-        methods GET;
-        autoindex ON;
-        try_files $uri $uri/ /index.html;
-        root /Users/mait-aad/Desktop/;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
-    }
-    location /redi {
-        methods GET;
-        autoindex ON;
-        try_files $uri $uri/ /index.html;
-        root /Users/mait-aad/Desktop/mac-sort/;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
-    }
-    location /upload {
-        autoindex ON;
-        methods POST;
-        upload ON;
-        root /Users/mait-aad/Desktop/webserver/UP;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
-    }
-    location /cgi-bin/ {
-        autoindex ON;
-        methods POST GET;
         cgi_path py;
-        root /Users/mait-aad/Desktop/webserver/;
-        try_files $uri $uri/ /index.html;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
+    }
+    location /yassine {
+        autoindex ON;
+        methods DELETE GET POST;
+        root /Users/mait-aad/Desktop/webserver/cgi;
+        index index.html;
     }
     client_max_body_size 10m;
 }

@@ -1,7 +1,4 @@
 <?php
-
-// print_r($_POST);
-// return;
 session_start();
 
 // Check if the user is already logged in
@@ -14,8 +11,8 @@ if (isset($_SESSION['username'])) {
 // Check if the login form is submitted
 if (isset($_POST['login'])) {
     // Simulate username and password validation
-    $username = 'med';
-    $password = 'med';
+    $username = 'admin';
+    $password = 'password';
 
     $inputUsername = $_POST['username'];
     $inputPassword = $_POST['password'];
@@ -51,7 +48,7 @@ if (isset($_POST['logout'])) {
 <body>
     <?php if (isset($_SESSION['username'])) { ?>
         <h2>Welcome, <?php echo $_SESSION['username']; ?></h2>
-        <form method="POST" action="">
+        <form method="POST" action="/cgi/upload.php">
             <input type="submit" name="logout" value="Logout">
         </form>
     <?php } else { ?>
@@ -59,7 +56,7 @@ if (isset($_POST['logout'])) {
         <?php if (isset($error)) { ?>
             <p><?php echo $error; ?></p>
         <?php } ?>
-        <form method="POST" action="">
+        <form method="POST" action="/cgi/upload.php">
             <label for="username">Username:</label>
             <input type="text" name="username" id="username" required><br>
 
