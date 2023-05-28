@@ -1,35 +1,73 @@
+<?php
+
+// print_r($_POST);
+// return;
+session_start();
+
+// Check if the user is already logged in
+if (isset($_SESSION['username'])) {
+    // Redirect to the login or any other page
+    // header("Location: login.php");
+    // exit();
+}
+
+// Check if the login form is submitted
+if (isset($_POST['login'])) {
+    // Simulate username and password validation
+    $username = 'med';
+    $password = 'med';
+
+    $inputUsername = $_POST['username'];
+    $inputPassword = $_POST['password'];
+
+    if ($inputUsername === $username && $inputPassword === $password) {
+        // Set the session variables
+        $_SESSION['username'] = $username;
+
+        // Redirect to the login or any other page
+        // header("Location: login.php");
+        // exit();
+    } else {
+        // Invalid credentials
+        $error = "Invalid username or password";
+    }
+}
+
+// Check if the logout button is clicked
+if (isset($_POST['logout'])) {
+    // Clear all session data
+    session_unset();
+
+    // Destroy the session
+    session_destroy();
+}
+?>
+
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Personal Information Form</title>
+    <title>Login</title>
 </head>
 <body>
-  <h1>Personal Information Form</h1>
-  <?php
-  if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST["name"];
-    $email = $_POST["email"];
-    $dob = $_POST["dob"];
+    <?php if (isset($_SESSION['username'])) { ?>
+        <h2>Welcome, <?php echo $_SESSION['username']; ?></h2>
+        <form method="POST" action="">
+            <input type="submit" name="logout" value="Logout">
+        </form>
+    <?php } else { ?>
+        <h2>Login</h2>
+        <?php if (isset($error)) { ?>
+            <p><?php echo $error; ?></p>
+        <?php } ?>
+        <form method="POST" action="">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" required><br>
 
-    echo "<h1>Congratulations, $name!</h1>";
-    echo "<p>You have successfully submitted the form.</p>";
-    echo "<p>Name: $name</p>";
-    echo "<p>Email: $email</p>";
-    echo "<p>Date of Birth: $dob</p>";
-  } else {
-      echo '<form action="index.php" method="post">';
-      echo '<label for="name">Name:</label>';
-      echo '<input type="text" id="name" name="name" required>';
-      echo '<br>';
-      echo '<label for="email">Email:</label>';
-      echo '<input type="email" id="email" name="email" required>';
-      echo '<br>';
-      echo '<label for="dob">Date of Birth:</label>';
-      echo '<input type="date" id="dob" name="dob" required>';
-      echo '<br>';
-      echo '<input type="submit" value="Submit">';
-      echo '</form>';
-  }
-  ?>
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" required><br>
+
+            <input type="submit" name="login" value="Login">
+        </form>
+    <?php } ?>
 </body>
 </html>

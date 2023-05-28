@@ -19,6 +19,7 @@ void response::uploadbody()
 	if (req->boundry.empty())
 	{
 		filename += generateRandomString(8);
+		std::cout << "filename: " << filename << " =========================="<< std::endl;
 		std::map<std::string, std::string>::iterator it = req->data.find("Content-Type:");
 		if (it != req->data.end())
 		{
@@ -74,8 +75,8 @@ std::string response::POST()
 		return generateResponse(405);
 	if (!config->location[indexLocation].upload.empty())
 	{
-		req->absoluteURI += config->location[indexLocation].upload;
-		req->absoluteURI = cleanupURI(req->absoluteURI);
+		req->absoluteURI = config->location[indexLocation].root + config->location[indexLocation].upload ;
+		std::cout << "upload: " << req->absoluteURI << " ============================" <<std::endl;
 		if (!req->boundry.empty())
 		{
 			bodyfile.open(req->body);
@@ -116,8 +117,18 @@ std::string response::POST()
 	if (pathtype == "FILE")
 	{
 		std::string extention = getFileExtension();
-		if (config->location[indexLocation].cgi_path == extention)
-			return "CGI";
+		if (config->location[indexLocation].cgi_path == extention){
+			std::string e = req->absoluteURI.substr(req->absoluteURI.find("."), req->absoluteURI.size());
+			if (e == ".py"){
+				std::pair<std::string, std::string> p("Program_Name:", "./cgi/python-cgi");
+				req->data.insert(p);
+			}
+			else if (e == ".php"){
+				std::pair<std::string, std::string> p("Program_Name:","./cgi/php-cgi");
+				req->data.insert(p);
+			}
+        	return exec_outfile(req->client_reqFile, req->data);
+		}
 	}
 	else if (pathtype == "FOLDER")
 	{
@@ -133,7 +144,20 @@ std::string response::POST()
 				{
 					file.close();
 					req->absoluteURI = pathfile;
-					return "CGI";
+					std::string extention = getFileExtension();
+					if (config->location[indexLocation].cgi_path == extention){
+						std::cout << ">>2" << req->absoluteURI << "|\n";
+						std::string e = req->absoluteURI.substr(req->absoluteURI.find("."), req->absoluteURI.size());
+						if (e == ".py"){
+							std::pair<std::string, std::string> p("Program_Name:", "./cgi/python-cgi");
+							req->data.insert(p);
+						}
+						else if (e == ".php"){
+							std::pair<std::string, std::string> p("Program_Name:","./cgi/php-cgi");
+							req->data.insert(p);
+						}
+        				return exec_outfile(req->client_reqFile, req->data);
+					}
 				}
 			}
 		}

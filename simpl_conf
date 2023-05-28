@@ -9,10 +9,8 @@ server {
 
     location / {
         autoindex ON;
-
-        methods DELETE GET;
-        upload upload/;
-        root /Users/mait-aad/Desktop/;
+        methods DELETE GET POST;
+        root /Users/mait-aad/Desktop/webserver;
         try_files $uri $uri/ /index.html;
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;

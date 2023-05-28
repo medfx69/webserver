@@ -136,7 +136,7 @@ void http::TcpServer::save(int fd, int client, int size)
     std::ofstream myfile;
     std::ostringstream ss2;
 
-    ss2 << "/tmp/req_" << clients[client].client_fd;
+    ss2 << "/tmp/body_" << clients[client].client_fd;
     myfile.open(ss2.str(), std::ofstream::app);
     myfile << buffer;
     myfile.close();
@@ -293,8 +293,8 @@ void http::TcpServer::startListen(Parsed *data)
                         delete clients[cl2].req;
                         clients[cl2].req = 0;
                         remove(clients[cl2].client_resFile.c_str());
-                        remove(clients[cl2].client_reqFile.c_str());
-                        remove(clients[cl2].client_body.c_str());
+                        // remove(clients[cl2].client_reqFile.c_str());
+                        // remove(clients[cl2].client_body.c_str());
                         FD_CLR(i, &write_tmp);
                         close(i);
                     }
