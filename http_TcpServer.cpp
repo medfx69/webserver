@@ -27,7 +27,12 @@ http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket
             m_socketAddress_len = sizeof(m_socketAress);
             class_m_socketAddress_len.push_back(m_socketAddress_len);
             class_m_socketAress.push_back(m_socketAress);
-            if (startServer() != 0)
+            m_a_port.push_back(m_port[j]);
+            std::pair<std::string, int> s(_data->getDate()[i].server_name, m_port[j]);
+            server_names.push_back(s);
+            if (chekPort(m_a_port[j], j))
+                m_socket_c.push_back(-1);
+            else if (startServer() != 0)
             {
                 std::ostringstream ss;
                 ss << "Failed to start with PORT:" << ntohs(m_socketAress.sin_port);
@@ -38,6 +43,15 @@ http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket
         m_ip_address.clear();
         indexing.push_back(findexing);
     }
+}
+
+int http::TcpServer::chekPort(int p, size_t i){
+    std::cout << m_a_port[i] << std::endl;
+    for (size_t j = 0; j < m_a_port.size(); j++){
+        if (j != i && m_a_port[j] == p)
+            return 1;
+    }
+    return 0;
 }
 
 http::TcpServer::~TcpServer()
@@ -61,6 +75,7 @@ int http::TcpServer::startServer()
     if (bind(fd, (sockaddr *)&m_socketAress, m_socketAddress_len) < 0)
         exitWithError("Cannot connect socket to address");
     m_socket.push_back(fd);
+    m_socket_c.push_back(fd);
     return 0;
 }
 
@@ -150,6 +165,21 @@ int http::TcpServer::findIndex(int fd)
     return (0);
 }
 
+void http::TcpServer::reindexing(client &c){
+    for (size_t i = 0; i < _data->getDate().size(); i++){
+        if (_data->getDate()[i].server_name.size()){
+            std::map<std::string, std::string >::iterator it = c.req->data.find("Host:");
+            if (it != c.req->data.end())
+            {
+                if ((*it).second == _data->getDate()[i].server_name && m_socket_c[i] == -1)
+                    c.serverIndex = i;
+            }
+        }
+    }
+}
+
+
+
 void http::TcpServer::startListen(Parsed *data)
 {
     int bytesReceived, max_fd, max_fd_tmp, act, max_fd_check;
@@ -158,6 +188,7 @@ void http::TcpServer::startListen(Parsed *data)
 
     FD_ZERO(&read_tmp);
     FD_ZERO(&write_tmp);
+    
     max_fd = listening();
     max_fd_tmp = max_fd;
     while (true)
@@ -176,7 +207,6 @@ void http::TcpServer::startListen(Parsed *data)
                 {
                     int index = findIndex(i);
                     max_fd_check = acceptConnection(i);
-                    std::cout << "fd in:" << max_fd_check << std::endl;
                     size_t cl = 0;
                     for (; cl < clients.size(); cl++)
                     {
@@ -220,8 +250,9 @@ void http::TcpServer::startListen(Parsed *data)
                         {
                             FD_SET(i, &write_tmp);
                             FD_CLR(i, &read_tmp);
-                            std::cout << i << std::endl;
+                            reindexing(clients[cl1]);
                             buildResponse(data, i);
+                            std::cout <<">>>>>>>>>>>>>>>>>>>>>>>>>"<< clients[cl1].serverIndex << std::endl;
                         }
                     }
                     else

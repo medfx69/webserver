@@ -19,7 +19,8 @@ void end_of_headers(request *req, client *cl)
 			std::cout << x.what() << std::endl;
 		}
 	}
-	if (cl->read_len == 0 && cl->chunked == 0){
+	if (cl->read_len == 0 && cl->chunked == 0)
+	{
 		cl->read_status = 1;
 	}
 }
@@ -50,10 +51,12 @@ void request::handle_body(client *cl, std::string s)
 		{
 			std::string st(s.substr(0, s.find("\r\n")));
 			s = s.erase(0, s.find("\r\n") + 2);
-			try{
+			try
+			{
 				cl->read_len = std::stol(st, 0, 16);
 			}
-			catch (std::exception &x){
+			catch (std::exception &x)
+			{
 				std::cerr << x.what() << std::endl;
 			}
 			size_t save = cl->read_len;
@@ -64,22 +67,23 @@ void request::handle_body(client *cl, std::string s)
 					cl->read_status = 1;
 					cl->flag = 2;
 				}
-				return ;
+				return;
 			}
 			if (s.size() < cl->read_len)
 				cl->read_len = s.size();
 			chunk = s.substr(0, cl->read_len);
 			myfile1 << chunk;
 			cl->readed += chunk.size();
-			if (chunk.size() == save){
+			if (chunk.size() == save)
+			{
 				cl->read_len = 0;
 				cl->readed = 0;
-				if (cl->read_len == s.size() || cl->read_len == s.size() -2)
-					return ;
+				if (cl->read_len == s.size() || cl->read_len == s.size() - 2)
+					return;
 				s = s.erase(0, chunk.size() + 2);
 				myfile1.close();
-				if(s.size() == 0)
-					return ;
+				if (s.size() == 0)
+					return;
 				handle_body(cl, s);
 			}
 			else if (save >= cl->readed)
@@ -88,7 +92,7 @@ void request::handle_body(client *cl, std::string s)
 					s.resize(0);
 				cl->read_len = save;
 				myfile1.close();
-				return ;
+				return;
 			}
 		}
 		else if (cl->readed < cl->read_len)
@@ -100,26 +104,37 @@ void request::handle_body(client *cl, std::string s)
 			chunk = s.substr(0, ab);
 			myfile1 << chunk;
 			cl->readed = cl->readed + chunk.size();
-			if (chunk.size() == save){
+			if (chunk.size() == save)
+			{
 				cl->read_len = 0;
 				cl->readed = 0;
 				if (ab == s.size() || ab + 2 == s.size())
-					return ;
+					return;
 				s = s.erase(0, chunk.size() + 2);
 				myfile1.close();
 				handle_body(cl, s);
 			}
-			else if(chunk.size() <= save)
+			else if (chunk.size() <= save)
 			{
 				if (save >= s.size())
 					s.resize(0);
 				myfile1.close();
-				return ;
+				return;
 			}
 		}
 		myfile1.close();
-		return ;
+		return;
 	}
+}
+
+int check_header(const std::string &s)
+{
+	for (size_t i = 0; i < s.length(); i++)
+	{
+		if (!isalpha(s[i]) && s[i] != '-')
+			return 0;
+	}
+	return 1;
 }
 
 request::request(client *cl, std::string s)
@@ -155,7 +170,7 @@ request::request(client *cl, std::string s)
 		}
 		else if (tmp.find(":") != std::string::npos && cl->flag == 0)
 		{
-
+			check_header(tmp.substr(0, tmp.find(":"))); // this for seting is headers valid;
 			std::string tmp2;
 			std::string tmp3;
 			iss >> tmp2;
