@@ -30,8 +30,11 @@ namespace http
     private:
         Parsed *_data;
         std::vector<std::string> m_ip_address;
+        std::vector<std::pair<std::string, int> > server_names;
         std::vector<int> m_port;
+        std::vector<int> m_a_port;
         std::vector<int> m_socket;
+        std::vector<int> m_socket_c;
         std::vector<int> m_new_socket;
         std::vector<client> clients;
         struct sockaddr_in m_socketAress;
@@ -51,6 +54,7 @@ namespace http
         TcpServer(Parsed *data);
         ~TcpServer();
         int listening();
+        int chekPort(int p, size_t i);
         int findIndex(int fd);
         bool isMaster(int fd);
         void save(int fd, int client, int size);
@@ -58,6 +62,7 @@ namespace http
         int acceptConnection(int fd);
         void buildResponse(Parsed *data, int cl);
         int sendResponse(int fd);
+        void reindexing(client &);
     };
 }
 void exitWithError(const std::string &message);
