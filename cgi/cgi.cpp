@@ -97,3 +97,24 @@ std::string    response::exec_outfile(std::string inFile, std::map<std::string, 
     file.close();
     return cnL;
 }
+
+// int main()
+// {
+//     std::map<std::string, std::string> m;
+
+//     std::pair<std::string, std::string> p6("File_Name:","/Users/mait-aad/Desktop/webserver/cgi/index.php");
+//     m.insert(p6);
+//     std::pair<std::string, std::string> p8("Program_Name:","php-cgi");
+//     m.insert(p8);
+//     std::pair<std::string, std::string> p("Content-Length:","");
+//     m.insert(p);
+//     std::pair<std::string, std::string> p1("Content-Type:","");
+//     m.insert(p1);
+//     std::pair<std::string, std::string> p4("Request-Method:","GET");
+//     m.insert(p4);
+//     std::pair<std::string, std::string> p5("Query-String:", "127.0.0.1:8080/s.php");
+//     m.insert(p5);
+//     std::pair<std::string, std::string> p0("Set-Cookie:", "");
+//     m.insert(p0);
+//     exec_outfile("inFile", m);
+// }
