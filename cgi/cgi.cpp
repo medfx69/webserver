@@ -35,7 +35,7 @@ char **setVaribels(std::map<std::string, std::string> reqHeader)
 	s[1] = strdup(const_cast<char *>(s1.c_str()));
 	std::string s2 = "CONTENT_LENGTH=" + (*reqHeader.find("Content-Length:")).second;
 	s[2] = strdup(const_cast<char *>(s2.c_str()));
-	std::string s3 = "QUERY_STRING=" + (*reqHeader.find("Query-String:")).second;
+	std::string s3 = "QUERY_STRING=" + (*reqHeader.find("Query-String:")).second.substr(1, (*reqHeader.find("Query-String:")).second.size());
 	s[3] = strdup(const_cast<char *>(s3.c_str()));
 	std::string s4 = "HTTP_COOKIE=" + (*reqHeader.find("Cookie:")).second;
 	s[4] = strdup(const_cast<char *>(s4.c_str()));
@@ -54,7 +54,7 @@ void exec(std::map<std::string, std::string> reqHeader)
 	char *argv[] = {const_cast<char *>((*reqHeader.find("Program_Name:")).second.c_str()), const_cast<char *>((*reqHeader.find("File_Name:")).second.c_str()), NULL};
 	char **env;
 	env = setVaribels(reqHeader);
-	std::cout << "file name:" << argv[1] << "|" << std::endl;
+	std::cerr << env[3] << std::endl;
 	execve(argv[0], argv, env);
 }
 
@@ -62,7 +62,6 @@ std::string response::exec_outfile(std::string inFile, std::map<std::string, std
 {
 	std::string outFile("/tmp/out_file");
 	std::string outFileStr;
-	std::cout << "infile: " << inFile << std::endl;
 	int in_fd = open(inFile.c_str(), O_WRONLY);
 	int out_fd = open(outFile.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0755);
 
@@ -102,12 +101,10 @@ std::string response::exec_outfile(std::string inFile, std::map<std::string, std
 				std::string cnL("HTTP/1.1 200 Ok\r\nContent-Length: ");
 				std::stringstream ss;
 				ss << (outFileStr.substr(outFileStr.find("\r\n\r\n") + 4, outFileStr.size())).size();
-				std::cout << "here2\n";
 				cnL += ss.str();
 				cnL += "\n";
 				cnL += outFileStr;
 				file.close();
-				std::cout << "[" << cnL + "]" << std::endl;
 				return cnL;
 			}
 		}
