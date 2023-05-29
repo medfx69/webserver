@@ -17,6 +17,7 @@ void	response::uploadbody()
 	if(req->boundry.empty())
 	{
 		filename += generateRandomString(8);
+		std::cout << "filename: " << filename << " =========================="<< std::endl;
 		std::map<std::string, std::string>::iterator it = req->data.find("Content-Type:");
 		if(it != req->data.end())
 		{
