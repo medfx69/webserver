@@ -20,10 +20,10 @@ server {
         try_files $uri $uri/ /index.html;
         cgi_path php;
     }
-    location /ff {
+    location /Desktoppp {
         autoindex ON;
         methods DELETE GET POST;
-        root /Users/omar/Desktop/webserver/cgi;
+        root /Users/omar/Desktop/maroc;
         index index.html;
     }
     client_max_body_size 10m;

@@ -90,6 +90,7 @@ std::string response::getfolder()
 			{
 				file.close();
 				req->absoluteURI = pathfile;
+				status = "200";
 				return getfile();
 			}
 		}

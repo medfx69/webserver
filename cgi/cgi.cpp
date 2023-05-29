@@ -106,7 +106,7 @@ std::string    response::exec_outfile(std::string inFile, std::map<std::string, 
 		}
 	}
 	kill(pid, SIGTERM);
-	return generateResponse(404);
+	return generateResponse(408);
 	
 }
 
