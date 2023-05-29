@@ -3,6 +3,8 @@
 
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <signal.h>
 #include "../parsing/includes.hpp"
 #include "../http_TcpServer.hpp"
 

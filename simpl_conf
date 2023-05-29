@@ -10,7 +10,7 @@ server {
 
     location / {
         methods GET POST;
-        root /Users/;
+        root /Users/mait-aad/Desktop/webserver/;
         autoindex ON;
         methods DELETE GET POST;
         upload /upload;
@@ -18,7 +18,7 @@ server {
         error_page 500 502 503 504 /50x.html;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
-        cgi_path py;
+        cgi_path php;
     }
     location /yassine {
         autoindex ON;

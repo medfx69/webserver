@@ -7,7 +7,7 @@ if (isset($_SESSION['username'])) {
     // header("Location: login.php");
     // exit();
 }
-
+// while(1);
 // Check if the login form is submitted
 if (isset($_POST['login'])) {
     // Simulate username and password validation

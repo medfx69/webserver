@@ -25,7 +25,7 @@ std::string response::createIndexHtml()
 			if(fd == "." || fd == "..")
 				;
 			else
-				htmlfile << "\t\t\t<a href='" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
+				htmlfile << "\t\t\t<a href='" << fd << "/'>" << fd << "</a><br /><br />" << std::endl;
 		}
 		closedir(dir);
 		htmlfile << "\t\t</body>\n</html>";

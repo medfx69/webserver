@@ -294,8 +294,9 @@ void http::TcpServer::startListen(Parsed *data)
                         delete clients[cl2].req;
                         clients[cl2].req = 0;
                         remove(clients[cl2].client_resFile.c_str());
-                        // remove(clients[cl2].client_reqFile.c_str());
-                        // remove(clients[cl2].client_body.c_str());
+                        remove(clients[cl2].client_reqFile.c_str());
+                        remove(clients[cl2].client_body.c_str());
+                        remove("/tmp/out_file");
                         FD_CLR(i, &write_tmp);
                         close(i);
                     }
