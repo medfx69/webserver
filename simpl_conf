@@ -10,7 +10,7 @@ server {
 
     location / {
         methods GET POST;
-        root /Users/abayar/Desktop/test/;
+        root /Users/abayar/;
         autoindex ON;
         methods DELETE GET POST;
         upload /upload;
