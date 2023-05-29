@@ -2,6 +2,7 @@
 
 response::response(request* _req, server _config)
 {
+	indexLocation = -1;
 	this->req = _req;
 	this->config = new server(_config);
 	
@@ -173,14 +174,24 @@ std::string	response::get_date()
 
 std::string response::generateResponseHeader(std::string content_type, std::string content_lenght, int code)
 {
-	std::string header = status_code(code);
+	std::string header;
+	if(status == "301")
+		header = status_code(301);
+	else
+		header = status_code(code);
 	header += "content-type: " + content_type + "\r\n";
 	header += "content-lenght: " + content_lenght + "\r\n";
 	header += "server: nginxa\r\n";
 	header += "cache-control: max-age=3600\r\n";
-	if(indexLocation != -1 && !config->location[indexLocation].redirection.empty())
-		header += "location: " + config->location[indexLocation].redirection + "\r\n";
+	if(indexLocation != -1)
+	{
+		if(!config->location[indexLocation].redirection.empty())
+			header += "location: " + config->location[indexLocation].redirection + "\r\n";
+		else if(status == "301")
+			header += "location: /" + req->absoluteURI.substr(config->location[indexLocation].root.size()) + "\r\n";
+	}
 	header += "date: " + get_date() + "\r\n\r\n";
+	std::cout << "======================header======================\n"<<header;
 	return header;
 }
 
@@ -299,7 +310,7 @@ std::string   response::get_response()
 		return generateResponse(501);
 	else if(req->method == "POST" && it == req->data.end())
 	{
-		std::map<std::string, std::string>::iterator it = req->data.find("content-lenght:");
+		std::map<std::string, std::string>::iterator it = req->data.find("Content-Length:");
 		if(it == req->data.end())
 			return generateResponse(400);
 	}
@@ -357,7 +368,7 @@ std::string	response::status_code(int status_code)
 std::string response::generateStatusPages(int code)
 {
 	std::ifstream file;
-	file.open("/Users/omar/Desktop/webserver/error_pages/" + std::to_string(code) + ".html");
+	file.open("./error_pages/" + std::to_string(code) + ".html");
 	std::ostringstream content;
 	content << file.rdbuf();
 	return content.str();

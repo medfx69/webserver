@@ -22,10 +22,14 @@ std::string response::createIndexHtml()
 		while((entry = readdir(dir)) != NULL)
 		{
 			std::string fd = entry->d_name;
-			if(fd == "." || fd == "..")
-				;
-			else
-				htmlfile << "\t\t\t<a href='" << req->absoluteURI << fd << "'>" << fd << "</a><br /><br />" << std::endl;
+			if(fd != "." && fd != "..")
+			{
+				if (entry->d_type == DT_DIR)
+					htmlfile << "\t\t\t<a href='" << fd << "'/>" << fd << "/</a><br /><br />" << std::endl;
+				else
+					htmlfile << "\t\t\t<a href='" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
+
+			}
 		}
 		closedir(dir);
 		htmlfile << "\t\t</body>\n</html>";
@@ -71,8 +75,8 @@ std::string response::getfolder()
 {
 	if(req->absoluteURI.back() != '/')
 	{
-		req->absoluteURI.push_back('/');
-		// status = 301;
+		req->absoluteURI += "/";
+		status = "301";
 	}
 	if (!config->location[indexLocation].index.empty())
 	{
