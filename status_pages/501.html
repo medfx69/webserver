@@ -14,7 +14,7 @@ body{
   background: -webkit-repeating-linear-gradient(-45deg, #71b7e6, #69a6ce, #b98acc, #ee8176, #b98acc, #69a6ce, #9b59b6);
   background-size: 400%;
 }
-#status-page{
+#error-page{
   position: absolute;
   top: 10%;
   left: 15%;
@@ -26,7 +26,7 @@ body{
   background: #fff;
   box-shadow: 0px 5px 10px rgba(0,0,0,0.1);
 }
-#status-page .content{
+#error-page .content{
   max-width: 600px;
   text-align: center;
 }
@@ -90,17 +90,17 @@ body{
 }
    </style>
       <meta charset="utf-8">
-      <title>201 Error Page</title>
+      <title>501 Status Page</title>
       <!-- <link rel="stylesheet" href="css/style.css"> -->
    </head>
    <body>
-      <div id="status-page">
+      <div id="error-page">
          <div class="content">
-            <h2 class="header" data-text="201">
-               201
+            <h2 class="header" data-text="501">
+               501
             </h2>
-            <h4 data>
-               Ops! Page not found
+            <h4 data-text="Not Implemented">
+               Not Implemented
             </h4>
             
             </div>

@@ -321,10 +321,10 @@ std::string   response::get_response()
 	else if(req->body.size() > config->client_max_body_size)
 		return generateResponse(413);
 	req->absoluteURI = checkURI(req->absoluteURI);
-	std::pair<std::string, std::string>p2("File_Name:", req->absoluteURI.substr(0, req->absoluteURI.size()));
-	req->data.insert(p2);
 	if(matchLocation().empty())
 		return generateResponse(404);
+	std::pair<std::string, std::string>p2("File_Name:", req->absoluteURI.substr(0, req->absoluteURI.size()));
+	req->data.insert(p2);
 	if(!config->location[indexLocation].redirection.empty())
 		return redirection();
 	if(req->method == "GET")
@@ -354,6 +354,8 @@ std::string	response::status_code(int status_code)
 		return "HTTP/1.1 404 Not Found\r\n";
 	else if(status_code == 405)
 		return "HTTP/1.1 405 Method Not Allowed\r\n";
+	else if(status_code == 408)
+		return "HTTP/1.1 408 Request Timeout\r\n";
 	else if(status_code == 409)
 		return "HTTP/1.1 409 Conflict\r\n";
 	else if(status_code == 413)
@@ -368,7 +370,7 @@ std::string	response::status_code(int status_code)
 std::string response::generateStatusPages(int code)
 {
 	std::ifstream file;
-	file.open("./error_pages/" + std::to_string(code) + ".html");
+	file.open("./status_pages/" + std::to_string(code) + ".html");
 	std::ostringstream content;
 	content << file.rdbuf();
 	return content.str();
@@ -391,6 +393,8 @@ std::string	response::generateResponse(int code)
 		body = generateStatusPages(404);
 	else if(code == 405)
 		body = generateStatusPages(405);
+	else if(code == 408)
+		body = generateStatusPages(408);
 	else if(code == 409)
 		body = generateStatusPages(409);
 	else if(code == 413)
