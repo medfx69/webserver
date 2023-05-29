@@ -10,7 +10,7 @@ server {
 
     location / {
         methods GET POST;
-        root /Users/mait-aad/Desktop/webserver/;
+        root /Users/abayar/Desktop/test/;
         autoindex ON;
         methods DELETE GET POST;
         upload /upload;
@@ -23,7 +23,7 @@ server {
     location /yassine {
         autoindex ON;
         methods DELETE GET POST;
-        root /Users/mait-aad/Desktop/webserver/cgi;
+        root /Users/abayar/Desktop/webserver/cgi;
         index index.html;
     }
     client_max_body_size 10m;
