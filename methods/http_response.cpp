@@ -376,33 +376,36 @@ std::string response::generateStatusPages(int code)
 	return content.str();
 }
 
+std::string	response::kk(std::string code)
+{
+	if(indexLocation == -1)
+		return "";
+	std::string path;
+	std::cout << "=======================Error Page=====================\n";
+	for(size_t i = 0; i < config->location[indexLocation].error_page.size() ; i++){
+		for (size_t j = 0; j < config->location[indexLocation].error_page[i].first.size(); j++){
+			std::cout << "========Error " << config->location[indexLocation].error_page[i].first[j] << std::endl;
+			if (config->location[indexLocation].error_page[i].first[j] == code)
+			{
+				path = config->location[indexLocation].root + config->location[indexLocation].error_page[i].second + "/" + code + ".html";
+				path = cleanupURI(path);
+				std::cout << "========ERROR " << path << std::endl;
+				return cleanupURI(path);
+			}
+		}
+	}
+	return "";
+}
 std::string	response::generateResponse(int code)
 {
-	std::string body;
-	if(code == 201)
-		body = generateStatusPages(201);
-	if(code == 204)
-		body = generateStatusPages(204);
-	else if(code == 301)
-		body = generateStatusPages(301);
-	else if(code == 400)
-		body = generateStatusPages(400);
-	else if(code == 403)
-		body = generateStatusPages(403);
-	else if(code == 404)
-		body = generateStatusPages(404);
-	else if(code == 405)
-		body = generateStatusPages(405);
-	else if(code == 408)
-		body = generateStatusPages(408);
-	else if(code == 409)
-		body = generateStatusPages(409);
-	else if(code == 413)
-		body = generateStatusPages(413);
-	else if(code == 414)
-		body = generateStatusPages(414);
-	else if(code == 501)
-		body = generateStatusPages(501);
+	std::string error_page = kk(std::to_string(code));
+	std::ifstream file;
+	file.open(error_page);
+	if(!file)
+		file.open("./status_pages/" + std::to_string(code) + ".html");
+	std::ostringstream content;
+	content << file.rdbuf();
+	std::string body = content.str();
 	return generateResponseHeader("text/html", std::to_string(body.size()), code) + body;
 }
 
