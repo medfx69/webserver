@@ -1,31 +1,39 @@
 server {
     listen 127.0.0.1;
-    listen 127.0.0.1:8084;
-    listen 127.0.0.1:8085;
-    server_name localhost;
-    autoindex ON;
+    listen 127.0.0.1:8081;
+    listen 127.0.0.1:8082;
+    listen 127.0.0.1:8083;
 
-    error_page 404 /404.html;
-    error_page 500 502 503 504 /50x.html;
+    server_name localhost;
+
+    location / {
+        methods GET POST DELETE;
+        root /Users/abayar/;
+        autoindex ON;
+        upload ./upload/;
+        error_page 406 502 503 504 /Desktop/;
+    }
+    location /upload {
+        methods GET POST DELETE;
+        root /Users/abayar/Desktop/;
+        error_page 406 502 503 504 /Desktop/;
+        cgi_path php;
+    }
+    client_max_body_size 44m;
+}
+
+server {
+    listen 127.0.0.1;
+
+    server_name localhost2;
 
     location / {
         methods GET POST;
-        root /Users/mait-aad/Desktop/cc/;
-        autoindex ON;
-        methods DELETE GET POST;
-        upload ./upload/;
-        try_files $uri $uri/ /index.html;
-        error_page 406 502 503 504 /Desktop/;
-        error_page 404 /Desktop/;
-        try_files $uri $uri/ /index.html;
-        try_files $uri $uri/ /index.html;
-        cgi_path php;
-    }
-    location /Desktoppp {
-        autoindex ON;
-        methods DELETE GET POST;
-        root /Users/mait-aad/Desktop/maroc;
+        root /Users/abayar/Desktop/;
         index index.html;
+        upload ./upload/;
+        error_page 406 502 503 504 /Desktop/;
+        cgi_path py;
     }
-    client_max_body_size 1000m;
+    client_max_body_size 43m;
 }

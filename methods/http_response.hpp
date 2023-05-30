@@ -63,7 +63,7 @@ class response
 		std::string checkURI(std::string &URI);
 		void 		replacee(std::string &s, std::string amlo, std::string argan);
 		std::string		cgi__();
-		std::string		kk(std::string);
+		std::string		eP(std::string);
 };
 
 #endif

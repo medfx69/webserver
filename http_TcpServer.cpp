@@ -35,7 +35,9 @@ http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket
                 log(ss.str());
             }
         }
-        m_port.clear();
+        m_port.clear();      
+        m_socket_c_a.push_back(m_socket_c);
+        m_socket_c.clear();
         m_ip_address.clear();
         indexing.push_back(findexing);
     }
@@ -133,10 +135,7 @@ void http::TcpServer::save(int fd, int client, int size)
 {
     (void)fd;
     std::string s(buffer, size);
-    std::ofstream myfile;
-    std::ostringstream ss2;
 
-    clients[client].client_reqFile = ss2.str();
     if (clients[client].flag == 0 && clients[client].read_status == 0){
         clients[client].req = pars_request(&clients[client], s);
     }
@@ -173,15 +172,18 @@ void http::TcpServer::reindexing(client &c)
         if (_data->getDate()[i].server_name.size())
         {
             std::map<std::string, std::string>::iterator it = c.req->data.find("Host:");
-            if (it != c.req->data.end())
-            {
-                if ((*it).second == _data->getDate()[i].server_name && m_socket_c[i] == -1)
-                    c.serverIndex = i;
+            for (size_t j = 0; j < m_socket_c_a[i].size(); j++){
+                if (it != c.req->data.end())
+                {
+                    if ((*it).second == _data->getDate()[i].server_name && m_socket_c_a[i][j] == -1){
+                        c.serverIndex = i;
+                        break ;
+                    }
+                }
             }
         }
     }
 }
-
 void http::TcpServer::startListen(Parsed *data)
 {
     int bytesReceived, max_fd, max_fd_tmp, act, max_fd_check;
@@ -291,10 +293,10 @@ void http::TcpServer::startListen(Parsed *data)
                         clients[cl2].write_len = 0;
                         clients[cl2].write_sened = 0;
                         delete clients[cl2].req;
-                        remove(clients[cl2].client_resFile.c_str());
-                        remove(clients[cl2].client_reqFile.c_str());
-                        remove(clients[cl2].client_body.c_str());
-                        remove("/tmp/out_file");
+                        // remove(clients[cl2].client_resFile.c_str());
+                        // remove(clients[cl2].client_reqFile.c_str());
+                        // remove(clients[cl2].client_body.c_str());
+                        // remove("/tmp/out_file");
                         FD_CLR(i, &write_tmp);
                         close(i);
                     }

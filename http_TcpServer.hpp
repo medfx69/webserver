@@ -35,6 +35,7 @@ namespace http
         std::vector<int> m_a_port;
         std::vector<int> m_socket;
         std::vector<int> m_socket_c;
+        std::vector<std::vector<int> > m_socket_c_a;
         std::vector<int> m_new_socket;
         std::vector<client> clients;
         struct sockaddr_in m_socketAress;

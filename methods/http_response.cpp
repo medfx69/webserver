@@ -323,6 +323,14 @@ std::string response::get_response()
 	req->absoluteURI = checkURI(req->absoluteURI);
 	if(matchLocation().empty())
 		return generateResponse(404);
+	char *realPath;
+    realPath = realpath(req->absoluteURI.c_str(), NULL);
+    if (realPath){
+        std::string check(realPath);
+        if (check.find(config->root) == std::string::npos)
+            return generateResponse(403);
+    }
+	delete realPath;
 	std::pair<std::string, std::string>p2("File_Name:", req->absoluteURI.substr(0, req->absoluteURI.size()));
 	req->data.insert(p2);
 	if(!config->location[indexLocation].redirection.empty())
@@ -333,7 +341,7 @@ std::string response::get_response()
 		return POST();
 	else if (req->method == "DELETE")
 		return DELETE();
-	return generateResponse(404);
+	return generateResponse(405);
 }
 
 std::string response::status_code(int status_code)
@@ -378,7 +386,7 @@ std::string response::generateStatusPages(int code)
 	return content.str();
 }
 
-std::string	response::kk(std::string code)
+std::string	response::eP(std::string code)
 {
 	if(indexLocation == -1)
 		return "";
@@ -388,7 +396,6 @@ std::string	response::kk(std::string code)
 			if (config->location[indexLocation].error_page[i].first[j] == code)
 			{
 				path = config->location[indexLocation].root + config->location[indexLocation].error_page[i].second + "/" + code + ".html";
-				path = cleanupURI(path);
 				return cleanupURI(path);
 			}
 		}
@@ -401,7 +408,7 @@ std::string	response::generateResponse(int code)
 
 	ss2 << code;
 	std::string s = ss2.str();
-	std::string error_page = kk(s);
+	std::string error_page = eP(s);
 	std::ifstream file;
 	file.open(error_page);
 	if(!file){

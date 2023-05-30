@@ -177,8 +177,11 @@ request::request(client *cl, std::string s)
 			if (tmp2 == "Content-Type:" && tmp3 == "multipart/form-data;")
 			{
 				iss >> boundry;
+				tmp3 += " " + boundry;
 				boundry.erase(0, 9);
 			}
+			if (tmp2 == "Cookie:")
+				tmp3 = tmp.substr(8);
 			std::pair<std::string, std::string> pr;
 			pr.first = tmp2;
 			pr.second = tmp3;
@@ -192,6 +195,7 @@ request::request(client *cl, std::string s)
 		cl->flag = 2;
 	if (cl->read_status == 0)
 		this->handle_body(cl, s);
+	myfile1.close();
 }
 
 request::request() {}

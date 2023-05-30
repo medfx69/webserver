@@ -27,6 +27,7 @@ char **setVaribels(std::map<std::string, std::string> reqHeader)
 		std::pair<std::string, std::string> p("Redirect-Status:", "CGI");
 		reqHeader.insert(p);
 	}
+
 	char **s;
 	s = new char *[9];
 	std::string s0 = "CONTENT_TYPE=" + (*reqHeader.find("Content-Type:")).second;
@@ -55,6 +56,7 @@ void    exec(std::map<std::string, std::string> reqHeader){
 	char* argv[] = {const_cast<char *>((*reqHeader.find("Program_Name:")).second.c_str()),const_cast<char *>((*reqHeader.find("File_Name:")).second.c_str()), NULL};
 	char **env;
 	env = setVaribels(reqHeader);
+	std::cerr << env[4] << std::endl;
 	execve(argv[0], argv, env);
 }
 
@@ -62,9 +64,10 @@ std::string response::exec_outfile(std::string inFile, std::map<std::string, std
 {
 	std::string outFile("/tmp/out_file");
 	std::string outFileStr;
-	int in_fd = open(inFile.c_str(), O_WRONLY);
+	int in_fd = open(inFile.c_str(), O_RDONLY);
 	int out_fd = open(outFile.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0755);
 
+	// std::cout << inFile << std::endl;
 	pid_t pid = fork();
 	if (pid == -1)
 		return "";

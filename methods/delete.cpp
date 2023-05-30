@@ -99,5 +99,5 @@ std::string response::DELETE()
 		remove(req->absoluteURI.c_str());
 	else if(type == "FOLDER")
 		fd_remove(req->absoluteURI);
-	return generateResponse(204);
+	return generateResponseHeader("text/html", "0", 204);
 }
