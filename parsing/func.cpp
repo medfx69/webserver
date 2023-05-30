@@ -1,6 +1,6 @@
 #include "func.hpp"
 
-data_reader &data_reader::operator=(data_reader& data)
+data_reader &data_reader::operator=(data_reader &data)
 {
 	block_name = data.block_name;
 	dir = copyy(data.dir);
@@ -10,7 +10,7 @@ data_reader &data_reader::operator=(data_reader& data)
 	// 	// std::cout << ">>>>";
 	// 	std::cout << ">>>>" << data.block[i].block_name << std::endl;
 	// }
-		
+
 	return *this;
 }
 
@@ -50,11 +50,11 @@ data_reader read_server_block(std::ifstream &myFile, std::string block_start)
 	data_reader s;
 	std::string readed;
 
-	s.block_name = block_start.substr(0, block_start.find('}'));// here we can check if syntax is clear
+	s.block_name = block_start.substr(0, block_start.find('}')); // here we can check if syntax is clear
 	while (getline(myFile, readed))
 	{
 		if (readed.find('{') != std::string::npos)
-	 		s.block.push_back(read_block(myFile, readed));
+			s.block.push_back(read_block(myFile, readed));
 		else if (readed.find('}') != std::string::npos)
 			return s;
 		else if (readed.find(';') != std::string::npos)
@@ -100,19 +100,18 @@ std::vector<std::string> parser_helper(std::string s)
 	while (iss >> tmp)
 	{
 		if (tmp.find(';') != std::string::npos)
-				tmp.erase(tmp.find(';'), 1);
+			tmp.erase(tmp.find(';'), 1);
 		ret.push_back(tmp);
 	}
 	return ret;
 }
 
-request *pars_request(int fd, int *status)
+request *pars_request(client *cl, std::string b)
 {
-    std::ostringstream  ss1;
-	request *req;
 
-	ss1 << "/tmp/request_" << fd;
-	req = new request(ss1.str(), status);
+	request *req = NULL;
+
+	req = new request(cl, b);
 	return req;
 }
 
@@ -140,17 +139,24 @@ std::vector<Location> pars_locations(data_reader data)
 			iss2 >> tmp2;
 			if (tmp2.find(';') != std::string::npos)
 				tmp2.erase(tmp2.find(';'), 1);
-
 			if (tmp.compare("try_files") == 0)
 				x.try_files.push_back(parser_helper(*iite2));
 			else if (tmp.compare("client_max_body_size") == 0)
-				x.client_max_body_size = tmp2;
+				x.client_max_body_size = stol(tmp2);
 			else if (tmp.compare("root") == 0)
 				x.root = tmp2;
 			else if (tmp.compare("autoindex") == 0)
 				x.autoindex = tmp2;
+			else if(tmp.compare("index") == 0)
+				x.index = parser_helper(*iite2);
+			else if(tmp.compare("methods") == 0)
+				x.methods = parser_helper(*iite2);
+			else if(tmp.compare("upload") == 0)
+				x.upload = tmp2;
 			else if (tmp.compare("chunked_transfer_encoding") == 0)
 				x.chunked_transfer_encoding = tmp2;
+			else if(tmp.compare("return") == 0)
+				x.redirection = tmp2;
 			else if (tmp.compare("error_page") == 0)
 			{
 				std::pair<std::vector<std::string>, std::string> adder;
@@ -162,6 +168,8 @@ std::vector<Location> pars_locations(data_reader data)
 				adder.second = tmp2;
 				x.error_page.push_back(adder);
 			}
+			else if(tmp.compare("cgi_path") == 0)
+				x.cgi_path = tmp2;
 			else if (!tmp.empty())
 			{
 				std::cerr << "Error: Bad config file.\n";
@@ -178,12 +186,11 @@ std::vector<Location> pars_locations(data_reader data)
 std::vector<server> data_handler(std::vector<data_reader> s)
 {
 	std::vector<server> serv;
-	for(std::vector<data_reader>::iterator it0 = s.begin(); it0 < s.end(); it0++)
+	for (std::vector<data_reader>::iterator it0 = s.begin(); it0 < s.end(); it0++)
 	{
 		std::vector<std::string>::iterator it = (*it0).dir.begin();
-
 		server x;
-
+		x.client_max_body_size = 0;
 		while (it < (*it0).dir.end())
 		{
 			std::istringstream iss(*it);
@@ -199,16 +206,39 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 				x.server_name = tmp2;
 			else if (tmp.compare("listen") == 0)
 			{
+				std::pair<std::string, std::string> x1;
 				tmp = tmp2;
-				x.listen.first = tmp.substr(0, tmp.find(':'));
-				x.listen.second = tmp.substr(tmp.find(':') + 1, tmp.find(';') - tmp.find(':') - 1);
+
+				if (tmp.find(":") != std::string::npos){
+					x1.first = tmp.substr(0, tmp.find(':'));
+					x1.second = tmp.substr(tmp.find(':') + 1, tmp.find(';') - tmp.find(':') - 1);
+					x.listen.push_back(x1);
+				}
+				else if (tmp.find(".") == std::string::npos){
+					x1.first = "127.0.0.1";
+					x1.second = tmp.substr(tmp.find(':') + 1, tmp.find(';') - tmp.find(':') - 1);
+					x.listen.push_back(x1);
+				}
+				else if (tmp.find(".") != std::string::npos){
+					x1.first = tmp.substr(0, tmp.find(':'));
+					x1.second = "8080";
+					x.listen.push_back(x1);
+				}
+				else
+					std::cout << "Error: not a valid host\n";
 			}
 			else if (tmp.compare("root") == 0)
 				x.root = tmp2;
-			else if (tmp.compare("client_max_body_size") == 0)
-				x.client_max_body_size = tmp2;
+			else if (tmp.compare("client_max_body_size") == 0 && x.client_max_body_size == 0)
+			{
+				if (tmp2.find_first_not_of("0123456789mk") == std::string::npos){
+					x.client_max_body_size = stol(tmp2) * ((tmp2[tmp2.size() - 1] == 'k')? 1014:(1014*1014));
+				} 
+			}
 			else if (tmp.compare("autoindex") == 0)
 				x.autoindex = tmp2;
+			else if (tmp.compare("index") == 0)
+				x.index.push_back(tmp2);
 			else if (tmp.compare("chunked_transfer_encoding") == 0)
 				x.chunked_transfer_encoding = tmp2;
 			else if (tmp.compare("methods") == 0)

@@ -1,68 +1,103 @@
-#include "../http_TcpServer.hpp"
-#include "methods.hpp"
+#include "http_response.hpp"
 
-#include <sys/stat.h>
-#include <stdbool.h>
-#include <iostream>
-#include <cstring>
-#include <dirent.h>
-
-void  f_remove(std::string path)
+bool hasWritePermission(const std::string& path)
 {
-  if(remove(path.c_str()))
-    std::cout << "204 No Content status code. " << path << std::endl;
-  else
-    std::cout << path << " deleted" << std::endl;
-}
-
-std::string path_creat(std::string path, std::string join_path)
-{
-  return path += "/" + join_path;
-}
-
-bool folder_exists(std::string folder_path)
-{
-  DIR* dir = opendir(folder_path.c_str());
-  del jj;
-  if (dir != NULL)
-  {
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != NULL)
-    {
-      if (entry->d_type == DT_REG)
-      {
-        jj.filename = path_creat(folder_path, entry->d_name);
-        std::cout << "File found: " << jj.filename << std::endl;
-        f_remove(jj.filename);
-      }
-      else if (entry->d_type == DT_DIR)
-      {
-        std::string fd = entry->d_name;
-        if(fd == "." || fd == "..")
-          std::cout << entry->d_name << std::endl;
-        else
-        {
-          jj.foldername = path_creat(folder_path, entry->d_name);
-          std::cout << "Subdirectory found: " << jj.foldername << std::endl;
-          folder_exists(jj.foldername);
-          f_remove(jj.foldername);
-        } 
-      }
+    struct stat fileInfo;
+    if (stat(path.c_str(), &fileInfo) == 0)
+	{
+        mode_t mode = fileInfo.st_mode;
+        return (mode & S_IWUSR) != 0;
     }
-    closedir(dir);
-    return 1;
-  }
-  else
-      std::cout << "Folder not found or could not be opened" << std::endl;
-  return 0;
+    return false;
 }
 
-int main()
+bool response::checkPermission(std::string path, std::string type)
 {
-  std::string fd = "folder";
-  if(folder_exists(fd))
-    f_remove(fd);
+	if(type == "FOLDER")
+	{
+		del jj;
+		DIR* dir = opendir(path.c_str());
+		if (dir != NULL)
+		{
+			struct dirent* entry;
+			while ((entry = readdir(dir)) != NULL)
+		  	{
+				if (entry->d_type == DT_REG)
+				{
+					jj.filename = path + "/" + entry->d_name;
+					if(!hasWritePermission(jj.filename))
+						return 0;
+				}
+				else if (entry->d_type == DT_DIR)
+				{
+					std::string fd = entry->d_name;
+					if(fd != "." && fd != "..")
+					{
+						jj.foldername = path + "/" + entry->d_name;
+						if(!hasWritePermission(jj.foldername) || !checkPermission(jj.foldername, "FOLDER"))
+							return 0;
+					} 
+				}
+		  	}
+			closedir(dir);
+			return 1;
+		}
+		else
+			return 0;
+	}
+	else if(type == "FILE" && !hasWritePermission(path.c_str()))
+			return 0;
+	return 1;
 }
 
+bool response::fd_remove(std::string path)
+{
+	del jj;
+	DIR* dir = opendir(path.c_str());
+	if (dir != NULL)
+	{
+		struct dirent* entry;
+		while ((entry = readdir(dir)) != NULL)
+	  	{
+			if (entry->d_type == DT_REG)
+			{
+				jj.filename = path + "/" + entry->d_name;
+				remove(jj.filename.c_str());
+			}
+			else if (entry->d_type == DT_DIR)
+			{
+				std::string fd = entry->d_name;
+				if(fd != "." && fd != "..")
+				{
+					jj.foldername = path + "/" + entry->d_name;
+					fd_remove(jj.foldername);
+					remove(jj.foldername.c_str());
+				}
+			}
+	  	}
+		closedir(dir);
+		remove(path.c_str());
+		return 1;
+	}
+	else
+		return 0;
+	return 1;
+}
 
-
+std::string response::DELETE()
+{
+	if(!methode_allowded("DELETE"))
+		return generateResponse(405);
+	std::string type = checkPathType();
+	if(type == "NOT FOUND")
+		return generateResponse(404);
+	else if(type == "FOLDER" && req->absoluteURI.back() != '/')
+		return generateResponse(409);
+	else if(!checkPermission(req->absoluteURI, type))
+		return generateResponse(403);
+	if(type == "FILE")
+		remove(req->absoluteURI.c_str());
+	else if(type == "FOLDER")
+		fd_remove(req->absoluteURI);
+	return generateResponse(204);
+}

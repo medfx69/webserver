@@ -1,23 +1,31 @@
-
 server {
-    listen 127.0.0.1:8081;
+    listen 127.0.0.1;
+    listen 127.0.0.1:8084;
+    listen 127.0.0.1:8085;
     server_name localhost;
+    autoindex ON;
 
-    root /var/www/example.com;
     error_page 404 /404.html;
     error_page 500 502 503 504 /50x.html;
 
-    location /dsfdsf/dsfdsf/dsf {
-        try_files $uri $uri/ /index.html>>>;
-        error_page 500 502 503 504 /50x.html;
-        try_files $uri $uri/ /index.html1>>>;
-        try_files $uri $uri/ /index.html2>>;
+    location / {
+        methods GET POST;
+        root /Users/omar/;
+        autoindex ON;
+        methods DELETE GET POST;
+        upload /upload;
+        try_files $uri $uri/ /index.html;
+        error_page 406 502 503 504 /Desktop/;
+        error_page 404 /Desktop/;
+        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
+        cgi_path php;
     }
-    location2 /ali/mohamed {
-        try_files $uri $uri2/ /index.html;
-        try_files $uri $uri2/ /index.html1;
-        try_files $uri $uri2/ /index.html2;
+    location /Desktoppp {
+        autoindex ON;
+        methods DELETE GET POST;
+        root /Users/omar/Desktop/maroc;
+        index index.html;
     }
     client_max_body_size 10m;
 }
-

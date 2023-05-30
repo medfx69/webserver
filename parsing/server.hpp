@@ -11,10 +11,10 @@ class server
 	public:
 		std::vector<Location> location;
 		std::vector<std::string> methods;
-		std::pair<std::string, std::string> listen;
+		std::vector<std::pair<std::string, std::string> > listen;
 		std::string server_name;
 		std::vector<std::pair<std::vector<std::string>, std::string> > error_page;
-		std::string client_max_body_size;
+		size_t client_max_body_size;
 		std::string root;
 		std::vector<std::string> index;
 		std::vector<std::string> allow;
