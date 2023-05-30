@@ -41,6 +41,7 @@ void request::handle_body(client *cl, std::string s)
 			cl->read_status = 1;
 			cl->flag = 2;
 		}
+		readed = cl->readed;
 	}
 	else
 	{
@@ -117,10 +118,9 @@ void request::handle_body(client *cl, std::string s)
 				return ;
 			}
 		}
-		myfile1.close();
-		readed += cl->readed;
-		return ;
 	}
+	myfile1.close();
+	return ;
 }
 
 int check_header(const std::string &s)
@@ -142,7 +142,7 @@ request::request(client *cl, std::string s)
 
 	int i = 0;
 	ss2 << "/tmp/body_" << cl->client_fd;
-	readed = 0;
+	this->readed = 0;
 	myfile1.open(ss2.str());
 	cl->client_body = ss2.str();
 	if (myfile1.fail())

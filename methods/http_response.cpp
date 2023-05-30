@@ -249,7 +249,10 @@ bool response::methode_allowded(std::string methode)
 
 std::string response::redirection()
 {
-	return generateResponseHeader("text/html", std::to_string(status_code(301).size()), 301) + status_code(301);
+	std::ostringstream ss1;
+
+	ss1 << status_code(301).size();
+	return generateResponseHeader("text/html", ss1.str(), 301) + status_code(301);
 }
 
 void response::replacee(std::string &s, std::string amlo, std::string argan)
@@ -311,7 +314,6 @@ std::string response::get_response()
 		if(it == req->data.end())
 			return generateResponse(400);
 	}
-
 	if (req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
 		return generateResponse(400);
 	else if (req->absoluteURI.size() > 2048)
@@ -368,7 +370,9 @@ std::string response::status_code(int status_code)
 std::string response::generateStatusPages(int code)
 {
 	std::ifstream file;
-	file.open("./status_pages/" + std::to_string(code) + ".html");
+	std::ostringstream ss;
+	ss << code;
+	file.open("./status_pages/" + ss.str() + ".html");
 	std::ostringstream content;
 	content << file.rdbuf();
 	return content.str();
@@ -393,15 +397,24 @@ std::string	response::kk(std::string code)
 }
 std::string	response::generateResponse(int code)
 {
-	std::string error_page = kk(std::to_string(code));
+	std::ostringstream ss2;
+
+	ss2 << code;
+	std::string s = ss2.str();
+	std::string error_page = kk(s);
 	std::ifstream file;
 	file.open(error_page);
-	if(!file)
-		file.open("./status_pages/" + std::to_string(code) + ".html");
+	if(!file){
+		std::ostringstream ss;
+		ss << code;
+		file.open("./status_pages/" + ss.str() + ".html");
+	}
 	std::ostringstream content;
 	content << file.rdbuf();
 	std::string body = content.str();
-	return generateResponseHeader("text/html", std::to_string(body.size()), code) + body;
+	std::ostringstream ss1;
+	ss1 << body.size();
+	return generateResponseHeader("text/html", ss1.str(), code) + body;
 }
 
 response::~response()

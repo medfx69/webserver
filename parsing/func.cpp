@@ -225,7 +225,7 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 			else if (tmp.compare("client_max_body_size") == 0 && x.client_max_body_size == 0)
 			{
 				if (tmp2.find_first_not_of("0123456789mk") == std::string::npos){
-					x.client_max_body_size = stol(tmp2) * ((tmp2[tmp2.size() - 1] == 'k')? 1014:(1014*1014));
+					x.client_max_body_size = stol(tmp2) * ((tmp2[tmp2.size() - 1] == 'k')? 1000:1000000);
 				} 
 			}
 			else if (tmp.compare("autoindex") == 0)

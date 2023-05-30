@@ -35,7 +35,9 @@ char **setVaribels(std::map<std::string, std::string> reqHeader)
 	s[1] = strdup(const_cast<char *>(s1.c_str()));
 	std::string s2 = "CONTENT_LENGTH=" + (*reqHeader.find("Content-Length:")).second;
 	s[2] = strdup(const_cast<char *>(s2.c_str()));
-	std::string s3 = "QUERY_STRING=" + (*reqHeader.find("Query-String:")).second.substr(1, (*reqHeader.find("Query-String:")).second.size());
+	std::string s3;
+	if ((*reqHeader.find("Query-String:")).second.size())
+		s3 = "QUERY_STRING=" + (*reqHeader.find("Query-String:")).second.substr(1, (*reqHeader.find("Query-String:")).second.size());
 	s[3] = strdup(const_cast<char *>(s3.c_str()));
 	std::string s4 = "HTTP_COOKIE=" + (*reqHeader.find("Cookie:")).second;
 	s[4] = strdup(const_cast<char *>(s4.c_str()));

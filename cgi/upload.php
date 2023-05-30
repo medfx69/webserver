@@ -1,5 +1,4 @@
 <?php
-while(1);
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   // Check if file was uploaded
   if (isset($_FILES['upload'])) {

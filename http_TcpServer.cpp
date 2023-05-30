@@ -185,6 +185,7 @@ void http::TcpServer::reindexing(client &c)
 void http::TcpServer::startListen(Parsed *data)
 {
     int bytesReceived, max_fd, max_fd_tmp, act, max_fd_check;
+    struct timeval tv = {120, 0};
     fd_set read_tmp, write_tmp;
     std::ostringstream ss;
 
@@ -198,7 +199,7 @@ void http::TcpServer::startListen(Parsed *data)
         read_tmp = readst;
         write_tmp = writest;
         log("====== Waiting for a new connection ======\n");
-        act = select(max_fd + 1, &readst, &writest, NULL, NULL);
+        act = select(max_fd + 1, &readst, &writest, NULL, &tv);
         if (act < 0)
             exitWithError("--------select error-------");
         for (int i = 0; i < max_fd + 1; i++)
@@ -217,7 +218,6 @@ void http::TcpServer::startListen(Parsed *data)
                             clients[cl].read_status = 0;
                             clients[cl].write_sened = 0;
                             clients[cl].chunked = 0;
-                            clients[cl].req->readed = 0;
                             clients[cl].client_body = "";
                             clients[cl].client_res_message = "";
                             clients[cl].readed = 0;
@@ -291,8 +291,6 @@ void http::TcpServer::startListen(Parsed *data)
                         clients[cl2].write_len = 0;
                         clients[cl2].write_sened = 0;
                         delete clients[cl2].req;
-                        clients[cl2].req->readed = 0;
-                        clients[cl2].req = 0;
                         remove(clients[cl2].client_resFile.c_str());
                         remove(clients[cl2].client_reqFile.c_str());
                         remove(clients[cl2].client_body.c_str());

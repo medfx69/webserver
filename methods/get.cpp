@@ -34,7 +34,9 @@ std::string response::createIndexHtml()
 		closedir(dir);
 		htmlfile << "\t\t</body>\n</html>";
 		content_lenght = htmlfile.str().size();
-		return generateResponseHeader("text/html", std::to_string(status.size()), 200) + htmlfile.str();
+		std::ostringstream ss;
+		ss << status.size();
+		return generateResponseHeader("text/html",	ss.str(), 200) + htmlfile.str();
 	}
 	return generateResponse(404);
 }
@@ -65,7 +67,9 @@ std::string response::getfile()
 	std::ostringstream file_content;
 	file_content << file.rdbuf();
 	file.close();
-	return generateResponseHeader(contentType(), std::to_string(file_content.str().size()), 200) + file_content.str();
+	std::ostringstream ss;
+	ss << file_content.str().size();
+	return generateResponseHeader(contentType(), ss.str(), 200) + file_content.str();
 }
 
 std::string response::getfolder()
