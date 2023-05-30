@@ -311,11 +311,12 @@ std::string response::get_response()
 		if(it == req->data.end())
 			return generateResponse(400);
 	}
+
 	if (req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
 		return generateResponse(400);
 	else if (req->absoluteURI.size() > 2048)
 		return generateResponse(414);
-	else if (req->body.size() > config->client_max_body_size)
+	else if (req->readed > config->client_max_body_size)
 		return generateResponse(413);
 	req->absoluteURI = checkURI(req->absoluteURI);
 	if(matchLocation().empty())

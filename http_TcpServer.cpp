@@ -142,6 +142,8 @@ void http::TcpServer::save(int fd, int client, int size)
     }
     else if (clients[client].flag == 1)
         clients[client].req->handle_body(&clients[client], s);
+    // clients[client].req->readed += clients[client].readed;
+    
 }
 
 bool http::TcpServer::isMaster(int fd)
@@ -215,6 +217,7 @@ void http::TcpServer::startListen(Parsed *data)
                             clients[cl].read_status = 0;
                             clients[cl].write_sened = 0;
                             clients[cl].chunked = 0;
+                            clients[cl].req->readed = 0;
                             clients[cl].client_body = "";
                             clients[cl].client_res_message = "";
                             clients[cl].readed = 0;
@@ -288,6 +291,7 @@ void http::TcpServer::startListen(Parsed *data)
                         clients[cl2].write_len = 0;
                         clients[cl2].write_sened = 0;
                         delete clients[cl2].req;
+                        clients[cl2].req->readed = 0;
                         clients[cl2].req = 0;
                         remove(clients[cl2].client_resFile.c_str());
                         remove(clients[cl2].client_reqFile.c_str());

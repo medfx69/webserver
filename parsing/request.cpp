@@ -70,6 +70,7 @@ void request::handle_body(client *cl, std::string s)
 			myfile1 << chunk;
 			cl->readed += chunk.size();
 			if (chunk.size() == save){
+				readed += cl->readed;
 				cl->read_len = 0;
 				cl->readed = 0;
 				if (cl->read_len == s.size() || cl->read_len == s.size() -2)
@@ -99,6 +100,7 @@ void request::handle_body(client *cl, std::string s)
 			myfile1 << chunk;
 			cl->readed = cl->readed + chunk.size();
 			if (chunk.size() == save){
+				readed += cl->readed;
 				cl->read_len = 0;
 				cl->readed = 0;
 				if (ab == s.size() || ab + 2 == s.size())
@@ -116,6 +118,7 @@ void request::handle_body(client *cl, std::string s)
 			}
 		}
 		myfile1.close();
+		readed += cl->readed;
 		return ;
 	}
 }
@@ -139,6 +142,7 @@ request::request(client *cl, std::string s)
 
 	int i = 0;
 	ss2 << "/tmp/body_" << cl->client_fd;
+	readed = 0;
 	myfile1.open(ss2.str());
 	cl->client_body = ss2.str();
 	if (myfile1.fail())
