@@ -49,12 +49,10 @@ char **setVaribels(std::map<std::string, std::string> reqHeader)
 	return s;
 }
 
-void exec(std::map<std::string, std::string> reqHeader)
-{
-	char *argv[] = {const_cast<char *>((*reqHeader.find("Program_Name:")).second.c_str()), const_cast<char *>((*reqHeader.find("File_Name:")).second.c_str()), NULL};
+void    exec(std::map<std::string, std::string> reqHeader){
+	char* argv[] = {const_cast<char *>((*reqHeader.find("Program_Name:")).second.c_str()),const_cast<char *>((*reqHeader.find("File_Name:")).second.c_str()), NULL};
 	char **env;
 	env = setVaribels(reqHeader);
-	std::cerr << env[3] << std::endl;
 	execve(argv[0], argv, env);
 }
 

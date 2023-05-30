@@ -10,25 +10,21 @@ server {
 
     location / {
         methods GET POST;
-        root /Users/mait-aad/;
+        root /Users/mait-aad/Desktop/cc/;
         autoindex ON;
         methods DELETE GET POST;
+        upload ./upload/;
         try_files $uri $uri/ /index.html;
-        error_page 500 502 503 504 /50x.html;
+        error_page 406 502 503 504 /Desktop/;
+        error_page 404 /Desktop/;
         try_files $uri $uri/ /index.html;
         try_files $uri $uri/ /index.html;
-        cgi_path py php;
+        cgi_path php;
     }
     location /Desktoppp {
-         methods GET POST;
-        root /Users/mait-aad/Desktop/shop-website;
-                index index.html;
-
-    }
-    location /yassine {
         autoindex ON;
         methods DELETE GET POST;
-        root /Users/mait-aad/Desktop/webserver/cgi;
+        root /Users/mait-aad/Desktop/maroc;
         index index.html;
     }
     client_max_body_size 10m;

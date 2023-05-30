@@ -175,7 +175,7 @@ std::string response::get_date()
 std::string response::generateResponseHeader(std::string content_type, std::string content_lenght, int code)
 {
 	std::string header;
-	if (status == "301")
+	if(status == "301")
 		header = status_code(301);
 	else
 		header = status_code(code);
@@ -183,16 +183,14 @@ std::string response::generateResponseHeader(std::string content_type, std::stri
 	header += "content-lenght: " + content_lenght + "\r\n";
 	header += "server: nginxa\r\n";
 	header += "cache-control: max-age=3600\r\n";
-	if (indexLocation != -1)
+	if(indexLocation != -1)
 	{
-		if (!config->location[indexLocation].redirection.empty())
+		if(!config->location[indexLocation].redirection.empty())
 			header += "location: " + config->location[indexLocation].redirection + "\r\n";
-		else if (status == "301")
+		else if(status == "301")
 			header += "location: /" + req->absoluteURI.substr(config->location[indexLocation].root.size()) + "\r\n";
 	}
 	header += "date: " + get_date() + "\r\n\r\n";
-	std::cout << "======================header======================\n"
-			  << header;
 	return header;
 }
 
@@ -236,7 +234,6 @@ std::string response::matchLocation()
 	else
 		req->absoluteURI = config->location[indexLocation].root + req->absoluteURI.substr(location.size());
 	req->absoluteURI = cleanupURI(req->absoluteURI);
-	std::cout << "URI=======================| " << req->absoluteURI << " |==============" << std::endl;
 	return req->absoluteURI;
 }
 
@@ -311,7 +308,7 @@ std::string response::get_response()
 	else if (req->method == "POST" && it == req->data.end())
 	{
 		std::map<std::string, std::string>::iterator it = req->data.find("Content-Length:");
-		if (it == req->data.end())
+		if(it == req->data.end())
 			return generateResponse(400);
 	}
 	if (req->absoluteURI.find_first_not_of("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%") != std::string::npos)
@@ -321,11 +318,11 @@ std::string response::get_response()
 	else if (req->body.size() > config->client_max_body_size)
 		return generateResponse(413);
 	req->absoluteURI = checkURI(req->absoluteURI);
-	if (matchLocation().empty())
+	if(matchLocation().empty())
 		return generateResponse(404);
-	std::pair<std::string, std::string> p2("File_Name:", req->absoluteURI.substr(0, req->absoluteURI.size()));
+	std::pair<std::string, std::string>p2("File_Name:", req->absoluteURI.substr(0, req->absoluteURI.size()));
 	req->data.insert(p2);
-	if (!config->location[indexLocation].redirection.empty())
+	if(!config->location[indexLocation].redirection.empty())
 		return redirection();
 	if (req->method == "GET")
 		return GET();
@@ -354,7 +351,9 @@ std::string response::status_code(int status_code)
 		return "HTTP/1.1 404 Not Found\r\n";
 	else if (status_code == 405)
 		return "HTTP/1.1 405 Method Not Allowed\r\n";
-	else if (status_code == 409)
+	else if(status_code == 408)
+		return "HTTP/1.1 408 Request Timeout\r\n";
+	else if(status_code == 409)
 		return "HTTP/1.1 409 Conflict\r\n";
 	else if (status_code == 413)
 		return "HTTP/1.1 413 Request Entity Too Large\r\n";
@@ -368,37 +367,39 @@ std::string response::status_code(int status_code)
 std::string response::generateStatusPages(int code)
 {
 	std::ifstream file;
-	file.open("./error_pages/" + std::to_string(code) + ".html");
+	file.open("./status_pages/" + std::to_string(code) + ".html");
 	std::ostringstream content;
 	content << file.rdbuf();
 	return content.str();
 }
 
-std::string response::generateResponse(int code)
+std::string	response::kk(std::string code)
 {
-	std::string body;
-	if (code == 201)
-		body = generateStatusPages(201);
-	if (code == 204)
-		body = generateStatusPages(204);
-	else if (code == 301)
-		body = generateStatusPages(301);
-	else if (code == 400)
-		body = generateStatusPages(400);
-	else if (code == 403)
-		body = generateStatusPages(403);
-	else if (code == 404)
-		body = generateStatusPages(404);
-	else if (code == 405)
-		body = generateStatusPages(405);
-	else if (code == 409)
-		body = generateStatusPages(409);
-	else if (code == 413)
-		body = generateStatusPages(413);
-	else if (code == 414)
-		body = generateStatusPages(414);
-	else if (code == 501)
-		body = generateStatusPages(501);
+	if(indexLocation == -1)
+		return "";
+	std::string path;
+	for(size_t i = 0; i < config->location[indexLocation].error_page.size() ; i++){
+		for (size_t j = 0; j < config->location[indexLocation].error_page[i].first.size(); j++){
+			if (config->location[indexLocation].error_page[i].first[j] == code)
+			{
+				path = config->location[indexLocation].root + config->location[indexLocation].error_page[i].second + "/" + code + ".html";
+				path = cleanupURI(path);
+				return cleanupURI(path);
+			}
+		}
+	}
+	return "";
+}
+std::string	response::generateResponse(int code)
+{
+	std::string error_page = kk(std::to_string(code));
+	std::ifstream file;
+	file.open(error_page);
+	if(!file)
+		file.open("./status_pages/" + std::to_string(code) + ".html");
+	std::ostringstream content;
+	content << file.rdbuf();
+	std::string body = content.str();
 	return generateResponseHeader("text/html", std::to_string(body.size()), code) + body;
 }
 

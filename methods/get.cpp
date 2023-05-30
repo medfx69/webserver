@@ -22,10 +22,14 @@ std::string response::createIndexHtml()
 		while ((entry = readdir(dir)) != NULL)
 		{
 			std::string fd = entry->d_name;
-			if (fd == "." || fd == "..")
-				;
-			else
-				htmlfile << "\t\t\t<a href='" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
+			if(fd != "." && fd != "..")
+			{
+				if (entry->d_type == DT_DIR)
+					htmlfile << "\t\t\t<a href='" << fd << "'/>" << fd << "/</a><br /><br />" << std::endl;
+				else
+					htmlfile << "\t\t\t<a href='" << fd << "'>" << fd << "</a><br /><br />" << std::endl;
+
+			}
 		}
 		closedir(dir);
 		htmlfile << "\t\t</body>\n</html>";
@@ -38,10 +42,8 @@ std::string response::createIndexHtml()
 std::string response::getfile()
 {
 	std::string extension = getFileExtension();
-	std::cout << "extension==================== " << extension << std::endl;
 	if (!config->location[indexLocation].cgi_path.empty() && config->location[indexLocation].cgi_path == extension)
 	{
-		std::cout << "extension====================2 " << extension << std::endl;
 		if (extension == "py")
 		{
 			std::pair<std::string, std::string> p("Program_Name:", "./cgi/python-cgi");
@@ -49,7 +51,6 @@ std::string response::getfile()
 		}
 		else if (extension == "php")
 		{
-			std::cout << "php\n";
 			std::pair<std::string, std::string> p("Program_Name:", "./cgi/php-cgi");
 			req->data.insert(p);
 		}
@@ -72,7 +73,6 @@ std::string response::getfolder()
 	if (req->absoluteURI.back() != '/')
 	{
 		req->absoluteURI += "/";
-		std::cout << "301 =============>>>>" << req->absoluteURI << std::endl;
 		status = "301";
 	}
 	if (!config->location[indexLocation].index.empty())
@@ -87,6 +87,7 @@ std::string response::getfolder()
 			{
 				file.close();
 				req->absoluteURI = pathfile;
+				status = "200";
 				return getfile();
 			}
 		}

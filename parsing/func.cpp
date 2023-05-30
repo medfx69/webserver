@@ -4,13 +4,6 @@ data_reader &data_reader::operator=(data_reader &data)
 {
 	block_name = data.block_name;
 	dir = copyy(data.dir);
-	std::cout << "sdffdsfadsfads" << std::endl;
-	// kfor (int i = 0; i < data.block.size(); i++)
-	// {
-	// 	// std::cout << ">>>>";
-	// 	std::cout << ">>>>" << data.block[i].block_name << std::endl;
-	// }
-
 	return *this;
 }
 

@@ -162,7 +162,6 @@ request::request(client *cl, std::string s)
 				absoluteURI = absoluteURI.substr(0, absoluteURI.find("?"));
 			}
 			iss >> http_version;
-			// std::cout << "method : " << method << " abslutURI: " << absoluteURI << " http Version: " << http_version << std::endl;
 		}
 		else if (tmp.find(":") != std::string::npos && cl->flag == 0)
 		{
@@ -180,7 +179,6 @@ request::request(client *cl, std::string s)
 			pr.first = tmp2;
 			pr.second = tmp3;
 			data.insert(pr);
-			// std::cout << pr.first << " : " << pr.second << std::endl;
 		}
 		i++;
 	}

@@ -137,8 +137,9 @@ void http::TcpServer::save(int fd, int client, int size)
     std::ostringstream ss2;
 
     clients[client].client_reqFile = ss2.str();
-    if (clients[client].flag == 0 && clients[client].read_status == 0)
+    if (clients[client].flag == 0 && clients[client].read_status == 0){
         clients[client].req = pars_request(&clients[client], s);
+    }
     else if (clients[client].flag == 1)
         clients[client].req->handle_body(&clients[client], s);
 }
@@ -236,7 +237,6 @@ void http::TcpServer::startListen(Parsed *data)
                     {
                         log("======   message request received   ======\n");
                         buffer[bytesReceived] = 0;
-                        std::cout << buffer << std::endl;
                         size_t cl1 = 0;
                         for (; cl1 <= clients.size(); cl1++)
                         {
@@ -289,10 +289,10 @@ void http::TcpServer::startListen(Parsed *data)
                         clients[cl2].write_sened = 0;
                         delete clients[cl2].req;
                         clients[cl2].req = 0;
-                        // remove(clients[cl2].client_resFile.c_str());
-                        // remove(clients[cl2].client_reqFile.c_str());
-                        // remove(clients[cl2].client_body.c_str());
-                        // remove("/tmp/out_file");
+                        remove(clients[cl2].client_resFile.c_str());
+                        remove(clients[cl2].client_reqFile.c_str());
+                        remove(clients[cl2].client_body.c_str());
+                        remove("/tmp/out_file");
                         FD_CLR(i, &write_tmp);
                         close(i);
                     }
@@ -340,7 +340,6 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
     myfile1.open(ss2.str());
     clients[cl2].client_resFile = ss2.str();
     myfile1 << this->m_serverMessage;
-    std::cout << this->m_serverMessage << std::endl;
     myfile1.close();
     clients[cl2].write_len = this->m_serverMessage.size();
     clients[cl2].write_sened = 0;
