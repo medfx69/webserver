@@ -11,12 +11,5 @@ int main(int ac, char **av)
         http::TcpServer server = http::TcpServer(pr);
         server.startListen(pr);
     }
-    else if (ac == 1){
-        char s[] = "default_conf";
-        Parsed *pr = new Parsed(s);
-        signal(SIGPIPE, SIG_IGN);
-        http::TcpServer server = http::TcpServer(pr);
-        server.startListen(pr);
-    }
     return (0);
 }

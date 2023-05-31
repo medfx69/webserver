@@ -70,11 +70,6 @@ std::vector<data_reader> parec(char *s)
 	std::ifstream myFile(file);
 	std::string readed;
 
-	if (myFile.fail())
-	{
-		std::cerr << "Error: while opening file." << std::endl;
-		exit(0);
-	}
 	while (getline(myFile, readed))
 	{
 		if (readed.find("server {") != std::string::npos)
@@ -84,11 +79,6 @@ std::vector<data_reader> parec(char *s)
 			std::cerr << "Error: Bad config file.\n";
 			exit(1);
 		}
-	}
-	if (ser.empty())
-	{
-		std::cerr << "Error: empty file." << std::endl;
-		exit(0);
 	}
 	return ser;
 }
