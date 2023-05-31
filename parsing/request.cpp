@@ -41,6 +41,7 @@ void request::handle_body(client *cl, std::string s)
 			cl->read_status = 1;
 			cl->flag = 2;
 		}
+		readed = cl->readed;
 	}
 	else
 	{
@@ -70,6 +71,7 @@ void request::handle_body(client *cl, std::string s)
 			myfile1 << chunk;
 			cl->readed += chunk.size();
 			if (chunk.size() == save){
+				readed += cl->readed;
 				cl->read_len = 0;
 				cl->readed = 0;
 				if (cl->read_len == s.size() || cl->read_len == s.size() -2)
@@ -99,6 +101,7 @@ void request::handle_body(client *cl, std::string s)
 			myfile1 << chunk;
 			cl->readed = cl->readed + chunk.size();
 			if (chunk.size() == save){
+				readed += cl->readed;
 				cl->read_len = 0;
 				cl->readed = 0;
 				if (ab == s.size() || ab + 2 == s.size())
@@ -115,9 +118,9 @@ void request::handle_body(client *cl, std::string s)
 				return ;
 			}
 		}
-		myfile1.close();
-		return ;
 	}
+	myfile1.close();
+	return ;
 }
 
 int check_header(const std::string &s)
@@ -139,6 +142,7 @@ request::request(client *cl, std::string s)
 
 	int i = 0;
 	ss2 << "/tmp/body_" << cl->client_fd;
+	this->readed = 0;
 	myfile1.open(ss2.str());
 	cl->client_body = ss2.str();
 	if (myfile1.fail())
@@ -162,7 +166,6 @@ request::request(client *cl, std::string s)
 				absoluteURI = absoluteURI.substr(0, absoluteURI.find("?"));
 			}
 			iss >> http_version;
-			// std::cout << "method : " << method << " abslutURI: " << absoluteURI << " http Version: " << http_version << std::endl;
 		}
 		else if (tmp.find(":") != std::string::npos && cl->flag == 0)
 		{
@@ -174,13 +177,15 @@ request::request(client *cl, std::string s)
 			if (tmp2 == "Content-Type:" && tmp3 == "multipart/form-data;")
 			{
 				iss >> boundry;
+				tmp3 += " " + boundry;
 				boundry.erase(0, 9);
 			}
+			if (tmp2 == "Cookie:")
+				tmp3 = tmp.substr(8);
 			std::pair<std::string, std::string> pr;
 			pr.first = tmp2;
 			pr.second = tmp3;
 			data.insert(pr);
-			// std::cout << pr.first << " : " << pr.second << std::endl;
 		}
 		i++;
 	}
@@ -190,6 +195,7 @@ request::request(client *cl, std::string s)
 		cl->flag = 2;
 	if (cl->read_status == 0)
 		this->handle_body(cl, s);
+	myfile1.close();
 }
 
 request::request() {}

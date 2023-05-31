@@ -35,7 +35,9 @@ http::TcpServer::TcpServer(Parsed *data) : _data(data), m_socket(), m_new_socket
                 log(ss.str());
             }
         }
-        m_port.clear();
+        m_port.clear();      
+        m_socket_c_a.push_back(m_socket_c);
+        m_socket_c.clear();
         m_ip_address.clear();
         indexing.push_back(findexing);
     }
@@ -133,18 +135,14 @@ void http::TcpServer::save(int fd, int client, int size)
 {
     (void)fd;
     std::string s(buffer, size);
-    std::ofstream myfile;
-    std::ostringstream ss2;
 
-    ss2 << "/tmp/body_" << clients[client].client_fd;
-    myfile.open(ss2.str(), std::ofstream::app);
-    myfile << buffer;
-    myfile.close();
-    clients[client].client_reqFile = ss2.str();
-    if (clients[client].flag == 0 && clients[client].read_status == 0)
+    if (clients[client].flag == 0 && clients[client].read_status == 0){
         clients[client].req = pars_request(&clients[client], s);
+    }
     else if (clients[client].flag == 1)
         clients[client].req->handle_body(&clients[client], s);
+    // clients[client].req->readed += clients[client].readed;
+    
 }
 
 bool http::TcpServer::isMaster(int fd)
@@ -174,18 +172,22 @@ void http::TcpServer::reindexing(client &c)
         if (_data->getDate()[i].server_name.size())
         {
             std::map<std::string, std::string>::iterator it = c.req->data.find("Host:");
-            if (it != c.req->data.end())
-            {
-                if ((*it).second == _data->getDate()[i].server_name && m_socket_c[i] == -1)
-                    c.serverIndex = i;
+            for (size_t j = 0; j < m_socket_c_a[i].size(); j++){
+                if (it != c.req->data.end())
+                {
+                    if ((*it).second == _data->getDate()[i].server_name && m_socket_c_a[i][j] == -1){
+                        c.serverIndex = i;
+                        break ;
+                    }
+                }
             }
         }
     }
 }
-
 void http::TcpServer::startListen(Parsed *data)
 {
     int bytesReceived, max_fd, max_fd_tmp, act, max_fd_check;
+    struct timeval tv = {120, 0};
     fd_set read_tmp, write_tmp;
     std::ostringstream ss;
 
@@ -199,7 +201,7 @@ void http::TcpServer::startListen(Parsed *data)
         read_tmp = readst;
         write_tmp = writest;
         log("====== Waiting for a new connection ======\n");
-        act = select(max_fd + 1, &readst, &writest, NULL, NULL);
+        act = select(max_fd + 1, &readst, &writest, NULL, &tv);
         if (act < 0)
             exitWithError("--------select error-------");
         for (int i = 0; i < max_fd + 1; i++)
@@ -240,7 +242,6 @@ void http::TcpServer::startListen(Parsed *data)
                     {
                         log("======   message request received   ======\n");
                         buffer[bytesReceived] = 0;
-                        std::cout << buffer << std::endl;
                         size_t cl1 = 0;
                         for (; cl1 <= clients.size(); cl1++)
                         {
@@ -292,11 +293,10 @@ void http::TcpServer::startListen(Parsed *data)
                         clients[cl2].write_len = 0;
                         clients[cl2].write_sened = 0;
                         delete clients[cl2].req;
-                        clients[cl2].req = 0;
-                        remove(clients[cl2].client_resFile.c_str());
-                        remove(clients[cl2].client_reqFile.c_str());
-                        remove(clients[cl2].client_body.c_str());
-                        remove("/tmp/out_file");
+                        // remove(clients[cl2].client_resFile.c_str());
+                        // remove(clients[cl2].client_reqFile.c_str());
+                        // remove(clients[cl2].client_body.c_str());
+                        // remove("/tmp/out_file");
                         FD_CLR(i, &write_tmp);
                         close(i);
                     }
@@ -335,16 +335,15 @@ void http::TcpServer::buildResponse(Parsed *data, int cl)
             break;
     }
     clients[cl2].req->body = clients[cl2].client_body;
-    clients[cl2].req->client_reqFile = clients[cl2].client_reqFile;
-    std::pair<std::string, std::string>p("Request-Method:",  clients[cl2].req->method);
-     clients[cl2].req->data.insert(p);
+    clients[cl2].req->client_reqFile = clients[cl2].req->body;
+    std::pair<std::string, std::string> p("Request-Method:", clients[cl2].req->method);
+    clients[cl2].req->data.insert(p);
     response res(clients[cl2].req, data->getDate()[clients[cl2].serverIndex]);
     m_serverMessage = res.get_response();
     ss2 << "/tmp/Response_" << clients[cl2].client_fd;
     myfile1.open(ss2.str());
     clients[cl2].client_resFile = ss2.str();
     myfile1 << this->m_serverMessage;
-    std::cout << this->m_serverMessage << std::endl;
     myfile1.close();
     clients[cl2].write_len = this->m_serverMessage.size();
     clients[cl2].write_sened = 0;

@@ -17,7 +17,6 @@ void	response::uploadbody()
 	if(req->boundry.empty())
 	{
 		filename += generateRandomString(8);
-		std::cout << "filename: " << filename << " =========================="<< std::endl;
 		std::map<std::string, std::string>::iterator it = req->data.find("Content-Type:");
 		if(it != req->data.end())
 		{
@@ -43,7 +42,7 @@ void	response::uploadbody()
 					filename += "." + (*this->mimeTypeMap2.find((*it).second)).second;
 			}
 		}
-		else if (it2 != boundray.end())
+		else
         {
 			filename += generateRandomString(8);
 			if (this->mimeTypeMap2.find((*it2).second) != this->mimeTypeMap2.end())
@@ -89,7 +88,6 @@ std::string response::cgi__()
 				req->data.insert(p);
 			}
 			else if (extension == "php"){
-				std::cout << "php\n";
 				std::pair<std::string, std::string> p("Program_Name:","./cgi/php-cgi");
 				req->data.insert(p);
 			}
@@ -114,13 +112,11 @@ std::string response::cgi__()
 					std::string extension = getFileExtension();
 					if(config->location[indexLocation].cgi_path == extension)
    					{
-						std::cout << "extension====================2 " << extension << std::endl;
 						if (extension == "py"){
 							std::pair<std::string, std::string> p("Program_Name:", "./cgi/python-cgi");
 							req->data.insert(p);
 						}
 						else if (extension == "php"){
-							std::cout << "php\n";
 							std::pair<std::string, std::string> p("Program_Name:","./cgi/php-cgi");
 							req->data.insert(p);
 
@@ -146,9 +142,8 @@ std::string response::POST()
 		return c;
 	if(config->location[indexLocation].upload.empty())
 			return generateResponse(404);
-	req->absoluteURI = config->location[indexLocation].root + config->location[indexLocation].upload;
+	req->absoluteURI = config->location[indexLocation].upload;
 	req->absoluteURI = cleanupURI(req->absoluteURI);
-	std::cout << "UPLOAD: " << req->absoluteURI << std::endl;
 	if(!req->boundry.empty())
 	{
 		bodyfile.open(req->body);

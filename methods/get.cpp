@@ -1,11 +1,11 @@
 #include "http_response.hpp"
 
-std::string    response::checkPathType()
+std::string response::checkPathType()
 {
 	struct stat st;
-	if(stat(req->absoluteURI.c_str(), &st) != 0)
+	if (stat(req->absoluteURI.c_str(), &st) != 0)
 		return "NOT FOUND";
-	else if(S_ISDIR(st.st_mode))
+	else if (S_ISDIR(st.st_mode))
 		return "FOLDER";
 	else
 		return "FILE";
@@ -13,13 +13,13 @@ std::string    response::checkPathType()
 
 std::string response::createIndexHtml()
 {
-	DIR* dir = opendir(req->absoluteURI.c_str());
-	if(dir != NULL)
+	DIR *dir = opendir(req->absoluteURI.c_str());
+	if (dir != NULL)
 	{
 		std::ostringstream htmlfile;
 		htmlfile << "<!DOCTYPE html>\n<html lang=\"en\">\n\t\t<body>\n";
-		struct dirent* entry;
-		while((entry = readdir(dir)) != NULL)
+		struct dirent *entry;
+		while ((entry = readdir(dir)) != NULL)
 		{
 			std::string fd = entry->d_name;
 			if(fd != "." && fd != "..")
@@ -34,46 +34,47 @@ std::string response::createIndexHtml()
 		closedir(dir);
 		htmlfile << "\t\t</body>\n</html>";
 		content_lenght = htmlfile.str().size();
-		return generateResponseHeader("text/html", std::to_string(status.size()), 200) + htmlfile.str();
+		std::ostringstream ss;
+		ss << status.size();
+		return generateResponseHeader("text/html",	ss.str(), 200) + htmlfile.str();
 	}
-    return generateResponse(404);
+	return generateResponse(404);
 }
 
 std::string response::getfile()
 {
-    std::string extension = getFileExtension();
-	std::cout << "extension==================== " << extension << std::endl;
-    if(!config->location[indexLocation].cgi_path.empty()
-        && config->location[indexLocation].cgi_path == extension)
-   	{
-		std::cout << "extension====================2 " << extension << std::endl;
-		if (extension == "py"){
+	std::string extension = getFileExtension();
+	if (!config->location[indexLocation].cgi_path.empty() && config->location[indexLocation].cgi_path == extension)
+	{
+		if (extension == "py")
+		{
 			std::pair<std::string, std::string> p("Program_Name:", "./cgi/python-cgi");
 			req->data.insert(p);
 		}
-		else if (extension == "php"){
-			std::cout << "php\n";
-			std::pair<std::string, std::string> p("Program_Name:","./cgi/php-cgi");
+		else if (extension == "php")
+		{
+			std::pair<std::string, std::string> p("Program_Name:", "./cgi/php-cgi");
 			req->data.insert(p);
-
 		}
-        return exec_outfile(req->client_reqFile, req->data);
-    }
+		return exec_outfile(req->client_reqFile, req->data);
+	}
 	std::ifstream file(req->absoluteURI);
 	if (!file.is_open())
-    {
+	{
 		std::cerr << "Failed to open file: " << req->absoluteURI << '\n';
 		return generateResponse(404);
 	}
 	std::ostringstream file_content;
 	file_content << file.rdbuf();
 	file.close();
-	return generateResponseHeader(contentType(), std::to_string(file_content.str().size()), 200) + file_content.str();
+	std::ostringstream ss;
+	ss << file_content.str().size();
+	return generateResponseHeader(contentType(), ss.str(), 200) + file_content.str();
 }
 
 std::string response::getfolder()
 {
-	if(req->absoluteURI.back() != '/')
+	if (req->absoluteURI.back() != '/')
 	{
 		req->absoluteURI += "/";
 		status = "301";
@@ -81,12 +82,12 @@ std::string response::getfolder()
 	if (!config->location[indexLocation].index.empty())
 	{
 		std::string pathfile;
-		for(size_t i = 0; i < config->location[indexLocation].index.size(); i++)
+		for (size_t i = 0; i < config->location[indexLocation].index.size(); i++)
 		{
 			pathfile = req->absoluteURI + config->location[indexLocation].index[i];
-            pathfile = cleanupURI(pathfile);
+			pathfile = cleanupURI(pathfile);
 			std::ifstream file(pathfile);
-			if(file.is_open())
+			if (file.is_open())
 			{
 				file.close();
 				req->absoluteURI = pathfile;
@@ -95,21 +96,21 @@ std::string response::getfolder()
 			}
 		}
 	}
-	else if(config->location[indexLocation].autoindex == "ON")
+	else if (config->location[indexLocation].autoindex == "ON")
 		return createIndexHtml();
-	else if(config->location[indexLocation].autoindex == "OFF" )
+	else if (config->location[indexLocation].autoindex == "OFF")
 		return generateResponse(403);
 	return generateResponse(404);
 }
 
 std::string response::GET()
 {
-	if(!methode_allowded("GET"))
+	if (!methode_allowded("GET"))
 		return generateResponse(405);
 	std::string pathtype = checkPathType();
-	if(pathtype == "FILE")
+	if (pathtype == "FILE")
 		return getfile();
-	else if(pathtype == "FOLDER")
+	else if (pathtype == "FOLDER")
 		return getfolder();
 	return generateResponse(404);
 }

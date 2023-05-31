@@ -1,70 +1,35 @@
 <?php
+$cookie_name = "user";
+$cookie_value = "John Doe";
+setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/"); // 86400 = 1 day
+// Start the session
 session_start();
+?>
+<html>
+<body>
 
-// Check if the user is already logged in
-if (isset($_SESSION['username'])) {
-    // Redirect to the login or any other page
-    // header("Location: login.php");
-    // exit();
+<?php
+if(!isset($_COOKIE[$cookie_name])) {
+  echo "Cookie named '" . $cookie_name . "' is not set!";
+} else {
+  echo "Cookie '" . $cookie_name . "' is set!<br>";
+  echo "Value is: " . $_COOKIE[$cookie_name];
 }
-// while(1);
-// Check if the login form is submitted
-if (isset($_POST['login'])) {
-    // Simulate username and password validation
-    $username = 'admin';
-    $password = 'password';
+echo '<br>';
+echo $_GET["lname"];
 
-    $inputUsername = $_POST['username'];
-    $inputPassword = $_POST['password'];
+echo '<br>';
 
-    if ($inputUsername === $username && $inputPassword === $password) {
-        // Set the session variables
-        $_SESSION['username'] = $username;
-
-        // Redirect to the login or any other page
-        // header("Location: login.php");
-        // exit();
-    } else {
-        // Invalid credentials
-        $error = "Invalid username or password";
-    }
+if(isset($_SESSION["favcolor"] )) {
+  echo "Session named '" . $_SESSION["favcolor"] . "' is not set!";
 }
+// Set session variables
+$_SESSION["favcolor"] = "green";
+$_SESSION["favanimal"] = "cat";
+// echo "Session variables are set.";
 
-// Check if the logout button is clicked
-if (isset($_POST['logout'])) {
-    // Clear all session data
-    session_unset();
 
-    // Destroy the session
-    session_destroy();
-}
 ?>
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
-    <?php if (isset($_SESSION['username'])) { ?>
-        <h2>Welcome, <?php echo $_SESSION['username']; ?></h2>
-        <form method="POST" action="/cgi/upload.php">
-            <input type="submit" name="logout" value="Logout">
-        </form>
-    <?php } else { ?>
-        <h2>Login</h2>
-        <?php if (isset($error)) { ?>
-            <p><?php echo $error; ?></p>
-        <?php } ?>
-        <form method="POST" action="/cgi/upload.php">
-            <label for="username">Username:</label>
-            <input type="text" name="username" id="username" required><br>
-
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" required><br>
-
-            <input type="submit" name="login" value="Login">
-        </form>
-    <?php } ?>
 </body>
 </html>

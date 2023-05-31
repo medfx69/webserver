@@ -38,6 +38,7 @@ public:
     std::string http_version;
     std::string boundry;
     std::string body;
+    size_t      readed;
     std::string client_reqFile;
     std::map<std::string, std::string> data;
     request(client *cl, std::string req);

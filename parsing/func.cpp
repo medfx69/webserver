@@ -4,13 +4,6 @@ data_reader &data_reader::operator=(data_reader &data)
 {
 	block_name = data.block_name;
 	dir = copyy(data.dir);
-	std::cout << "sdffdsfadsfads" << std::endl;
-	// kfor (int i = 0; i < data.block.size(); i++)
-	// {
-	// 	// std::cout << ">>>>";
-	// 	std::cout << ">>>>" << data.block[i].block_name << std::endl;
-	// }
-
 	return *this;
 }
 
@@ -77,6 +70,11 @@ std::vector<data_reader> parec(char *s)
 	std::ifstream myFile(file);
 	std::string readed;
 
+	if (myFile.fail())
+	{
+		std::cerr << "Error: while opening file." << std::endl;
+		exit(0);
+	}
 	while (getline(myFile, readed))
 	{
 		if (readed.find("server {") != std::string::npos)
@@ -86,6 +84,11 @@ std::vector<data_reader> parec(char *s)
 			std::cerr << "Error: Bad config file.\n";
 			exit(1);
 		}
+	}
+	if (ser.empty())
+	{
+		std::cerr << "Error: empty file." << std::endl;
+		exit(0);
 	}
 	return ser;
 }
@@ -232,7 +235,7 @@ std::vector<server> data_handler(std::vector<data_reader> s)
 			else if (tmp.compare("client_max_body_size") == 0 && x.client_max_body_size == 0)
 			{
 				if (tmp2.find_first_not_of("0123456789mk") == std::string::npos){
-					x.client_max_body_size = stol(tmp2) * ((tmp2[tmp2.size() - 1] == 'k')? 1014:(1014*1014));
+					x.client_max_body_size = stol(tmp2) * ((tmp2[tmp2.size() - 1] == 'k')? 1000:1000000);
 				} 
 			}
 			else if (tmp.compare("autoindex") == 0)
